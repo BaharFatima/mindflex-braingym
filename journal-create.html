@@ -9,7 +9,16 @@
 
 <style>
 /* SAME STYLING AS ORIGINAL FILE --------------------------------------------------- */
-
+.back-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      font-size: 1.6rem;
+      cursor: pointer;
+      color: #003366;
+      font-weight: bold;
+      text-decoration: none;
+    }
 :root{
   --bg1: #d8eaff;
   --bg2: #a6ccff;
@@ -128,8 +137,9 @@ main{
 <!-- HEADER -->
 <header class="app-header">
   <div class="left">
-    <button onclick="window.location.href='journal.html'" style="background:none;border:none;font-size:18px;cursor:pointer">
-      <i class="fas fa-arrow-left"></i>
+     <div class="left-header">
+        <a href="journal.html" class="back-btn">←</a>
+        </div>
     </button>
   </div>
   <div class="center">New Entry</div>
