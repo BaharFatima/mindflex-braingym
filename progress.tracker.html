@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Progress Card — Interactive Mock</title>
+<style>
+  :root{
+    --bg:#f7fbff;
+    --card:#ffffff;
+    --muted:#7b8aa3;
+    --accent:#9fd3ff;
+    --dark:#1f2b48;
+    --pill:#e8f4ff;
+  }
+html, body {
+width: 320px;
+height: 640px;
+margin: 0 auto;
+overflow:hidden;
+}
+  body{font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:linear-gradient(180deg,var(--bg),#ffffff); margin:24px; display:flex; justify-content:center;}
+  .card{
+    width:360px; border-radius:20px; background:var(--card); box-shadow:0 18px 30px rgba(28,62,120,0.06), inset 0 1px 0 rgba(255,255,255,0.6); padding:28px; color:var(--dark);
+  }
+  h1{font-size:32px; margin:0 0 22px; text-align:center; font-weight:700; letter-spacing:-0.02em;}
+  
+  /* Improved bar graph styles */
+  .chart-container {
+    margin: 16px 0 24px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(31, 43, 72, 0.05);
+  }
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .chart-title {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--dark);
+  }
+  .chart-legend {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-right: 4px;
+  }
+  .bars{display:flex; gap:18px; justify-content:center; height:120px; align-items:flex-end; position:relative;}
+  .bar-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+  }
+  .bar{
+    width:42px; 
+    border-radius:12px; 
+    background:linear-gradient(180deg,#cfeeff,#bfe7ff); 
+    transition: all 0.3s ease;
+    position: relative;
+    cursor: pointer;
+    box-shadow:0 6px 10px rgba(20,80,140,0.04) inset;
+  }
+  .bar:hover {
+    transform: translateY(-5px);
+    box-shadow:0 6px 12px rgba(20,80,140,0.15);
+  }
+  .bar-value {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--dark);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    white-space: nowrap;
+  }
+  .bar:hover .bar-value {
+    opacity: 1;
+  }
+  .bar-value::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: var(--dark);
+  }
+  .bar-label {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .chart-animation {
+    animation: growBar 0.8s ease-out forwards;
+  }
+  @keyframes growBar {
+    from {
+      height: 0;
+    }
+  }
+  .back-btn {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: #1565C0;
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  .back-btn:hover { background: #0D47A1; }
+  
+  .status{display:flex; flex-direction:column; gap:12px; margin-top:10px;}
+  .streak-row{display:flex; align-items:center; gap:10px; font-size:18px; font-weight:600; color:var(--dark);}
+  .flame-wrap{display:inline-flex; align-items:center;}
+  /* flame animation */
+  .flame{width:22px;height:22px; display:inline-block; transform-origin:center; animation:flamePulse 1.6s ease-in-out infinite;}
+  @keyframes flamePulse{
+    0%{transform: translateY(0) scale(1);}
+    50%{transform: translateY(-2px) scale(1.06);}
+    100%{transform: translateY(0) scale(1);}
+  }
+  /* cute pills for achievements */
+  .achievements{margin-top:6px;}
+  .pills{display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;}
+  .pill{
+    background:var(--pill); padding:10px 14px; border-radius:999px; font-weight:600; color:var(--dark); display:inline-flex; align-items:center; gap:8px; cursor:pointer; transition:transform .18s cubic-bezier(.2,.9,.2,1);
+  }
+  .pill:hover{transform: translateY(-4px) scale(1.02)}
+  .pill .star{width:14px;height:14px; display:inline-block;}
+  /* subtle confetti burst (JS triggers class) */
+  .confetti{
+    position:relative;
+  }
+  .confetti .burst{position:absolute; left:50%; top:0; transform:translate(-50%,-30%); pointer-events:none;}
+  .burst > div{width:6px;height:6px;border-radius:2px; opacity:0; position:absolute;}
+  /* See more link */
+  .see-more{display:block; margin-top:18px; font-size:18px; color:var(--dark); font-weight:700; text-decoration:none;}
+  /* modal */
+  .modal-backdrop{position:fixed; inset:0; background:rgba(10,20,40,0.35); display:flex; align-items:center; justify-content:center; z-index:50; opacity:0; pointer-events:none; transition:opacity .18s;}
+  .modal-backdrop.show{opacity:1; pointer-events:auto;}
+  .modal{width:92%; max-width:620px; background:white; padding:20px; border-radius:14px; box-shadow:0 18px 40px rgba(14,28,60,.2); transform:translateY(10px); transition:transform .18s;}
+  .modal-header{display:flex; justify-content:space-between; align-items:center; gap:12px}
+  .modal h2{margin:0; font-size:20px}
+  .close-btn{background:transparent;border:0;font-size:18px; cursor:pointer}
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px;}
+  .mini-chart{background:linear-gradient(180deg,#f7fbff,#fff); border-radius:10px; padding:12px; display:flex; align-items:flex-end; gap:8px; height:120px;}
+  .mini-chart .col{width:18%; background:linear-gradient(180deg,#9fd3ff,#d9f0ff); border-radius:6px 6px 6px 6px;}
+  .history{background:#fbfcff; border-radius:10px; padding:12px; height:120px; overflow:auto; font-size:14px;}
+  .actions{display:flex; gap:8px; margin-top:12px}
+  .btn{padding:8px 12px; border-radius:8px; border:0; cursor:pointer; font-weight:700}
+  .btn.primary{background:var(--dark); color:white}
+  .btn.ghost{background:transparent; border:1px solid #e8f0ff; color:var(--dark)}
+  /* small helper */
+  small.muted{color:var(--muted); display:block; margin-top:4px; font-weight:500}
+</style>
+</head>
+<body>
+<button class="back-btn" onclick="window.location.href='main.html'">←</button>
+  <div class="card" role="region" aria-label="Progress card">
+    <h1>Progress</h1>
+
+    <!-- Improved bar graph -->
+    <div class="chart-container">
+      <div class="chart-header">
+        <div class="chart-title">Weekly Progress</div>
+        <div class="chart-legend">
+          <div class="legend-dot"></div>
+          <span>Minutes of activity</span>
+        </div>
+      </div>
+      <div class="bars" id="mainChart" aria-hidden="true">
+        <!-- Chart bars will be generated by JavaScript -->
+      </div>
+    </div>
+
+    <div class="status">
+      <div style="text-align:center; font-weight:600; color:#234">You're improving consistently ✨</div>
+
+      <div class="streak-row">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="color:var(--muted); font-weight:600;">Streak</span>
+          <span style="font-size:18px; color:var(--dark); margin-left:6px;">5 Days</span>
+        </div>
+
+        <!-- flame icon (animated SVG) -->
+        <div class="flame-wrap" title="Hot streak!">
+          <svg class="flame" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="g1" x1="0" x2="1">
+                <stop offset="0" stop-color="#ffd67a"/>
+                <stop offset="1" stop-color="#ff9f6b"/>
+              </linearGradient>
+            </defs>
+            <path d="M32 60c8-10 12-17 12-25 0-8-6-14-12-18-6 4-12 10-12 18 0 7 4 15 12 25z" fill="url(#g1)" opacity="0.95"/>
+            <path d="M32 40c3-4 6-6 6-10s-3-6-6-8c-3 2-6 5-6 8s3 6 6 10z" fill="#fff6d8" opacity="0.55"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="achievements">
+        <div style="color:var(--muted); font-weight:700; margin-top:6px;">Achievements</div>
+
+        <div class="pills" id="pills">
+          <div class="pill confetti" data-name="Calm Day">
+            <svg class="star" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l2.6 5.9L21 9.2l-4.9 4.1L17.2 21 12 17.8 6.8 21l1.1-7.7L3 9.2l6.4-1.3L12 2z" fill="#ffd36a"/></svg>
+            Calm Day
+            <div class="burst" aria-hidden="true"></div>
+          </div>
+
+          <div class="pill confetti" data-name="Focused Breath">
+            <svg class="star" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l2.6 5.9L21 9.2l-4.9 4.1L17.2 21 12 17.8 6.8 21l1.1-7.7L3 9.2l6.4-1.3L12 2z" fill="#ffd36a"/></svg>
+            Focused Breath
+            <div class="burst" aria-hidden="true"></div>
+          </div>
+
+          <div class="pill confetti" data-name="No-Stress Hour">
+            <svg class="star" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l2.6 5.9L21 9.2l-4.9 4.1L17.2 21 12 17.8 6.8 21l1.1-7.7L3 9.2l6.4-1.3L12 2z" fill="#ffd36a"/></svg>
+            No-Stress Hour
+            <div class="burst" aria-hidden="true"></div>
+          </div>
+        </div>
+        <small class="muted">Tap a badge to celebrate — unlocks show a tiny confetti burst.</small>
+      </div>
+
+      <a class="see-more" id="seeMoreBtn" href="#" role="button" aria-haspopup="dialog">See More →</a>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" id="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h2>Progress details</h2>
+        <button class="close-btn" id="closeModal" aria-label="Close">✕</button>
+      </div>
+
+      <div class="grid" style="margin-top:10px;">
+        <div>
+          <div style="font-weight:700; margin-bottom:8px;">Weekly overview</div>
+          <div class="mini-chart" id="miniChart" aria-hidden="true">
+            <!-- columns created by JS -->
+          </div>
+          <small class="muted">Shows last 7 days (left = oldest)</small>
+        </div>
+
+        <div>
+          <div style="font-weight:700; margin-bottom:8px;">Streak history</div>
+          <div class="history" id="historyList">
+            <!-- JS fills -->
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <div style="font-weight:700;">Achievements</div>
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <div class="pill">Calm Day <small style="margin-left:8px;color:var(--muted);font-weight:600">Unlocked 2d ago</small></div>
+          <div class="pill">Focused Breath <small style="margin-left:8px;color:var(--muted);font-weight:600">Unlocked 4d ago</small></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="shareBtn">Share</button>
+        <button class="btn ghost" id="exportBtn">Export CSV</button>
+        <div style="flex:1"></div>
+        <button class="btn ghost" id="closeFooter">Close</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // simple mock data
+  const weekly = [3,5,4,6,7,8,9]; // 7 days progress numbers
+  const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const history = [
+    {date:'2025-11-01', detail:'3-day streak'},
+    {date:'2025-11-03', detail:'5-day streak'},
+    {date:'2025-11-06', detail:'Streak extended to 5 days'},
+  ];
+
+  // Function to create the main chart
+  function createMainChart() {
+    const chart = document.getElementById('mainChart');
+    chart.innerHTML = ''; // Clear existing content
+    
+    // Create 4 bars with fixed heights to match the image
+    const barHeights = [50, 72, 90, 120]; // Heights in pixels
+    const barValues = [25, 40, 65, 90]; // Values for tooltips
+    
+    barHeights.forEach((height, index) => {
+      const barWrapper = document.createElement('div');
+      barWrapper.className = 'bar-wrapper';
+      
+      const bar = document.createElement('div');
+      bar.className = 'bar chart-animation';
+      
+      // Set fixed height for each bar
+      bar.style.height = `${height}px`;
+      
+      // Add value tooltip
+      const barValue = document.createElement('div');
+      barValue.className = 'bar-value';
+      barValue.textContent = `${barValues[index]} min`;
+      bar.appendChild(barValue);
+      
+      barWrapper.appendChild(bar);
+      chart.appendChild(barWrapper);
+      
+      // Stagger animation for each bar
+      setTimeout(() => {
+        bar.style.animationDelay = `${index * 0.1}s`;
+      }, 10);
+    });
+  }
+
+  // build mini chart as columns
+  const miniChart = document.getElementById('miniChart');
+  weekly.forEach(v=>{
+    const col = document.createElement('div');
+    col.className = 'col';
+    // scale to 100px height
+    col.style.height = Math.max(8, Math.round((v / Math.max(...weekly)) * 100)) + 'px';
+    miniChart.appendChild(col);
+  });
+
+  // fill history
+  const historyList = document.getElementById('historyList');
+  history.forEach(h=>{
+    const row = document.createElement('div');
+    row.style.paddingBottom='8px';
+    row.innerHTML = '<strong style="display:block">'+h.detail+'</strong><small class="muted">'+h.date+'</small>';
+    historyList.appendChild(row);
+  });
+
+  // modal open/close
+  const modal = document.getElementById('modal');
+  const seeMore = document.getElementById('seeMoreBtn');
+  const closeModal = document.getElementById('closeModal');
+  const closeFooter = document.getElementById('closeFooter');
+
+  function openModal(){
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden','false');
+  }
+  function hideModal(){
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden','true');
+  }
+  seeMore.addEventListener('click', e => { e.preventDefault(); openModal(); });
+  closeModal.addEventListener('click', hideModal);
+  closeFooter.addEventListener('click', hideModal);
+  modal.addEventListener('click', (e)=>{ if(e.target === modal) hideModal(); });
+
+  // achievement confetti burst function
+  function createBurst(el){
+    const burst = el.querySelector('.burst');
+    burst.innerHTML = ''; // clear
+    const colors = ['#ffd36a','#ff9f6b','#9fe3ff','#b6ffd6'];
+    for(let i=0;i<8;i++){
+      const p = document.createElement('div');
+      p.style.background = colors[i%colors.length];
+      p.style.left = (Math.random()*80 - 40) + 'px';
+      p.style.top = (Math.random()*-20) + 'px';
+      p.style.transform = 'translateY(0) scale(0.2) rotate('+(Math.random()*360)+'deg)';
+      burst.appendChild(p);
+      // animate with short timeout
+      setTimeout(()=> {
+        p.style.transition = 'transform .5s ease-out, opacity .5s';
+        p.style.transform = 'translateY('+(80 + Math.random()*40)+'px) scale(1) rotate('+(Math.random()*360)+'deg)';
+        p.style.opacity = '1';
+      }, 30 + i*30);
+    }
+    // fade out after
+    setTimeout(()=>{ burst.innerHTML=''; }, 900);
+  }
+
+  // attach click to pills
+  document.querySelectorAll('.pill').forEach(p=>{
+    p.addEventListener('click', ()=>{
+      // small bounce
+      p.style.transform = 'scale(1.06)';
+      setTimeout(()=> p.style.transform = '', 160);
+      createBurst(p);
+    });
+  });
+
+  // small accessibility: pressing Escape closes the modal
+  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') hideModal(); });
+
+  // dummy share/export handlers
+  document.getElementById('shareBtn').addEventListener('click', ()=> alert('Share sheet (placeholder)'));
+  document.getElementById('exportBtn').addEventListener('click', ()=> {
+    const csv = 'date,streak\\n2025-11-01,3\\n2025-11-03,5';
+    const blob = new Blob([csv], {type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'progress.csv'; a.click();
+    URL.revokeObjectURL(url);
+  });
+  
+  // Initialize the main chart when the page loads
+  window.addEventListener('load', createMainChart);
+</script>
+</body>
+</html>

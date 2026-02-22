@@ -1,0 +1,1064 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emotion Trainer | MindFlex</title>
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#E5E7EB;
+  font-family:'Poppins',sans-serif;
+}
+
+/* APP CONTAINER */
+.app{
+  width:320px;
+  height:620px;
+  border-radius:30px;
+  background:linear-gradient(180deg,#BBDEFB 0%, #E3F2FD 100%);
+  box-shadow:0 25px 60px rgba(0,0,0,0.25);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  position:relative;
+  padding:18px;
+  box-sizing:border-box;
+}
+
+/* Decorative Transparent Circles */
+.app::before{
+  content:"";
+  position:absolute;
+  width:200px;
+  height:200px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.25);
+  top:-70px;
+  right:-60px;
+  z-index:0;
+}
+
+.app::after{
+  content:"";
+  position:absolute;
+  width:170px;
+  height:170px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.18);
+  bottom:-60px;
+  left:-50px;
+  z-index:0;
+}
+
+/* HEADER */
+header{
+  height:60px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  z-index:2;
+  font-weight:600;
+  font-size:18px;
+  color:#0D47A1;
+}
+
+/* Glass Back Button */
+.back-btn{
+  position:absolute;
+  left:5px;
+  width:40px;
+  height:40px;
+  border-radius:14px;
+  background:rgba(255,255,255,0.7);
+  backdrop-filter:blur(10px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  text-decoration:none;
+  color:#1565C0;
+  box-shadow:0 8px 18px rgba(0,0,0,0.15);
+  transition:.2s;
+}
+
+.back-btn:hover{
+  transform:scale(1.05);
+  background:rgba(255,255,255,0.9);
+}
+
+/* GLASS CARD */
+.main{
+  flex:1;
+  background:rgba(255,255,255,0.65);
+  backdrop-filter:blur(14px);
+  border-radius:26px;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  z-index:1;
+  box-shadow:0 15px 35px rgba(0,0,0,0.15);
+}
+
+/* LEVEL */
+.level{
+  text-align:center;
+  font-weight:700;
+  margin-bottom:10px;
+  color:#0D47A1;
+}
+
+/* SITUATION CARD */
+.situation{
+  background:rgba(255,255,255,0.9);
+  padding:16px;
+  border-radius:18px;
+  font-size:13px;
+  margin-bottom:14px;
+  min-height:95px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.1);
+}
+
+/* OPTIONS */
+.options{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+/* Option Button */
+.option-btn{
+  background:rgba(255,255,255,0.85);
+  border:none;
+  border-radius:16px;
+  padding:12px;
+  font-size:13px;
+  cursor:pointer;
+  text-align:left;
+  box-shadow:0 8px 18px rgba(0,0,0,0.12);
+  transition:.2s;
+}
+
+.option-btn:hover{
+  transform:scale(1.02);
+  background:#E3F2FD;
+}
+
+/* Correct / Wrong */
+.correct{
+  background:#C8E6C9 !important;
+}
+
+.wrong{
+  background:#FFCDD2 !important;
+}
+
+/* Explanation */
+.explanation{
+  margin-top:14px;
+  font-size:12px;
+  color:#1a237e;
+  min-height:40px;
+}
+
+/* NEXT BUTTON */
+.next-btn{
+  margin-top:auto;
+  background:#1565C0;
+  color:white;
+  border:none;
+  border-radius:20px;
+  padding:12px;
+  font-size:14px;
+  cursor:pointer;
+  box-shadow:0 8px 20px rgba(21,101,192,0.4);
+  display:none;
+  transition:.2s;
+}
+
+.next-btn:hover{
+  transform:scale(1.05);
+  background:#0D47A1;
+}
+
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<header>
+  <a href="../focuslab.html" class="back-btn">←</a>
+  Emotion Trainer
+</header>
+
+<div class="main">
+
+<div class="level" id="levelText">Level 1</div>
+
+<div class="situation" id="situationBox"></div>
+
+<div class="options" id="optionsBox"></div>
+
+<div class="explanation" id="explanationBox"></div>
+
+<button class="next-btn" id="nextBtn">Next</button>
+
+</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* 🔥 YOUR FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* DEVICE ID */
+function getDeviceId(){
+  let id = localStorage.getItem("mindflex_device");
+  if(!id){
+    id = crypto.randomUUID();
+    localStorage.setItem("mindflex_device", id);
+  }
+  return id;
+}
+const deviceId = getDeviceId();
+
+/* SAMPLE LEVELS */
+const levels = [
+
+/* ======================
+   TIER 1 — AWARENESS (1–20)
+====================== */
+
+{
+situation:"Your friend replies with only 'ok'.",
+options:[
+"They’re annoyed with me.",
+"They might just be busy.",
+"I should confront them immediately.",
+"I’ll ignore them."
+],
+correctIndex:1,
+explanation:"Short replies don’t automatically mean negative intent. Avoid mind-reading."
+},
+
+{
+situation:"You make a small typo in a message.",
+options:[
+"I embarrassed myself badly.",
+"It’s a small mistake. Move on.",
+"They’ll judge me forever.",
+"I should apologize excessively."
+],
+correctIndex:1,
+explanation:"Minor errors are rarely noticed. Catastrophizing increases anxiety."
+},
+
+{
+situation:"Someone doesn’t smile back at you.",
+options:[
+"They dislike me.",
+"They may be distracted.",
+"I must have done something wrong.",
+"I’ll avoid them now."
+],
+correctIndex:1,
+explanation:"Assuming hostility without evidence creates emotional stress."
+},
+
+{
+situation:"You feel nervous before meeting new people.",
+options:[
+"I shouldn’t feel this way.",
+"Nervousness is normal.",
+"I’ll cancel.",
+"I’ll stay silent."
+],
+correctIndex:1,
+explanation:"Normalizing emotion reduces intensity."
+},
+
+{
+situation:"You forgot something important.",
+options:[
+"I am irresponsible.",
+"I can fix it and learn.",
+"I ruin everything.",
+"I’ll blame someone else."
+],
+correctIndex:1,
+explanation:"Accountability builds growth."
+},
+
+{
+situation:"You compare yourself to someone successful.",
+options:[
+"I’ll never reach that level.",
+"I can learn from them.",
+"I’m behind in life.",
+"I should quit."
+],
+correctIndex:1,
+explanation:"Comparison can inspire instead of diminish."
+},
+
+{
+situation:"You feel tired and irritable.",
+options:[
+"Everyone is annoying.",
+"I probably need rest.",
+"I’ll argue.",
+"I’ll suppress it."
+],
+correctIndex:1,
+explanation:"Physical states influence emotional reactions."
+},
+
+{
+situation:"You get constructive feedback.",
+options:[
+"They think I’m incompetent.",
+"This helps me improve.",
+"I’ll avoid them.",
+"I’ll defend myself."
+],
+correctIndex:1,
+explanation:"Feedback is growth fuel."
+},
+
+{
+situation:"Someone doesn’t invite you somewhere.",
+options:[
+"They don’t value me.",
+"I can check calmly.",
+"I’ll assume rejection.",
+"I’ll end friendship."
+],
+correctIndex:1,
+explanation:"Clarify before reacting."
+},
+
+{
+situation:"You failed once.",
+options:[
+"I am useless.",
+"I can adjust strategy.",
+"I should quit.",
+"I’m doomed."
+],
+correctIndex:1,
+explanation:"Failure is data, not identity."
+},
+
+{
+situation:"A message is left on read.",
+options:[
+"They hate me.",
+"They may be busy.",
+"I’ll block them.",
+"I’ll overthink."
+],
+correctIndex:1,
+explanation:"Mind-reading creates stress."
+},
+
+{
+situation:"You stumble while speaking.",
+options:[
+"I embarrassed myself forever.",
+"People forget quickly.",
+"I should stop talking.",
+"I’ll replay it all day."
+],
+correctIndex:1,
+explanation:"Spotlight effect exaggerates embarrassment."
+},
+
+{
+situation:"Someone disagrees with you.",
+options:[
+"They disrespect me.",
+"Different views are normal.",
+"I must prove them wrong.",
+"I’ll cut contact."
+],
+correctIndex:1,
+explanation:"Disagreement isn’t hostility."
+},
+
+{
+situation:"You feel lonely.",
+options:[
+"No one cares.",
+"I can reach out.",
+"I’ll isolate more.",
+"I’ll assume rejection."
+],
+correctIndex:1,
+explanation:"Connection requires initiative."
+},
+
+{
+situation:"You are overwhelmed.",
+options:[
+"I can’t handle life.",
+"I can break tasks down.",
+"I’ll panic.",
+"I’ll avoid everything."
+],
+correctIndex:1,
+explanation:"Structure reduces overwhelm."
+},
+
+{
+situation:"You forgot a birthday.",
+options:[
+"I ruined everything.",
+"I can apologize sincerely.",
+"I’ll disappear.",
+"I’ll blame others."
+],
+correctIndex:1,
+explanation:"Repair is possible."
+},
+
+{
+situation:"You feel anxious before an event.",
+options:[
+"I will fail.",
+"This is normal excitement.",
+"I should cancel.",
+"I’ll hide."
+],
+correctIndex:1,
+explanation:"Anxiety can mean importance."
+},
+
+{
+situation:"You get a lower grade.",
+options:[
+"I’m stupid.",
+"I can review mistakes.",
+"I should quit.",
+"I’m doomed."
+],
+correctIndex:1,
+explanation:"Review improves performance."
+},
+
+{
+situation:"Someone seems quiet around you.",
+options:[
+"They dislike me.",
+"They may be introverted.",
+"I did something wrong.",
+"I’ll avoid them."
+],
+correctIndex:1,
+explanation:"Don’t personalize neutral behavior."
+},
+
+{
+situation:"You make a mistake at work.",
+options:[
+"I’ll be fired.",
+"I can correct it.",
+"I’ll hide it.",
+"I’m incompetent."
+],
+correctIndex:1,
+explanation:"Correction builds trust."
+},
+
+/* ======================
+   TIER 2 — REGULATION (21–40)
+====================== */
+
+{
+situation:"A teammate speaks harshly.",
+options:[
+"I’ll insult back.",
+"I’ll address it calmly.",
+"I’ll gossip.",
+"I’ll withdraw."
+],
+correctIndex:1,
+explanation:"Calm timing improves resolution."
+},
+
+{
+situation:"You feel jealous.",
+options:[
+"They don’t deserve it.",
+"I’ll use it as motivation.",
+"I’ll criticize them.",
+"I’ll distance."
+],
+correctIndex:1,
+explanation:"Jealousy can fuel growth."
+},
+
+{
+situation:"Someone interrupts repeatedly.",
+options:[
+"I’ll shout.",
+"I’ll assert politely.",
+"I’ll stay silent.",
+"I’ll resent."
+],
+correctIndex:1,
+explanation:"Assertiveness balances respect."
+},
+
+{
+situation:"You’re emotionally drained.",
+options:[
+"I’ll push harder.",
+"I need boundaries and rest.",
+"I’ll ignore it.",
+"I’ll blame others."
+],
+correctIndex:1,
+explanation:"Boundaries protect energy."
+},
+
+{
+situation:"You’re criticized publicly.",
+options:[
+"I’ll retaliate.",
+"I’ll stay composed.",
+"I’ll shut down.",
+"I’ll insult."
+],
+correctIndex:1,
+explanation:"Composure maintains dignity."
+},
+
+{
+situation:"Someone misunderstands you.",
+options:[
+"They’re stupid.",
+"I’ll clarify calmly.",
+"I’ll escalate.",
+"I’ll ghost."
+],
+correctIndex:1,
+explanation:"Clarification reduces conflict."
+},
+
+{
+situation:"You feel insecure in new group.",
+options:[
+"I don’t belong.",
+"I can adapt gradually.",
+"I’ll isolate.",
+"I’ll overcompensate."
+],
+correctIndex:1,
+explanation:"Adaptation takes time."
+},
+
+{
+situation:"A friend disappoints you.",
+options:[
+"I’ll cut them off.",
+"I’ll communicate calmly.",
+"I’ll suppress it.",
+"I’ll attack them."
+],
+correctIndex:1,
+explanation:"Communication strengthens bonds."
+},
+
+{
+situation:"You feel anger rising.",
+options:[
+"I’ll explode.",
+"I’ll pause before responding.",
+"I’ll attack verbally.",
+"I’ll suppress completely."
+],
+correctIndex:1,
+explanation:"Pause prevents regret."
+},
+
+{
+situation:"You receive unfair criticism.",
+options:[
+"I’ll attack.",
+"I’ll assess objectively.",
+"I’ll quit.",
+"I’ll spiral."
+],
+correctIndex:1,
+explanation:"Objectivity reduces emotional bias."
+},
+
+{
+situation:"You procrastinated.",
+options:[
+"I’m useless.",
+"I’ll improve planning.",
+"I’ll blame someone.",
+"I’ll give up."
+],
+correctIndex:1,
+explanation:"Responsibility builds self-trust."
+},
+
+{
+situation:"Someone is rude online.",
+options:[
+"I’ll fight publicly.",
+"I’ll respond calmly or ignore.",
+"I’ll obsess.",
+"I’ll retaliate."
+],
+correctIndex:1,
+explanation:"Emotional distance prevents escalation."
+},
+
+{
+situation:"You feel rejected.",
+options:[
+"I’m unworthy.",
+"I’ll reflect without overgeneralizing.",
+"I’ll withdraw.",
+"I’ll attack."
+],
+correctIndex:1,
+explanation:"Rejection isn’t global identity."
+},
+
+{
+situation:"You lose a competition.",
+options:[
+"I’m a failure.",
+"I can learn from this.",
+"I’ll quit.",
+"I’ll resent winner."
+],
+correctIndex:1,
+explanation:"Loss builds resilience."
+},
+
+{
+situation:"Someone apologizes.",
+options:[
+"I’ll punish them.",
+"I’ll evaluate and respond maturely.",
+"I’ll bring it up forever.",
+"I’ll ignore."
+],
+correctIndex:1,
+explanation:"Forgiveness requires discernment."
+},
+
+{
+situation:"You feel misunderstood.",
+options:[
+"No one gets me.",
+"I’ll clarify calmly.",
+"I’ll isolate.",
+"I’ll resent."
+],
+correctIndex:1,
+explanation:"Clear expression improves connection."
+},
+
+{
+situation:"You’re under pressure.",
+options:[
+"I’ll panic.",
+"I’ll prioritize calmly.",
+"I’ll avoid work.",
+"I’ll blame others."
+],
+correctIndex:1,
+explanation:"Calm planning reduces pressure."
+},
+
+{
+situation:"You realize you were wrong.",
+options:[
+"I’ll defend myself.",
+"I’ll admit and fix it.",
+"I’ll blame.",
+"I’ll deny."
+],
+correctIndex:1,
+explanation:"Owning mistakes builds strength."
+},
+
+{
+situation:"Someone sets a boundary with you.",
+options:[
+"They’re selfish.",
+"I’ll respect it.",
+"I’ll guilt them.",
+"I’ll attack."
+],
+correctIndex:1,
+explanation:"Respecting boundaries builds healthy dynamics."
+},
+
+{
+situation:"You feel burnout.",
+options:[
+"I’ll ignore it.",
+"I’ll rest and recalibrate.",
+"I’ll push harder.",
+"I’ll collapse."
+],
+correctIndex:1,
+explanation:"Recovery sustains long-term performance."
+},
+
+/* ======================
+   TIER 3 — MASTERY (41–60)
+====================== */
+
+{
+situation:"A colleague succeeds where you failed.",
+options:[
+"They’re lucky.",
+"I’ll learn from their approach.",
+"I’ll resent them.",
+"I’ll compare endlessly."
+],
+correctIndex:1,
+explanation:"Learning mindset fosters growth."
+},
+
+{
+situation:"You feel emotionally triggered.",
+options:[
+"I’ll react immediately.",
+"I’ll pause and reflect.",
+"I’ll explode.",
+"I’ll suppress."
+],
+correctIndex:1,
+explanation:"Awareness precedes control."
+},
+
+{
+situation:"You are excluded accidentally.",
+options:[
+"It’s intentional.",
+"I’ll confirm calmly.",
+"I’ll withdraw.",
+"I’ll retaliate."
+],
+correctIndex:1,
+explanation:"Clarification avoids misinterpretation."
+},
+
+{
+situation:"You feel insecure about skills.",
+options:[
+"I’m not good enough.",
+"I can improve with practice.",
+"I’ll quit.",
+"I’ll compare."
+],
+correctIndex:1,
+explanation:"Skill grows with effort."
+},
+
+{
+situation:"A disagreement escalates.",
+options:[
+"I’ll escalate further.",
+"I’ll de-escalate calmly.",
+"I’ll insult.",
+"I’ll storm off."
+],
+correctIndex:1,
+explanation:"De-escalation preserves relationships."
+},
+
+{
+situation:"You receive praise.",
+options:[
+"It’s fake.",
+"I’ll accept it confidently.",
+"I don’t deserve it.",
+"I’ll downplay."
+],
+correctIndex:1,
+explanation:"Healthy self-esteem accepts recognition."
+},
+
+{
+situation:"You feel pressured to please everyone.",
+options:[
+"I must satisfy all.",
+"I’ll set healthy limits.",
+"I’ll overcommit.",
+"I’ll burn out."
+],
+correctIndex:1,
+explanation:"Limits protect wellbeing."
+},
+
+{
+situation:"Someone criticizes unfairly.",
+options:[
+"I’ll internalize it.",
+"I’ll filter useful parts.",
+"I’ll attack.",
+"I’ll spiral."
+],
+correctIndex:1,
+explanation:"Separate content from tone."
+},
+
+{
+situation:"You feel anxious in silence.",
+options:[
+"Silence is bad.",
+"It can be neutral.",
+"I’ll fill space impulsively.",
+"I’ll assume negativity."
+],
+correctIndex:1,
+explanation:"Silence isn’t threat."
+},
+
+{
+situation:"You are corrected publicly.",
+options:[
+"I’m humiliated.",
+"I’ll stay composed.",
+"I’ll retaliate.",
+"I’ll withdraw."
+],
+correctIndex:1,
+explanation:"Composure protects confidence."
+},
+
+{
+situation:"You experience unexpected change.",
+options:[
+"This ruins everything.",
+"I can adapt.",
+"I’ll panic.",
+"I’ll resist blindly."
+],
+correctIndex:1,
+explanation:"Flexibility builds resilience."
+},
+
+{
+situation:"You’re asked for help but feel overwhelmed.",
+options:[
+"I must say yes.",
+"I can communicate honestly.",
+"I’ll overcommit.",
+"I’ll ghost."
+],
+correctIndex:1,
+explanation:"Honest communication preserves energy."
+},
+
+{
+situation:"You feel envy.",
+options:[
+"I’ll resent.",
+"I’ll convert it to motivation.",
+"I’ll criticize.",
+"I’ll compare."
+],
+correctIndex:1,
+explanation:"Emotion can be redirected."
+},
+
+{
+situation:"A friend confronts you.",
+options:[
+"I’ll deny.",
+"I’ll listen first.",
+"I’ll attack.",
+"I’ll avoid."
+],
+correctIndex:1,
+explanation:"Listening reduces defensiveness."
+},
+
+{
+situation:"You feel overwhelmed emotionally.",
+options:[
+"I’ll suppress.",
+"I’ll regulate with breathing.",
+"I’ll explode.",
+"I’ll panic."
+],
+correctIndex:1,
+explanation:"Regulation strategies restore control."
+},
+
+{
+situation:"Someone rejects your idea.",
+options:[
+"I’m incompetent.",
+"I’ll refine it.",
+"I’ll quit.",
+"I’ll attack."
+],
+correctIndex:1,
+explanation:"Ideas are separate from identity."
+},
+
+{
+situation:"You are criticized unfairly by authority.",
+options:[
+"I’ll rebel emotionally.",
+"I’ll respond strategically.",
+"I’ll collapse.",
+"I’ll attack."
+],
+correctIndex:1,
+explanation:"Strategic calm protects outcomes."
+},
+
+{
+situation:"You feel judged.",
+options:[
+"They hate me.",
+"It may be my assumption.",
+"I’ll withdraw.",
+"I’ll overcompensate."
+],
+correctIndex:1,
+explanation:"Check assumptions before reacting."
+},
+
+{
+situation:"You miss an opportunity.",
+options:[
+"My life is ruined.",
+"I’ll look for another.",
+"I’ll spiral.",
+"I’ll blame."
+],
+correctIndex:1,
+explanation:"Opportunities repeat."
+},
+
+{
+situation:"You feel uncertain about future.",
+options:[
+"It’s hopeless.",
+"I can focus on present action.",
+"I’ll panic.",
+"I’ll avoid thinking."
+],
+correctIndex:1,
+explanation:"Control lies in present effort."
+}
+];
+let level = 1;
+let correctCount = 0;
+let wrongAttempts = 0;
+
+const situationBox = document.getElementById("situationBox");
+const optionsBox = document.getElementById("optionsBox");
+const explanationBox = document.getElementById("explanationBox");
+const nextBtn = document.getElementById("nextBtn");
+const levelText = document.getElementById("levelText");
+
+function loadLevel(){
+  const data = levels[level-1];
+  levelText.textContent = "Level " + level;
+  situationBox.textContent = data.situation;
+  explanationBox.textContent="";
+  nextBtn.style.display="none";
+  optionsBox.innerHTML="";
+
+  data.options.forEach((opt,index)=>{
+    const btn=document.createElement("button");
+    btn.className="option-btn";
+    btn.textContent=opt;
+    btn.onclick=()=>handleAnswer(index, btn);
+    optionsBox.appendChild(btn);
+  });
+}
+
+function handleAnswer(selected, clickedButton){
+  const data = levels[level-1];
+
+  if(selected === data.correctIndex){
+
+    clickedButton.classList.add("correct");
+    correctCount++;
+    explanationBox.textContent="Correct. Good emotional reasoning.";
+    nextBtn.style.display="block";
+
+    // disable all buttons after correct
+    document.querySelectorAll(".option-btn")
+      .forEach(btn=>btn.disabled=true);
+
+  } else {
+
+    wrongAttempts++;
+    clickedButton.classList.add("wrong");
+
+    explanationBox.textContent = data.explanation;
+
+    // remove red highlight after short delay
+    setTimeout(()=>{
+      clickedButton.classList.remove("wrong");
+    },800);
+  }
+}
+
+nextBtn.onclick = async ()=>{
+  level++;
+
+  if(level > levels.length){
+    await saveProgress();
+    alert("Training Complete");
+    level = 1;
+  }
+
+  loadLevel();
+};
+
+async function saveProgress(){
+  const accuracy = (
+    (correctCount/(correctCount+wrongAttempts))*100
+  ).toFixed(2);
+
+  await setDoc(doc(db,"progress",deviceId),{
+    emotionTrainer:{
+      level,
+      correct:correctCount,
+      wrongAttempts,
+      accuracy
+    }
+  },{merge:true});
+}
+
+loadLevel();
+</script>
+
+</body>
+</html>

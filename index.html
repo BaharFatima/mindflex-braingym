@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Splash Screen</title>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background: #ffffff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+        font-family: "Poppins", sans-serif;
+    }
+
+    .app-container {
+        width: 320px;
+        height: 640px;
+        background: #ffffff;
+        border-radius: 25px;
+        overflow: hidden;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .blob-top {
+        position: absolute;
+        top: -80px;
+        right: -80px;
+        width: 250px;
+        height: 250px;
+        background: linear-gradient(135deg, #bdd3ff, #7ca8ff);
+        border-radius: 50%;
+    }
+
+    .blob-bottom {
+        position: absolute;
+        bottom: -90px;
+        left: -90px;
+        width: 320px;
+        height: 320px;
+        background: linear-gradient(135deg, #bdd3ff, #7ca8ff);
+        border-radius: 50%;
+    }
+
+    /* FIXED CENTERED BOX */
+    .center-box {
+        position: absolute;
+        top: 50%;                  /* dead center vertically */
+        left: 50%;                 /* dead center horizontally */
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    .center-box img {
+        width: 80px;  
+        height: 80px;
+        margin-bottom: 15px;       /* spacing below logo */
+    }
+
+    .title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #6294ff;
+        letter-spacing: 2px;
+    }
+
+    .subtitle {
+        font-size: 10px;
+        letter-spacing: 2px;
+        color: #9ab0e1;
+        margin-top: 6px;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="app-container" onclick="goNext()">
+
+    <div class="blob-top"></div> 
+    <div class="blob-bottom"></div>
+
+    <div class="center-box">
+        <img src="logo.png" alt="Logo">
+        <div class="title">MIND FLEX</div>
+        <div class="subtitle">TRAIN YOUR BRAIN. UNLOCK YOUR POTENTIAL</div>
+    </div>
+
+</div>
+
+<script>
+function goNext() {
+    window.location.href = "signin.html";
+}
+</script>
+
+</body>
+</html>

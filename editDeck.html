@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Edit Deck</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+  html,body{height:100%;background:linear-gradient(135deg,#dceeff,#a6d9ff);
+            display:flex;align-items:center;justify-content:center;}
+  .app{width:320px;height:640px;background:#f0f7ff;border-radius:25px;
+       box-shadow:0 10px 25px rgba(0,80,160,0.2);overflow:hidden;
+       display:flex;flex-direction:column;position:relative;}
+  header{background:#e6f3ff;padding:15px 20px;display:flex;
+         justify-content:space-between;align-items:center;color:#003366;}
+  main{flex:1;padding:20px;text-align:center;overflow-y:auto;}
+  input{width:100%;padding:8px;border-radius:8px;border:1px solid #aacfff;
+        margin-bottom:10px;}
+  button{background:#0077cc;color:white;border:none;border-radius:8px;
+         padding:8px 15px;cursor:pointer;}
+  .qa-item{background:#a3d5ff;margin:8px 0;padding:10px;border-radius:8px;
+           color:#003366;display:flex;justify-content:space-between;align-items:center;}
+  .qa-text{flex:1;text-align:left;}
+  .delete-btn{background:#e53935;color:white;border:none;border-radius:8px;
+              padding:5px 10px;margin-left:8px;cursor:pointer;}
+</style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <a href="flashcardMenu.html" style="text-decoration:none;color:#003366;font-size:1.4rem;">←</a>
+      <h3>Edit Deck</h3>
+      <div></div>
+    </header>
+
+    <main>
+      <input id="deckName" placeholder="Deck Name" />
+      <input id="question" placeholder="Question" />
+      <input id="answer" placeholder="Answer" />
+      <button onclick="addQA()">Add Card</button>
+      <div id="qaList"></div>
+      <button style="margin-top:15px;background:#00bcd4;" onclick="saveDeck()">Save Changes</button>
+      <button style="margin-top:10px;background:#f44336;" onclick="deleteDeck()">Delete Deck</button>
+    </main>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { 
+  getFirestore, 
+  doc, 
+  getDoc,
+  updateDoc,
+  deleteDoc,
+  collection,
+  getDocs,
+  addDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
+  authDomain: "mindflex-b2a0c.firebaseapp.com",
+  projectId: "mindflex-b2a0c",
+  storageBucket: "mindflex-b2a0c.firebasestorage.app",
+  messagingSenderId: "148676867562",
+  appId: "1:148676867562:web:3365a72b6fa6b3751cee93",
+  measurementId: "G-Q2T6HD3S0E"
+};
+
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let cards = [];
+let deckId = localStorage.getItem("editDeckId");
+
+if (!deckId) {
+  alert("No deck selected");
+  window.location.href = "flashcardMenu.html";
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  loadDeck(user.uid);
+});
+
+async function loadDeck(uid) {
+  const deckRef = doc(db, "users", uid, "flashcardDecks", deckId);
+  const deckSnap = await getDoc(deckRef);
+
+  if (!deckSnap.exists()) {
+    alert("Deck not found");
+    return;
+  }
+
+  document.getElementById("deckName").value = deckSnap.data().name;
+
+  const cardsSnap = await getDocs(
+    collection(db, "users", uid, "flashcardDecks", deckId, "cards")
+  );
+
+  cards = [];
+  cardsSnap.forEach(cardDoc => {
+    cards.push({ id: cardDoc.id, ...cardDoc.data() });
+  });
+
+  renderList();
+}
+
+function renderList() {
+  const list = document.getElementById("qaList");
+  list.innerHTML = "";
+
+  cards.forEach((c, i) => {
+    const item = document.createElement("div");
+    item.className = "qa-item";
+
+    item.innerHTML = `
+      <div class="qa-text">
+        <b>Q:</b> ${c.question}<br>
+        <b>A:</b> ${c.answer}
+      </div>
+    `;
+
+    const del = document.createElement("button");
+    del.textContent = "🗑️";
+    del.className = "delete-btn";
+
+    del.onclick = async () => {
+      const user = auth.currentUser;
+      await deleteDoc(
+        doc(db, "users", user.uid, "flashcardDecks", deckId, "cards", c.id)
+      );
+      cards.splice(i, 1);
+      renderList();
+    };
+
+    item.appendChild(del);
+    list.appendChild(item);
+  });
+}
+
+window.addQA = async function () {
+  const q = document.getElementById("question").value.trim();
+  const a = document.getElementById("answer").value.trim();
+
+  if (!q || !a) return alert("Please fill both fields!");
+
+  const user = auth.currentUser;
+
+  const newCardRef = await addDoc(
+    collection(db, "users", user.uid, "flashcardDecks", deckId, "cards"),
+    { question: q, answer: a }
+  );
+
+  cards.push({ id: newCardRef.id, question: q, answer: a });
+
+  document.getElementById("question").value = "";
+  document.getElementById("answer").value = "";
+
+  renderList();
+};
+
+window.saveDeck = async function () {
+  const name = document.getElementById("deckName").value.trim();
+  if (!name) return alert("Deck name required!");
+
+  const user = auth.currentUser;
+
+  await updateDoc(
+    doc(db, "users", user.uid, "flashcardDecks", deckId),
+    { name: name }
+  );
+
+  alert("Deck updated!");
+  window.location.href = "flashcardMenu.html";
+};
+
+window.deleteDeck = async function () {
+  if (!confirm("Delete this deck?")) return;
+
+  const user = auth.currentUser;
+
+  await deleteDoc(
+    doc(db, "users", user.uid, "flashcardDecks", deckId)
+  );
+
+  alert("Deck deleted.");
+  window.location.href = "flashcardMenu.html";
+};
+</script>
+</body>
+</html>

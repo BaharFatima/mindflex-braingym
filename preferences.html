@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Select Preferences</title>
+
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        padding: 20px;
+        background: #e7f4ff; /* light blue palette */
+        color: #063354; /* deep blue text */
+        max-width: 320px;
+        height: 640px;
+        margin: auto;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #cde6ff;
+        border-radius: 10px;
+        margin-bottom: 25px;
+        overflow: hidden;
+    }
+
+    .progress-bar div {
+        width: 40%;
+        height: 100%;
+        background: #6bb8ff; /* blue highlight */
+        border-radius: 10px;
+    }
+
+    h2 {
+        font-size: 24px;
+        margin-bottom: 5px;
+    }
+
+    p {
+        color: #3a6b8f;
+        margin-top: 0;
+        margin-bottom: 25px;
+    }
+
+    .option {
+        display: flex;
+        align-items: center;
+        border: 1px solid #a3cfff;
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 16px;
+        cursor: pointer;
+        background: white;
+        transition: 0.2s;
+    }
+
+    .option img {
+        width: 40px;
+        height: 40px;
+        margin-right: 15px;
+    }
+
+    .option.selected {
+        border-color: #6bb8ff;
+        background: #d9ecff;
+    }
+
+    .bottom-btn {
+        width: 100%;
+        padding: 14px;
+        background: #6bb8ff;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        font-size: 18px;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+
+    .check-link {
+        text-align: center;
+        margin-top: 10px;
+        font-size: 17px;
+    }
+
+    .check-link a {
+        color: #0070cc;
+        text-decoration: none;
+        font-weight: 500;
+        cursor: pointer;
+    }
+
+    /* RESULT BOX */
+    #resultBox {
+        margin-top: 25px;
+        background: #d9ecff;
+        border: 1px solid #6bb8ff;
+        padding: 15px;
+        border-radius: 12px;
+        display: none;
+    }
+
+    #resultBox h3 {
+        margin: 0 0 10px 0;
+        color: #004b80;
+    }
+
+</style>
+</head>
+
+<body>
+
+<!-- Progress Bar -->
+<div class="progress-bar">
+    <div></div>
+</div>
+
+<h2>Select your preferences</h2>
+<p>If you aren't sure you can get it checked</p>
+
+<!-- Options -->
+<div class="option" onclick="toggleSelect(this)">
+    <img src="adhd logo.png" alt="">
+    <span>Attention Deficit Hyperactivity Disorder</span>
+</div>
+
+<div class="option" onclick="toggleSelect(this)">
+    <img src="spd logo.png" alt="">
+    <span>Sensory Processing Disorder</span>
+</div>
+
+<div class="option" onclick="toggleSelect(this)">
+    <img src="autism logo.png" alt="">
+    <span>Autism</span>
+</div>
+
+<div class="option" onclick="toggleSelect(this)">
+    <img src="dyslexia logo.png" alt="">
+    <span>Dyslexia</span>
+</div>
+
+<div class="option" onclick="toggleSelect(this)">
+    <img src="dyscalculia logo.png" alt="">
+    <span>Dyscalculia</span>
+</div>
+
+<div class="check-link">
+    <a onclick="showResult()">check ></a>
+</div>
+
+<!-- NEXT BUTTON -->
+<button class="bottom-btn" onclick="goNext()">Next</button>
+
+<!-- RESULT BOX -->
+<div id="resultBox">
+    <h3>Your Selected Preferences:</h3>
+    <p id="resultText"></p>
+</div>
+
+<script>
+    function toggleSelect(el) {
+        el.classList.toggle("selected");
+    }
+
+    function showResult() {
+        let selected = document.querySelectorAll(".option.selected");
+        let resultBox = document.getElementById("resultBox");
+        let resultText = document.getElementById("resultText");
+
+        if (selected.length === 0) {
+            resultText.innerHTML = "No conditions selected.";
+        } else {
+            let items = [];
+            selected.forEach(item => {
+                items.push(item.innerText.trim());
+            });
+            resultText.innerHTML = items.join("<br>");
+        }
+        resultBox.style.display = "block";
+    }
+
+    function goNext() {
+        window.location.href = "index.html"; 
+        // Change "home.html" to your actual home page file name
+    }
+</script>
+
+</body>
+</html>

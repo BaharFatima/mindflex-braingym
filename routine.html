@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=320, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Routine & Tasks</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue-deep: #0D47A1;
+    --blue-mid: #1565C0;
+    --blue-bright: #1E88E5;
+    --blue-light: #64B5F6;
+    --sky: #B3E5FC;
+    --sky-pale: #E1F5FE;
+    --card-bg: rgba(255,255,255,0.85);
+    --text-dark: #0D47A1;
+    --text-mid: #1565C0;
+    --accent: #1E88E5;
+    --radius: 20px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(180deg, #B3E5FC 0%, #E1F5FE 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .viewport {
+    width: 320px;
+    height: min(640px, 98vh);
+    border-radius: 30px;
+    background: linear-gradient(160deg, #BBDEFB 0%, #E3F2FD 100%);
+    box-shadow: 0 20px 60px rgba(13,71,161,0.25), 0 4px 12px rgba(0,0,0,0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* Decorative blobs */
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(40px);
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .blob-1 { width: 180px; height: 180px; background: #64B5F6; top: -60px; right: -50px; }
+  .blob-2 { width: 120px; height: 120px; background: #1E88E5; bottom: 80px; left: -40px; }
+
+  /* Header */
+  .header {
+    padding: 18px 16px 10px;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .back-btn {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.7);
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--blue-mid);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.15s;
+  }
+  .back-btn:hover { transform: scale(1.08); }
+  .header h1 {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--blue-deep);
+    letter-spacing: -0.5px;
+  }
+  .header-date {
+    font-size: 11px;
+    color: var(--blue-bright);
+    font-weight: 500;
+    opacity: 0.85;
+  }
+  .add-btn-header {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    color: transparent;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  /* Floating Add Button */
+  .fab {
+    position: absolute;
+    bottom: 78px;
+    right: 16px;
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #64B5F6 0%, #1E88E5 60%, #1565C0 100%);
+    color: white;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 50;
+    box-shadow: 0 6px 20px rgba(30,136,229,0.55), 0 2px 6px rgba(0,0,0,0.15);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.18s;
+    animation: fabPulse 2.8s ease-in-out infinite;
+  }
+  .fab:hover {
+    transform: scale(1.12) rotate(15deg);
+    box-shadow: 0 10px 30px rgba(30,136,229,0.65), 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .fab:active { transform: scale(0.93); }
+
+  @keyframes fabPulse {
+    0%, 100% { box-shadow: 0 6px 20px rgba(30,136,229,0.55), 0 0 0 0 rgba(30,136,229,0.35); }
+    50% { box-shadow: 0 6px 20px rgba(30,136,229,0.55), 0 0 0 10px rgba(30,136,229,0); }
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    padding: 0 16px;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 2;
+  }
+  .tab {
+    flex: 1;
+    padding: 7px 4px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.5);
+    border: 1.5px solid rgba(255,255,255,0.8);
+    color: var(--blue-mid);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 12px;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.2s;
+    backdrop-filter: blur(4px);
+  }
+  .tab.active {
+    background: linear-gradient(135deg, #64B5F6, #1E88E5);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(30,136,229,0.35);
+    transform: translateY(-1px);
+  }
+
+  /* Date strip */
+  .date-strip {
+    display: flex;
+    gap: 6px;
+    padding: 0 16px 10px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    position: relative;
+    z-index: 2;
+  }
+  .date-strip::-webkit-scrollbar { display: none; }
+  .date-chip {
+    min-width: 42px;
+    padding: 6px 4px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.55);
+    border: 1.5px solid rgba(255,255,255,0.8);
+    text-align: center;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--blue-mid);
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .date-chip .day-num { font-size: 15px; font-weight: 700; display: block; }
+  .date-chip.today { background: linear-gradient(135deg, #64B5F6, #1E88E5); color: white; border-color: transparent; box-shadow: 0 4px 10px rgba(30,136,229,0.3); }
+  .date-chip.active-chip { background: rgba(255,255,255,0.85); color: var(--blue-deep); border-color: #90CAF9; box-shadow: 0 2px 8px rgba(30,136,229,0.15); }
+
+  /* Scroll area */
+  .scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 14px 80px;
+    scrollbar-width: none;
+    position: relative;
+    z-index: 2;
+  }
+  .scroll-area::-webkit-scrollbar { display: none; }
+
+  /* Section header */
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 14px 0 8px;
+  }
+  .section-icon { font-size: 16px; }
+  .section-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue-deep);
+    letter-spacing: 0.3px;
+  }
+  .section-line {
+    flex: 1;
+    height: 1.5px;
+    background: linear-gradient(90deg, rgba(30,136,229,0.25), transparent);
+    border-radius: 2px;
+  }
+  .section-count {
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(135deg, #64B5F6, #1E88E5);
+    border-radius: 20px;
+    padding: 1px 8px;
+  }
+
+  /* Task card */
+  .card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--card-bg);
+    backdrop-filter: blur(8px);
+    padding: 11px 12px;
+    border-radius: 16px;
+    box-shadow: 0 4px 14px rgba(13,71,161,0.08), 0 1px 3px rgba(0,0,0,0.05);
+    margin-bottom: 8px;
+    border: 1.5px solid rgba(255,255,255,0.9);
+    transition: transform 0.18s, box-shadow 0.18s;
+    animation: slideUp 0.3s ease both;
+  }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(13,71,161,0.12); }
+  .card.completed { opacity: 0.55; }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Custom checkbox */
+  .check-wrap {
+    width: 26px; height: 26px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    border: 2.5px solid #90CAF9;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: rgba(255,255,255,0.7);
+  }
+  .check-wrap.checked {
+    background: linear-gradient(135deg, #64B5F6, #1E88E5);
+    border-color: transparent;
+    box-shadow: 0 2px 8px rgba(30,136,229,0.4);
+  }
+  .check-wrap .checkmark { display: none; color: white; font-size: 13px; font-weight: 700; }
+  .check-wrap.checked .checkmark { display: block; }
+  .check-wrap input { display: none; }
+
+  .task-meta { flex: 1; min-width: 0; }
+  .task-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--blue-deep);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .completed .task-title { text-decoration: line-through; color: #90CAF9; }
+  .task-time-row { display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+  .task-time-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--blue-light); flex-shrink: 0; }
+  .task-time { font-size: 11px; color: #64B5F6; font-weight: 500; }
+  .task-date-badge {
+    font-size: 10px;
+    color: #1E88E5;
+    background: #E3F2FD;
+    border-radius: 6px;
+    padding: 1px 6px;
+    margin-top: 3px;
+    display: inline-block;
+    font-weight: 500;
+  }
+
+  .delete-btn {
+    background: rgba(229,115,115,0.1);
+    border: none;
+    padding: 5px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .delete-btn:hover { background: rgba(229,115,115,0.22); }
+  .delete-btn svg { width: 14px; height: 14px; }
+
+  /* Empty state */
+  .empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--blue-mid);
+  }
+  .empty-icon { font-size: 36px; margin-bottom: 12px; }
+  .empty p { font-size: 13px; font-weight: 500; }
+
+  /* Bottom nav */
+  .bottom-nav {
+    height: 58px;
+    background: rgba(255,255,255,0.9);
+    border-top: 1px solid rgba(227,242,253,0.8);
+    border-radius: 20px 20px 0 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -4px 16px rgba(13,71,161,0.08);
+    backdrop-filter: blur(10px);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+  }
+  .bottom-nav a {
+    text-decoration: none;
+    font-size: 22px;
+    color: #90CAF9;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px;
+    border-radius: 12px;
+  }
+  .bottom-nav a.active {
+    color: #1565C0;
+    transform: scale(1.15);
+    background: rgba(100,181,246,0.15);
+  }
+
+  /* === POPUP styles === */
+  .popup {
+    display: none;
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(13,71,161,0.25);
+    backdrop-filter: blur(4px);
+    z-index: 70;
+    border-radius: 30px;
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .popup-inner {
+    background: white;
+    width: 88%;
+    margin: 60px auto 0;
+    padding: 18px 16px;
+    border-radius: 22px;
+    box-shadow: 0 20px 60px rgba(13,71,161,0.2);
+    border: 1.5px solid rgba(100,181,246,0.2);
+    max-height: 78%;
+    overflow-y: auto;
+    scrollbar-width: none;
+    animation: popIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .popup-inner::-webkit-scrollbar { display: none; }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.9) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .popup-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--blue-deep);
+    margin-bottom: 14px;
+    text-align: center;
+  }
+
+  .form-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--blue-mid);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 5px;
+    margin-top: 12px;
+    display: block;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1.5px solid #E3F2FD;
+    background: #F8FBFF;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    color: var(--blue-deep);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .form-input:focus {
+    border-color: var(--blue-light);
+    box-shadow: 0 0 0 3px rgba(100,181,246,0.15);
+  }
+
+  .date-btn {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1.5px solid #E3F2FD;
+    background: #F8FBFF;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    color: var(--blue-mid);
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .date-btn:hover { border-color: var(--blue-light); }
+
+  .section-select-wrap { display: flex; gap: 8px; }
+  .section-select-wrap select { flex: 1; }
+  .section-add-btn {
+    padding: 0 12px;
+    border-radius: 12px;
+    border: 1.5px solid #E3F2FD;
+    background: #F8FBFF;
+    color: var(--blue-mid);
+    font-size: 18px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .section-add-btn:hover { background: #E3F2FD; }
+
+  .btn-row { display: flex; gap: 8px; margin-top: 16px; }
+  .btn {
+    flex: 1;
+    padding: 11px;
+    border-radius: 14px;
+    border: none;
+    font-weight: 700;
+    font-size: 13px;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn:active { transform: scale(0.96); }
+  .btn-primary {
+    background: linear-gradient(135deg, #64B5F6, #1E88E5);
+    color: white;
+    box-shadow: 0 4px 14px rgba(30,136,229,0.35);
+  }
+  .btn-primary:hover { box-shadow: 0 6px 20px rgba(30,136,229,0.45); transform: translateY(-1px); }
+  .btn-muted {
+    background: #E3F2FD;
+    color: var(--blue-mid);
+  }
+
+  /* Progress bar */
+  .progress-bar-wrap {
+    padding: 0 16px 8px;
+    position: relative;
+    z-index: 2;
+  }
+  .progress-top {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--blue-mid);
+    margin-bottom: 5px;
+  }
+  .progress-track {
+    height: 6px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.5);
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #64B5F6, #1E88E5);
+    transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  /* Calendar grid */
+  .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; text-align: center; }
+  .cal-day-head { font-size: 10px; color: #90CAF9; font-weight: 700; padding: 4px 0; }
+  .cal-day {
+    padding: 7px 0;
+    border-radius: 10px;
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--blue-deep);
+    font-weight: 600;
+    transition: background 0.15s;
+  }
+  .cal-day:hover { background: #E3F2FD; }
+  .cal-day.today { background: linear-gradient(135deg, #64B5F6, #1E88E5); color: white; box-shadow: 0 2px 8px rgba(30,136,229,0.3); }
+  .cal-day.blank { cursor: default; }
+  .cal-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .cal-nav button {
+    background: #E3F2FD;
+    border: none;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--blue-mid);
+    transition: background 0.15s;
+  }
+  .cal-nav button:hover { background: #BBDEFB; }
+  .cal-month-label { font-size: 14px; font-weight: 700; color: var(--blue-deep); }
+</style>
+</head>
+<body>
+<div class="viewport" id="viewport">
+  <!-- Decorative blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <button class="back-btn" onclick="window.location.href='main.html'">←</button>
+      <div>
+        <h1>My Tasks</h1>
+        <div class="header-date" id="headerDate"></div>
+      </div>
+      <div style="width:34px"></div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchView('daily',event)">Daily</button>
+    <button class="tab" onclick="switchView('weekly',event)">Weekly</button>
+    <button class="tab" onclick="switchView('monthly',event)">Monthly</button>
+  </div>
+
+  <!-- Date strip (daily only) -->
+  <div class="date-strip" id="dateStrip"></div>
+
+  <!-- Progress bar -->
+  <div class="progress-bar-wrap">
+    <div class="progress-top">
+      <span>Today's Progress</span>
+      <span id="progressLabel">0 / 0</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- Scrollable content -->
+  <div class="scroll-area" id="content"></div>
+
+  <!-- Floating Add Button -->
+  <button class="fab" onclick="openAddPopup()" aria-label="Add task">+</button>
+
+  <!-- Bottom nav -->
+  <div class="bottom-nav">
+    <a href="achievemnts.html">🧠</a>
+    <a href="habittracker.html">🧘</a>
+    <a href="profile.html">✍️</a>
+    <a href="#" class="active">🏠</a>
+    <a href="#">📊</a>
+  </div>
+
+  <!-- Add Task Popup -->
+  <div id="addPopup" class="popup" onclick="if(event.target===this) closeAddPopup();">
+    <div class="popup-inner">
+      <div class="popup-title">✦ Add Task</div>
+
+      <label class="form-label">Title</label>
+      <input id="taskTitle" type="text" class="form-input" placeholder="What needs to be done?">
+
+      <label class="form-label">Time</label>
+      <input id="taskTime" type="time" class="form-input">
+
+      <label class="form-label">Date</label>
+      <button id="selectedDateBtn" class="date-btn" onclick="openCalendar()">
+        <span id="selectedDateLabel">📅 Choose Date</span>
+      </button>
+
+      <label class="form-label">Section</label>
+      <div class="section-select-wrap">
+        <select id="taskSection" class="form-input" style="cursor:pointer;"></select>
+        <button class="section-add-btn" onclick="openAddSectionPopup()">+</button>
+      </div>
+
+      <div class="btn-row">
+        <button onclick="closeAddPopup()" class="btn btn-muted">Cancel</button>
+        <button id="saveBtn" class="btn btn-primary">Save ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Calendar Popup -->
+  <div id="calendarPopup" class="popup" onclick="if(event.target===this) closeCalendar();">
+    <div class="popup-inner">
+      <div class="cal-nav">
+        <button onclick="prevMonth()">←</button>
+        <div class="cal-month-label" id="calMonthLabel"></div>
+        <button onclick="nextMonth()">→</button>
+      </div>
+      <div class="cal-grid" id="calendarGrid">
+        <div class="cal-day-head">Su</div><div class="cal-day-head">Mo</div>
+        <div class="cal-day-head">Tu</div><div class="cal-day-head">We</div>
+        <div class="cal-day-head">Th</div><div class="cal-day-head">Fr</div>
+        <div class="cal-day-head">Sa</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Section Popup -->
+  <div id="addSectionPopup" class="popup" onclick="if(event.target===this) closeAddSectionPopup();">
+    <div class="popup-inner">
+      <div class="popup-title">Add Section</div>
+      <label class="form-label">Section Name</label>
+      <input id="newSectionName" class="form-input" placeholder="e.g., Study, Work..." type="text">
+      <div class="btn-row" style="margin-top:14px;">
+        <button onclick="closeAddSectionPopup()" class="btn btn-muted">Cancel</button>
+        <button onclick="addSection()" class="btn btn-primary">Add</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Data */
+let tasksRaw = JSON.parse(localStorage.getItem("tasks")) || null;
+let tasks = { all: [], sections: ["morning","afternoon","evening","night"] };
+
+function migrateIfNeeded(){
+  if (!tasksRaw){ localStorage.setItem("tasks", JSON.stringify(tasks)); return; }
+  if (tasksRaw.all && Array.isArray(tasksRaw.all)){ tasks = tasksRaw; tasks.sections = Array.from(new Set([..."morning,afternoon,evening,night".split(","),...(tasks.sections||[])])); return; }
+  if ((tasksRaw.daily || tasksRaw.weekly || tasksRaw.monthly) && !tasksRaw.all){
+    const combined = [];
+    ["daily","weekly","monthly"].forEach(k=>{ if(Array.isArray(tasksRaw[k])) tasksRaw[k].forEach(t=>combined.push(t)); });
+    tasks.sections = tasksRaw.sections && Array.isArray(tasksRaw.sections) ? tasksRaw.sections : tasks.sections;
+    tasks.all = combined.map(t=>{ if(!t.id) t.id='t'+Date.now()+Math.floor(Math.random()*1000); if(typeof t.completed==='undefined') t.completed=false; if(!t.section) t.section="anytime"; return t; });
+    saveAll(); return;
+  }
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+migrateIfNeeded();
+function saveAll(){ localStorage.setItem("tasks", JSON.stringify(tasks)); }
+function uid(){ return 't'+Date.now()+Math.floor(Math.random()*1000); }
+function escapeHtml(s){ return String(s||"").replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+/* LOCAL date string helper - avoids UTC timezone bugs (e.g. IST = UTC+5:30) */
+function localDate(d){ const yr=d.getFullYear(), mo=String(d.getMonth()+1).padStart(2,'0'), dy=String(d.getDate()).padStart(2,'0'); return `${yr}-${mo}-${dy}`; }
+function todayLocal(){ return localDate(new Date()); }
+
+const SECTION_META = {
+  morning: { icon: '🌅', label: 'Morning' },
+  afternoon: { icon: '☀️', label: 'Afternoon' },
+  evening: { icon: '🌆', label: 'Evening' },
+  night: { icon: '🌙', label: 'Night' },
+  anytime: { icon: '🗂️', label: 'Anytime' }
+};
+function getSectionMeta(s){ return SECTION_META[s] || { icon: '📌', label: s.charAt(0).toUpperCase()+s.slice(1) }; }
+
+/* Views */
+let currentView = "daily";
+let selectedDayStr = todayLocal(); // YYYY-MM-DD of active date strip chip
+
+/* Header date */
+function updateHeaderDate(dateStr){
+  const d = new Date(dateStr+'T12:00');
+  document.getElementById("headerDate").textContent = d.toLocaleDateString('en-US',{weekday:'long', month:'short', day:'numeric'});
+}
+updateHeaderDate(selectedDayStr);
+
+/* Date strip */
+function buildDateStrip(){
+  const strip = document.getElementById("dateStrip");
+  strip.innerHTML = "";
+  const today = new Date();
+  const todayStr = localDate(today);
+  for(let i=-3; i<=3; i++){
+    const d = new Date(today);
+    d.setDate(today.getDate()+i);
+    const dStr = localDate(d);
+    const chip = document.createElement("div");
+    const isToday = dStr === todayStr;
+    const isActive = dStr === selectedDayStr;
+    chip.className = "date-chip" + (isToday ? " today" : "") + (isActive && !isToday ? " active-chip" : "");
+    chip.innerHTML = `<span class="day-num">${d.getDate()}</span>${d.toLocaleDateString('en-US',{weekday:'short'}).slice(0,2)}`;
+    chip.dataset.date = dStr;
+    chip.addEventListener('click', () => selectDayChip(dStr));
+    strip.appendChild(chip);
+  }
+  strip.style.display = "flex";
+}
+
+function selectDayChip(dStr){
+  selectedDayStr = dStr;
+  updateHeaderDate(dStr);
+  buildDateStrip(); // re-render to update active state
+  if(currentView === "daily") loadTasks("daily");
+}
+
+function switchView(type, event){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  if(event&&event.target) event.target.classList.add("active");
+  currentView = type;
+  const strip = document.getElementById("dateStrip");
+  strip.style.display = type === "daily" ? "flex" : "none";
+  loadTasks(type);
+}
+
+/* Progress */
+function updateProgress(list){
+  const total = list.length;
+  const done = list.filter(t=>t.completed).length;
+  const pct = total ? Math.round((done/total)*100) : 0;
+  document.getElementById("progressLabel").textContent = `${done} / ${total}`;
+  document.getElementById("progressFill").style.width = pct+"%";
+}
+
+/* Render tasks */
+function loadTasks(type){
+  const container = document.getElementById("content");
+  container.innerHTML = "";
+
+  let list = Array.isArray(tasks.all) ? tasks.all.slice() : [];
+
+  if(type==="daily"){
+    list = list.filter(t=> t.date === selectedDayStr);
+    updateProgress(list);
+    if(!list.length){
+      const isFuture = selectedDayStr > todayLocal();
+      container.innerHTML = `<div class="empty"><div class="empty-icon">${isFuture?'🗓️':'✨'}</div><p style="opacity:0.3;font-size:18px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px;">No tasks added yet</p><p style="font-size:12px;">${isFuture?'Plan ahead — tap + to add.':'Tap + to add a task!'}</p></div>`;
+      return;
+    }
+    renderBySection(list, container);
+
+  } else if(type==="weekly"){
+    const now = new Date();
+    const start = new Date(now); start.setDate(now.getDate()-now.getDay()); start.setHours(0,0,0,0);
+    const end = new Date(start); end.setDate(start.getDate()+6); end.setHours(23,59,59,999);
+    list = list.filter(t=>t.date && new Date(t.date+'T12:00')>=start && new Date(t.date+'T12:00')<=end);
+    updateProgress(list);
+    if(!list.length){ container.innerHTML=`<div class="empty"><div class="empty-icon">📅</div><p style="opacity:0.3;font-size:18px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px;">No tasks added yet</p><p style="font-size:12px;">Nothing scheduled this week.</p></div>`; return; }
+    // Group by day of week
+    const DAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const DAY_ICONS = ['☀️','🌱','🔥','⚡','🎯','🌊','🌙'];
+    const dayMap = {};
+    // build ordered keys for this week Sun→Sat
+    for(let i=0;i<7;i++){
+      const d=new Date(start); d.setDate(start.getDate()+i);
+      dayMap[localDate(d)] = [];
+    }
+    list.forEach(t=>{ if(dayMap[t.date]!==undefined) dayMap[t.date].push(t); });
+    let delay=0;
+    Object.entries(dayMap).forEach(([dateStr, items])=>{
+      if(!items.length) return;
+      const d = new Date(dateStr+'T12:00');
+      const dayIdx = d.getDay();
+      const incomplete = items.filter(t=>!t.completed).length;
+      const isToday = dateStr === todayLocal();
+      container.insertAdjacentHTML('beforeend',`
+        <div class="section-title">
+          <span class="section-icon">${DAY_ICONS[dayIdx]}</span>
+          <span class="section-label">${DAY_NAMES[dayIdx]}${isToday?' <span style="font-size:10px;color:#64B5F6;">(today)</span>':''}</span>
+          <div class="section-line"></div>
+          ${incomplete>0?`<span class="section-count">${incomplete}</span>`:''}
+        </div>`);
+      items.sort((a,b)=>(a.completed===b.completed)?0:(a.completed?1:-1));
+      items.forEach(task=>{ container.insertAdjacentHTML('beforeend',renderCard(task,delay)); delay+=50; attachEvents(task.id); });
+    });
+
+  } else if(type==="monthly"){
+    const now = new Date(); const y=now.getFullYear();
+    list = list.filter(t=>{ if(!t.date) return false; const d=new Date(t.date+'T12:00'); return d.getFullYear()===y; });
+    updateProgress(list);
+    if(!list.length){ container.innerHTML=`<div class="empty"><div class="empty-icon">🗓️</div><p style="opacity:0.3;font-size:18px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px;">No tasks added yet</p><p style="font-size:12px;">Nothing scheduled this year.</p></div>`; return; }
+    // Group by month
+    const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const MONTH_ICONS = ['❄️','💝','🌸','🌧️','🌻','☀️','🏖️','🍂','🎒','🎃','🍁','🎄'];
+    const monthMap = {};
+    for(let m=0;m<12;m++) monthMap[m]=[];
+    list.forEach(t=>{ const m=new Date(t.date+'T12:00').getMonth(); monthMap[m].push(t); });
+    let delay=0;
+    Object.entries(monthMap).forEach(([m, items])=>{
+      if(!items.length) return;
+      const mi = parseInt(m);
+      const incomplete = items.filter(t=>!t.completed).length;
+      const isCurrent = mi === now.getMonth();
+      container.insertAdjacentHTML('beforeend',`
+        <div class="section-title">
+          <span class="section-icon">${MONTH_ICONS[mi]}</span>
+          <span class="section-label">${MONTH_NAMES[mi]}${isCurrent?' <span style="font-size:10px;color:#64B5F6;">(this month)</span>':''}</span>
+          <div class="section-line"></div>
+          ${incomplete>0?`<span class="section-count">${incomplete}</span>`:''}
+        </div>`);
+      items.sort((a,b)=>a.date>b.date?1:-1);
+      items.forEach(task=>{ container.insertAdjacentHTML('beforeend',renderCard(task,delay)); delay+=50; attachEvents(task.id); });
+    });
+  }
+}
+
+function renderBySection(list, container){
+  const sectionsMap = {};
+  tasks.sections.forEach(s=>sectionsMap[s]=[]);
+  sectionsMap.anytime = [];
+  list.forEach(t=>{ const sec = t.section && sectionsMap[t.section] ? t.section : 'anytime'; sectionsMap[sec].push(t); });
+  const orderedSections = [...tasks.sections, 'anytime'];
+  let delay = 0;
+  orderedSections.forEach(sec=>{
+    if(!sectionsMap[sec]||!sectionsMap[sec].length) return;
+    const meta = getSectionMeta(sec);
+    const items = sectionsMap[sec].sort((a,b)=>(a.completed===b.completed)?0:(a.completed?1:-1));
+    const incomplete = items.filter(t=>!t.completed).length;
+    container.insertAdjacentHTML('beforeend',`
+      <div class="section-title">
+        <span class="section-icon">${meta.icon}</span>
+        <span class="section-label">${meta.label}</span>
+        <div class="section-line"></div>
+        ${incomplete>0?`<span class="section-count">${incomplete}</span>`:''}
+      </div>`);
+    items.forEach(task=>{ container.insertAdjacentHTML('beforeend',renderCard(task,delay)); delay+=50; attachEvents(task.id); });
+  });
+}
+
+function renderCard(task, delay){
+  const cls = "card" + (task.completed?" completed":"");
+  const title = escapeHtml(task.title||"");
+  const time = escapeHtml(task.time||"");
+  const timeRow = time ? `<div class="task-time-row"><div class="task-time-dot"></div><div class="task-time">${time}</div></div>` : '';
+  const dateBadge = task.date ? `<div class="task-date-badge">${new Date(task.date+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>` : '';
+  return `
+    <div class="${cls}" data-id="${task.id}" style="animation-delay:${delay}ms">
+      <div class="check-wrap ${task.completed?'checked':''}" data-id="${task.id}">
+        <span class="checkmark">✓</span>
+      </div>
+      <div class="task-meta">
+        <div class="task-title">${title}</div>
+        ${timeRow}
+        ${dateBadge}
+      </div>
+      <button class="delete-btn" data-id="${task.id}" aria-label="Delete">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 6h18" stroke="#EF9A9A" stroke-width="2" stroke-linecap="round"/>
+          <path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" stroke="#EF9A9A" stroke-width="2" stroke-linecap="round"/>
+          <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#EF9A9A" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  `;
+}
+
+function attachEvents(id){
+  const card = document.querySelector(`.card[data-id="${id}"]`);
+  if(!card) return;
+  card.querySelector('.check-wrap').addEventListener('click',()=>toggleComplete(id));
+  card.querySelector('.delete-btn').addEventListener('click',()=>removeTask(id));
+}
+
+function toggleComplete(id){
+  const idx = tasks.all.findIndex(t=>t.id===id);
+  if(idx===-1) return;
+  tasks.all[idx].completed = !tasks.all[idx].completed;
+  const item = tasks.all.splice(idx,1)[0];
+  if(item.completed){ tasks.all.push(item); } else {
+    let insertAt = tasks.all.length;
+    for(let i=0;i<tasks.all.length;i++){ if(tasks.all[i].section===item.section&&tasks.all[i].completed){ insertAt=i; break; } }
+    tasks.all.splice(insertAt,0,item);
+  }
+  saveAll(); loadTasks(currentView);
+}
+
+function removeTask(id){
+  tasks.all = tasks.all.filter(t=>t.id!==id);
+  saveAll(); loadTasks(currentView);
+}
+
+/* Add Task */
+let selectedDate = new Date();
+function openAddPopup(){
+  populateSectionSelect();
+  // Pre-select currently viewed day so user doesn't have to pick date every time
+  selectedDate = new Date(selectedDayStr + 'T12:00');
+  document.getElementById("selectedDateLabel").innerText = '📅 ' + selectedDate.toDateString();
+  document.getElementById("addPopup").style.display="block";
+}
+function closeAddPopup(){ document.getElementById("addPopup").style.display="none"; }
+
+function populateSectionSelect(){
+  const sel = document.getElementById("taskSection");
+  sel.innerHTML = "";
+  tasks.sections.forEach(s=>{
+    const o=document.createElement('option'); o.value=s; o.textContent=getSectionMeta(s).label; sel.appendChild(o);
+  });
+  const a=document.createElement('option'); a.value='anytime'; a.textContent='Anytime'; sel.appendChild(a);
+}
+
+document.getElementById("saveBtn").addEventListener('click',()=>{
+  const title = document.getElementById("taskTitle").value.trim();
+  const time = document.getElementById("taskTime").value;
+  const section = document.getElementById("taskSection").value||"anytime";
+  if(!title){ alert("Enter a task title"); return; }
+  const dateStr = localDate(selectedDate);
+  tasks.all.push({ id:uid(), title, time, section, date:dateStr, completed:false });
+  saveAll();
+  document.getElementById("taskTitle").value="";
+  document.getElementById("taskTime").value="";
+  selectedDate=null;
+  document.getElementById("selectedDateLabel").innerText="📅 Choose Date";
+  // Switch view to show the day the task was saved on
+  if(currentView === "daily") { selectedDayStr = dateStr; buildDateStrip(); updateHeaderDate(dateStr); }
+  closeAddPopup(); loadTasks(currentView);
+});
+
+/* Section */
+function openAddSectionPopup(){ document.getElementById("addSectionPopup").style.display="block"; document.getElementById("newSectionName").value=""; }
+function closeAddSectionPopup(){ document.getElementById("addSectionPopup").style.display="none"; }
+function addSection(){
+  const name = document.getElementById("newSectionName").value.trim();
+  if(!name){ alert("Enter a section name"); return; }
+  const key = name.toLowerCase().replace(/\s+/g,'-');
+  if(!tasks.sections.includes(key)){ tasks.sections.push(key); saveAll(); }
+  closeAddSectionPopup(); populateSectionSelect(); loadTasks(currentView);
+}
+
+/* Calendar */
+let currentCalendarDate = new Date();
+function openCalendar(){ document.getElementById("calendarPopup").style.display="block"; renderCalendarGrid(currentCalendarDate); }
+function closeCalendar(){ document.getElementById("calendarPopup").style.display="none"; }
+function prevMonth(){ currentCalendarDate.setMonth(currentCalendarDate.getMonth()-1); renderCalendarGrid(currentCalendarDate); }
+function nextMonth(){ currentCalendarDate.setMonth(currentCalendarDate.getMonth()+1); renderCalendarGrid(currentCalendarDate); }
+
+function renderCalendarGrid(dateObj){
+  const year=dateObj.getFullYear(), month=dateObj.getMonth();
+  document.getElementById("calMonthLabel").textContent = dateObj.toLocaleString('default',{month:'long'})+' '+year;
+  const firstDay = new Date(year,month,1).getDay();
+  const totalDays = new Date(year,month+1,0).getDate();
+  const todayIso = todayLocal();
+  const grid = document.getElementById("calendarGrid");
+  // keep headers
+  const headers = Array.from(grid.querySelectorAll('.cal-day-head'));
+  grid.innerHTML = "";
+  headers.forEach(h=>grid.appendChild(h));
+  for(let i=0;i<firstDay;i++){ const d=document.createElement('div'); d.className='cal-day blank'; grid.appendChild(d); }
+  for(let d=1;d<=totalDays;d++){
+    const dt=new Date(year,month,d);
+    const iso=localDate(dt);
+    const div=document.createElement('div');
+    div.className='cal-day'+(iso===todayIso?' today':'');
+    div.textContent=d;
+    div.onclick=()=>selectDate(year,month,d);
+    grid.appendChild(div);
+  }
+}
+
+function selectDate(y,m,d){
+  selectedDate=new Date(y,m,d);
+  document.getElementById("selectedDateLabel").innerText='📅 '+selectedDate.toDateString();
+  closeCalendar();
+}
+
+/* Seed with relative dates */
+function dateOffset(n){
+  const d = new Date(); d.setDate(d.getDate()+n);
+  return localDate(d);
+}
+
+if(!tasks.all||tasks.all.length===0){
+  tasks.all=[
+    // Today (day 0)
+    {id:'t-0a',title:'Morning yoga',time:'07:00',section:'morning',date:dateOffset(0),completed:false},
+    {id:'t-0b',title:'Read 20 pages',time:'15:00',section:'afternoon',date:dateOffset(0),completed:false},
+    {id:'t-0c',title:'Evening walk',time:'18:30',section:'evening',date:dateOffset(0),completed:false},
+
+    // -1 day: all completed
+    {id:'t-1a',title:'Morning meditation',time:'06:30',section:'morning',date:dateOffset(-1),completed:true},
+    {id:'t-1b',title:'Team standup call',time:'10:00',section:'morning',date:dateOffset(-1),completed:true},
+    {id:'t-1c',title:'Gym session',time:'17:00',section:'afternoon',date:dateOffset(-1),completed:true},
+    {id:'t-1d',title:'Journal writing',time:'21:00',section:'night',date:dateOffset(-1),completed:true},
+
+    // -2 days: all completed
+    {id:'t-2a',title:'Morning run 5km',time:'06:00',section:'morning',date:dateOffset(-2),completed:true},
+    {id:'t-2b',title:'Review project notes',time:'11:00',section:'morning',date:dateOffset(-2),completed:true},
+    {id:'t-2c',title:'Cook healthy lunch',time:'13:00',section:'afternoon',date:dateOffset(-2),completed:true},
+
+    // -3 days: all completed
+    {id:'t-3a',title:'Stretching routine',time:'07:15',section:'morning',date:dateOffset(-3),completed:true},
+    {id:'t-3b',title:'Deep work block',time:'09:00',section:'morning',date:dateOffset(-3),completed:true},
+    {id:'t-3c',title:'Evening reading',time:'20:00',section:'evening',date:dateOffset(-3),completed:true},
+    {id:'t-3d',title:'Plan next day',time:'22:00',section:'night',date:dateOffset(-3),completed:true},
+
+    // +1 day: 1 task, not completed
+    {id:'t+1a',title:'Doctor appointment',time:'10:30',section:'morning',date:dateOffset(1),completed:false},
+
+    // +2 and +3: empty (no tasks)
+  ];
+  saveAll();
+}
+
+/* Init */
+buildDateStrip();
+loadTasks(currentView);
+window.addEventListener('storage',()=>{ tasks=JSON.parse(localStorage.getItem('tasks'))||tasks; loadTasks(currentView); });
+</script>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Juggling Cones</title>
+<style>
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(180deg, #E3F2FD, #B3E5FC);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100vh;
+}
+
+#appContainer {
+  width: 320px;
+  height: 640px;
+  background: linear-gradient(180deg, #F0F9FF, #E1F5FE);
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  padding: 12px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+header {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 4px;
+  position: relative;
+}
+
+.back-btn {
+  position: absolute;
+  left: 12px;
+  top: 2px;
+  color: #1565C0;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1565C0;
+  margin-bottom: 4px;
+}
+
+#infoPanel {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 8px;
+  width: 100%;
+  font-weight: 600;
+  color: #0D47A1;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+#gameArea {
+  flex: 1;
+  width: 94%;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #FFECB3, #FFF8E1);
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  overflow: hidden;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+.cone {
+  width: 55px;
+  height: 80px;
+  background: linear-gradient(to top, #FFB74D, #FF9800);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  cursor: pointer;
+  position: absolute;
+  bottom: 0;
+  border-radius: 8px;
+  transition: left 0.5s ease, bottom 0.3s ease, transform 0.3s;
+}
+.cone:hover {
+  transform: scale(1.1);
+}
+
+.ball {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: red;
+  position: absolute;
+  bottom: 80px;
+  display: none;
+  transition: left 0.5s ease, bottom 0.3s ease, transform 0.3s;
+}
+
+@keyframes pop {
+  0% { bottom: 80px; transform: scale(1); }
+  50% { bottom: 100px; transform: scale(1.3); }
+  100% { bottom: 80px; transform: scale(1); }
+}
+
+#message {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #1565C0;
+  min-height: 22px;
+  font-weight: 600;
+  text-align: center;
+}
+
+button {
+  margin-top: 8px;
+  padding: 8px 14px;
+  font-size: 14px;
+  border: none;
+  background: #42A5F5;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: none; /* Hidden initially */
+}
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.18);
+}
+</style>
+</head>
+<body>
+
+<div id="appContainer">
+
+<header>
+  <a href="../focuslab.html" class="back-btn">←</a>
+  <div class="title">Juggling Cones</div>
+</header>
+
+<div id="infoPanel">
+  <div id="levelBar">Level 1 / 50 • Sub-Level 1 / 5</div>
+  <div id="timer">Time: 01:00</div>
+</div>
+
+<div id="gameArea"></div>
+<div id="message"></div>
+<button id="nextBtn">Next Sub-Level</button>
+
+</div>
+
+<script>
+const TOTAL_CONES = 6;
+const TOTAL_LEVELS = 50;
+const SUBLEVELS = [60, 120, 150, 180, 198];
+let level = parseInt(localStorage.getItem('jc_level')) || 1;
+let subLevel = parseInt(localStorage.getItem('jc_sublevel')) || 1;
+let timeLeft = SUBLEVELS[subLevel - 1];
+
+const gameArea = document.getElementById('gameArea');
+const levelBar = document.getElementById('levelBar');
+const timerEl = document.getElementById('timer');
+const messageEl = document.getElementById('message');
+const nextBtn = document.getElementById('nextBtn');
+
+let cones = [];
+let conePositions = [];
+let ballIndex = 0;
+let timerInterval;
+let shuffling = false;
+
+function updateUI() {
+  levelBar.textContent = `Level ${level} / ${TOTAL_LEVELS} • Sub-Level ${subLevel} / 5`;
+  let mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+  let secs = (timeLeft % 60).toString().padStart(2, '0');
+  timerEl.textContent = `Time: ${mins}:${secs}`;
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  timeLeft = SUBLEVELS[subLevel - 1];
+  updateUI();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateUI();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      messageEl.textContent = "Time's up! Click the correct cone.";
+    }
+  }, 1000);
+}
+
+function createCones() {
+  cones = [];
+  conePositions = [];
+  gameArea.innerHTML = '';
+  nextBtn.style.display = 'none'; // hide next button when new round starts
+  const areaWidth = gameArea.clientWidth;
+  const spacing = areaWidth / TOTAL_CONES;
+
+  for (let i = 0; i < TOTAL_CONES; i++) {
+    const cone = document.createElement('div');
+    cone.classList.add('cone');
+    const x = spacing * i + spacing / 2 - 27;
+    cone.style.left = x + 'px';
+    gameArea.appendChild(cone);
+    cones.push(cone);
+    conePositions.push(x);
+  }
+
+  ballIndex = Math.floor(Math.random() * TOTAL_CONES);
+  const ball = document.createElement('div');
+  ball.classList.add('ball');
+  gameArea.appendChild(ball);
+  ball.style.left = conePositions[ballIndex] + 16 + 'px';
+  ball.style.bottom = '80px';
+  ball.style.display = 'block';
+  setTimeout(() => { ball.style.display = 'none'; startShuffling(); }, 1000);
+
+  cones.forEach((c, i) => {
+    c.onclick = () => checkBall(i, ball);
+  });
+}
+
+function startShuffling() {
+  shuffling = true;
+  let swaps = Math.min(10 + level, 20);
+  let delay = Math.max(300, 1000 - level * 10);
+  let count = 0;
+
+  function swapOnce() {
+    if (count >= swaps) {
+      shuffling = false;
+      messageEl.textContent = "Guess the cone with the ball!";
+      return;
+    }
+
+    let i = Math.floor(Math.random() * TOTAL_CONES);
+    let j;
+    do { j = Math.floor(Math.random() * TOTAL_CONES); } while (j === i);
+
+    cones[i].style.bottom = '25px';
+    cones[j].style.bottom = '25px';
+
+    setTimeout(() => {
+      const temp = conePositions[i];
+      conePositions[i] = conePositions[j];
+      conePositions[j] = temp;
+
+      cones[i].style.left = conePositions[i] + 'px';
+      cones[j].style.left = conePositions[j] + 'px';
+
+      cones[i].style.bottom = '0px';
+      cones[j].style.bottom = '0px';
+
+      const ball = document.querySelector('.ball');
+      if (ballIndex === i) ball.style.left = conePositions[i] + 16 + 'px';
+      else if (ballIndex === j) ball.style.left = conePositions[j] + 16 + 'px';
+
+      count++;
+      setTimeout(swapOnce, delay);
+    }, delay / 2);
+  }
+
+  swapOnce();
+}
+
+function checkBall(idx, ball) {
+  if (shuffling) return;
+  if (idx === ballIndex) {
+    ball.style.display = 'block';
+    ball.style.animation = 'pop 0.5s ease';
+    messageEl.textContent = "Correct! 🎉";
+    clearInterval(timerInterval);
+    nextBtn.style.display = 'inline-block';
+  } else {
+    messageEl.textContent = "Wrong! Reshuffling...";
+    setTimeout(() => {
+      startShuffling(); // reshuffle again if wrong
+    }, 800);
+  }
+}
+
+function nextSubLevel() {
+  subLevel++;
+  if (subLevel > 5) {
+    subLevel = 1;
+    level++;
+    if (level > TOTAL_LEVELS) level = 1;
+  }
+  localStorage.setItem('jc_level', level);
+  localStorage.setItem('jc_sublevel', subLevel);
+  createCones();
+  startTimer();
+  messageEl.textContent = '';
+}
+
+createCones();
+startTimer();
+updateUI();
+nextBtn.onclick = nextSubLevel;
+</script>
+
+</body>
+</html>
+

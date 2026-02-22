@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Count It | MindFlex</title>
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#E5E7EB;
+  font-family:'Poppins',sans-serif;
+}
+
+.container{
+  width:320px;
+  height:640px;
+  border-radius:32px;
+  background:linear-gradient(180deg,#a0c9ec,#AFC4D6);
+  box-shadow:0 30px 60px rgba(0,0,0,0.25);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+/* HEADER */
+header{
+  height:70px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  font-weight:600;
+  font-size:18px;
+  color:#3e61b2;
+}
+
+.back-btn{
+  position:absolute;
+  left:18px;
+  width:36px;
+  height:36px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  text-decoration:none;
+  color:#3e61b2;
+}
+
+/* MAIN */
+.main{
+  flex:1;
+  margin:15px;
+  background:rgba(255,255,255,0.75);
+  border-radius:24px;
+  padding:20px 15px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  text-align:center;
+}
+
+.level-display{
+  font-size:20px;
+  font-weight:700;
+  margin-bottom:5px;
+  color:#2e4fa3;
+}
+
+.instruction{
+  font-size:14px;
+  margin-bottom:15px;
+}
+
+.game-area{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
+  min-height:220px;
+  width:100%;
+}
+
+.object{
+  font-size:2.2rem;
+  margin:6px;
+}
+
+.options{
+  margin-top:15px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+
+.option{
+  background:#BBDEFB;
+  border:none;
+  border-radius:14px;
+  padding:10px 18px;
+  font-size:15px;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.option:hover{
+  transform:scale(1.05);
+}
+
+.next-btn{
+  margin-top:20px;
+  background:#3e61b2;
+  color:white;
+  border:none;
+  border-radius:18px;
+  padding:10px 20px;
+  display:none;
+  cursor:pointer;
+}
+
+.stats{
+  font-size:12px;
+  margin-top:15px;
+  color:#2e4fa3;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<header>
+  <a href="../focuslab.html" class="back-btn">←</a>
+  Count It
+</header>
+
+<div class="main">
+
+<div class="level-display" id="levelText"></div>
+<div class="instruction">Count the objects carefully</div>
+
+<div class="game-area" id="gameArea"></div>
+
+<div class="options" id="options"></div>
+
+<button class="next-btn" id="nextBtn">Next Level</button>
+
+<div class="stats" id="statsBox"></div>
+
+</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+/* 🔥 PUT YOUR REAL FIREBASE CONFIG HERE */
+const firebaseConfig = {
+  apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
+  authDomain: "mindflex-b2a0c.firebaseapp.com",
+  projectId: "mindflex-b2a0c",
+  storageBucket: "mindflex-b2a0c.firebasestorage.app",
+  messagingSenderId: "148676867562",
+  appId: "1:148676867562:web:3365a72b6fa6b3751cee93",
+  measurementId: "G-Q2T6HD3S0E"
+};
+
+
+
+import { getAuth, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let uid = null;
+let firebaseReady = false;
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    uid = user.uid;
+    firebaseReady = true;
+    console.log("User logged in:", uid);
+    loadProgress();   // start game only after auth confirmed
+  } else {
+    console.log("No user found. Redirecting...");
+    window.location.href = "../login.html";  // adjust path
+  }
+});
+
+
+
+
+
+
+/* GAME VARIABLES */
+const emojis = ["🍎","🍌","🍇","🍓","🍪","🎈","🐶","🐱","🐢","🐧","🌻","🌸","🍕","🍉","🥕"];
+let level = 1;
+const maxLevel = 100;
+
+let totalAttempts = 0;
+let correctAnswers = 0;
+
+const gameArea = document.getElementById('gameArea');
+const optionsDiv = document.getElementById('options');
+const nextBtn = document.getElementById('nextBtn');
+const levelText = document.getElementById('levelText');
+const statsBox = document.getElementById('statsBox');
+
+let correctAnswer = 0;
+let highestLevel = 1;
+
+/* LOAD PROGRESS */
+
+
+async function loadProgress(){
+  if(!firebaseReady){
+    startLevel();
+    return;
+  }
+
+  try{
+    const snap = await getDoc(doc(db,"users",uid,"games","countIt"));
+
+    if(snap.exists()){
+      const data = snap.data();   // <-- FIXED HERE
+
+      level = data.level || 1;
+      totalAttempts = data.totalAttempts || 0;
+      correctAnswers = data.correctAnswers || 0;
+      highestLevel = data.highestLevel || 1;
+    }
+  }catch(e){
+    console.log("Load failed:", e);
+  }
+
+  startLevel();
+}
+/* SAVE PROGRESS */
+async function saveProgress(){
+  if(!firebaseReady) return;
+
+  const accuracy = totalAttempts===0 ? 0 :
+    ((correctAnswers/totalAttempts)*100).toFixed(2);
+
+  try{
+  await setDoc(
+  doc(db, "users", uid, "games", "countIt"),
+  {
+    level,
+    highestLevel,
+    totalAttempts,
+    correctAnswers,
+    accuracy,
+    lastPlayed: new Date()
+  },
+  { merge: true }
+);
+
+
+  }catch(e){
+    console.log("Save failed:", e);
+  }
+}
+
+/* START LEVEL */
+function startLevel(){
+  gameArea.innerHTML="";
+  optionsDiv.innerHTML="";
+  nextBtn.style.display="none";
+
+  levelText.textContent="Level "+level;
+
+  const emoji = emojis[Math.floor(Math.random()*emojis.length)];
+
+  const count = Math.floor(Math.random()*(level+5))+5;
+  correctAnswer = count;
+
+  for(let i=0;i<count;i++){
+    const span=document.createElement("span");
+    span.textContent=emoji;
+    span.className="object";
+    gameArea.appendChild(span);
+  }
+
+  let options = new Set([correctAnswer]);
+  while(options.size<4){
+    options.add(Math.floor(Math.random()*(correctAnswer+5))+1);
+  }
+
+  Array.from(options)
+    .sort(()=>Math.random()-0.5)
+    .forEach(num=>{
+      const btn=document.createElement("button");
+      btn.className="option";
+      btn.textContent=num;
+      btn.onclick=()=>checkAnswer(num,btn);
+      optionsDiv.appendChild(btn);
+    });
+
+  updateStats();
+}
+
+/* CHECK ANSWER */
+function checkAnswer(selected,btn){
+  totalAttempts++;
+
+  if(selected===correctAnswer){
+    correctAnswers++;
+    btn.style.background="#4CAF50";
+    nextBtn.style.display="block";
+  }else{
+    btn.style.background="#E57373";
+  }
+
+  updateStats();
+}
+
+/* UPDATE STATS */
+function updateStats(){
+  const accuracy = totalAttempts===0 ? 0 :
+    ((correctAnswers/totalAttempts)*100).toFixed(1);
+
+  statsBox.textContent =
+    `Attempts: ${totalAttempts} | Accuracy: ${accuracy}%`;
+}
+
+/* NEXT LEVEL */
+nextBtn.onclick=async()=>{
+  level++;
+  if(level>maxLevel){
+    alert("You completed 100 levels!");
+    level=1;
+  }
+  await saveProgress();
+  startLevel();
+};
+
+/* INIT */
+
+</script>
+
+</body>
+</html>

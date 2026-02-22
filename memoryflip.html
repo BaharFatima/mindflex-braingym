@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory Flip</title>
+<style>
+  body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(180deg, #E3F2FD, #FFFFFF);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    color: #1565C0;
+  }
+
+  header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 25px 0 10px 0;
+    z-index: 10;
+  }
+  .page-title {
+    font-weight: 600;
+    font-size: 22px;
+    color: #1565C0;
+    z-index: 1;
+  }
+  .back-btn {
+    position: absolute;
+    left: 20px;
+    color: #1565C0;
+    text-decoration: none;
+    font-size: 24px;
+    z-index: 2;
+    background: rgba(255,255,255,0.6);
+    border-radius: 50%;
+    padding: 6px 10px;
+    transition: background 0.3s;
+  }
+  .back-btn:hover {
+    background: rgba(255,255,255,0.9);
+  }
+
+  .game-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 15px;
+    width: 90%;
+    max-width: 400px;
+    margin-top: 30px;
+    z-index: 1;
+  }
+
+  .card {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: #BBDEFB;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.3s, background 0.3s;
+    font-size: 2rem;
+    user-select: none;
+  }
+
+  .card.flipped {
+    background: #FFFFFF;
+    transform: rotateY(180deg);
+  }
+
+  .level-display {
+    margin-top: 25px;
+    font-size: 18px;
+    color: #0D47A1;
+  }
+
+  .next-btn {
+    margin-top: 20px;
+    background: #1565C0;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    display: none;
+  }
+
+  .next-btn:hover {
+    background: #0D47A1;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="../focuslab.html" class="back-btn">←</a>
+  <span class="page-title">Memory Flip</span>
+</header>
+
+<div class="game-container" id="game"></div>
+<div class="level-display" id="levelText">Level 1</div>
+<button class="next-btn" id="nextBtn">Next Level</button>
+
+<script>
+  const emojis = ["🍎","🍌","🍒","🍉","🥑","🍇","🍋","🍓","🥕","🌽","🍪","🍰","🧩","🎈","🐶","🐱","🐼","🐧","🌸","🌻"];
+  const maxLevel = 20;
+  let level = parseInt(localStorage.getItem('memoryFlipLevel')) || 1;
+  const gameContainer = document.getElementById('game');
+  const nextBtn = document.getElementById('nextBtn');
+  const levelText = document.getElementById('levelText');
+  let flipped = [];
+  let matched = 0;
+
+  function startLevel() {
+    nextBtn.style.display = "none";
+    gameContainer.innerHTML = "";
+    const pairs = Math.min(3 + level, 10);
+    const chosen = shuffle(emojis).slice(0, pairs);
+    const cards = shuffle([...chosen, ...chosen]);
+
+    cards.forEach((emoji) => {
+      const card = document.createElement("div");
+      card.classList.add("card");
+      card.dataset.value = emoji;
+      card.addEventListener("click", () => flipCard(card));
+      gameContainer.appendChild(card);
+    });
+
+    flipped = [];
+    matched = 0;
+    levelText.textContent = "Level " + level;
+  }
+
+  function flipCard(card) {
+    if (flipped.length === 2 || card.classList.contains("flipped")) return;
+    card.classList.add("flipped");
+    card.textContent = card.dataset.value;
+    flipped.push(card);
+
+    if (flipped.length === 2) {
+      setTimeout(() => {
+        if (flipped[0].dataset.value === flipped[1].dataset.value) {
+          flipped[0].style.visibility = "hidden";
+          flipped[1].style.visibility = "hidden";
+          matched++;
+          if (matched === Math.min(3 + level, 10)) {
+            nextBtn.style.display = "block";
+          }
+        } else {
+          flipped.forEach(c => {
+            c.classList.remove("flipped");
+            c.textContent = "";
+          });
+        }
+        flipped = [];
+      }, 600);
+    }
+  }
+
+  function shuffle(arr) {
+    return arr.sort(() => Math.random() - 0.5);
+  }
+
+  nextBtn.addEventListener("click", () => {
+    if (level < maxLevel) {
+      level++;
+      localStorage.setItem('memoryFlipLevel', level);
+      startLevel();
+    } else {
+      levelText.textContent = "🎉 All Levels Complete!";
+      nextBtn.style.display = "none";
+    }
+  });
+
+  // Restore progress
+  window.addEventListener('load', startLevel);
+</script>
+
+</body>
+</html>

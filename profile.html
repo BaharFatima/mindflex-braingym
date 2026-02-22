@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your account</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: #ffffff;
+      color: #000000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .app-container {
+      width: 320px;
+      height: 640px;
+      background-color: #ffffff;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      border-radius: 0px;
+    }
+
+    /* Each page scrolls above the bottom nav */
+    .page {
+      display: none;
+      height: calc(100% - 60px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-bottom: 20px;
+    }
+    .page.active { display: block; }
+
+    /* Header Styles */
+    .header {
+      display: flex;
+      align-items: center;
+      padding: 14px;
+      border-bottom: 1px solid #f0f0f0;
+      position: sticky;
+      top: 0;
+      background-color: #ffffff;
+      z-index: 10;
+    }
+
+    .back-button,
+    .back-btn {
+      background: none;
+      border: none;
+      font-size: 22px;
+      margin-right: 14px;
+      cursor: pointer;
+      color: #000000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chevron-left {
+      width: 22px;
+      height: 22px;
+      position: relative;
+    }
+
+    .chevron-left::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 7px;
+      width: 7px;
+      height: 7px;
+      border-left: 2px solid #000;
+      border-bottom: 2px solid #000;
+      transform: translateY(-50%) rotate(45deg);
+    }
+
+    .header-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    /* Profile Section */
+    .profile-section {
+      display: flex;
+      align-items: center;
+      padding: 14px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .profile-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      margin-right: 14px;
+      object-fit: cover;
+    }
+
+    .profile-info { flex-grow: 1; }
+
+    .profile-name {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .profile-username {
+      font-size: 13px;
+      color: #65676b;
+    }
+
+    /* Settings Menu Item Styles */
+    .settings-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px;
+      border-bottom: 1px solid #f0f0f0;
+      background: none;
+      border-left: none;
+      border-right: none;
+      border-top: none;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      font-size: 14px;
+      color: #000000;
+    }
+
+    .settings-item:hover { background-color: #f7f7f7; }
+
+    .chevron-right {
+      width: 10px;
+      height: 10px;
+      position: relative;
+    }
+
+    .chevron-right::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: 2px;
+      width: 5px;
+      height: 5px;
+      border-right: 2px solid #65676b;
+      border-top: 2px solid #65676b;
+      transform: translateY(-50%) rotate(45deg);
+    }
+
+    /* Logout Button */
+    .logout-button {
+      display: block;
+      width: calc(100% - 28px);
+      margin: 14px;
+      padding: 10px;
+      background-color: #e4606d;
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Form Styles */
+    .form-container { padding: 14px; }
+
+    .form-group { margin-bottom: 14px; }
+
+    .form-label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #dddfe2;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #1877f2;
+      box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+    }
+
+    .save-button {
+      background-color: #1877f2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 7px;
+    }
+
+    /* Toggle Switch */
+    .toggle-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .toggle-label { font-weight: 600; font-size: 14px; }
+
+    .toggle-switch {
+      position: relative;
+      width: 46px;
+      height: 24px;
+    }
+
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider { background-color: #1877f2; }
+    input:checked + .toggle-slider:before { transform: translateX(22px); }
+
+    /* Success Message */
+    .success-message {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #4caf50;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 6px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      transform: translateX(150%);
+      transition: transform 0.3s ease-out;
+      z-index: 1000;
+      font-size: 14px;
+    }
+    .success-message.show { transform: translateX(0); }
+
+    /* Editable Field */
+    .editable { cursor: pointer; position: relative; }
+    .editable:hover { background-color: #f7f7f7; }
+
+    .edit-input {
+      width: 100%;
+      padding: 4px;
+      border: 1px solid #1877f2;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: inherit;
+    }
+
+    /* Avatar Upload */
+    .avatar-container { position: relative; cursor: pointer; }
+
+    .avatar-overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 56px; height: 56px;
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .avatar-container:hover .avatar-overlay { opacity: 1; }
+    .avatar-overlay i { color: white; font-size: 18px; }
+
+    /* Card Styles */
+    .card {
+      background-color: #f7f7f7;
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .card-title { font-weight: 600; margin-bottom: 7px; font-size: 14px; }
+    .card-description { color: #65676b; margin-bottom: 10px; font-size: 13px; }
+    .card-button {
+      background: none;
+      border: none;
+      color: #1877f2;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    /* ===== NEW SHORTER NAVIGATION BAR ===== */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: white;
+      border-radius: 20px 20px 0 0;
+      padding: 6px 5px 10px 5px; /* REDUCED PADDING MAKES IT MUCH SHORTER */
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      padding: 4px;
+      position: relative;
+      flex: 1;
+      text-decoration: none;
+    }
+
+    .nav-icon {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s ease;
+      color: #5f6368;
+    }
+
+    .nav-icon i {
+      font-size: 22px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-label {
+      font-family: 'Poppins', sans-serif;
+      font-size: 9px;
+      color: #5f6368;
+      text-align: center;
+      line-height: 1.2;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+
+    /* Pop-up effect when selected */
+    .nav-item.selected .nav-icon i {
+      transform: translateY(-5px) scale(1.15); /* Reduced pop up amount */
+      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .nav-item.selected .nav-label {
+      color: #1565C0;
+      font-weight: 700;
+    }
+
+    /* Specific colors for each menu item */
+    .nav-item[data-category="cv"].selected .nav-icon i { color: #0D47A1; }
+    .nav-item[data-category="achievements"].selected .nav-icon i { color: #9c27b0; }
+    .nav-item[data-category="home"].selected .nav-icon i { color: #1565C0; }
+    .nav-item[data-category="habit-tracker"].selected .nav-icon i { color: #ff4081; }
+    .nav-item[data-category="user-account"].selected .nav-icon i { color: #00838F; }
+
+    /* Image styling */
+    .nav-icon img {
+      width: 22px;
+      height: 22px;
+      transition: all 0.3s ease;
+      object-fit: contain;
+      filter: grayscale(100%) brightness(0.7);
+      border-radius: 8px;
+    }
+
+    .nav-item.selected .nav-icon img {
+      transform: translateY(-5px) scale(1.15);
+      filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+      border-radius: 10px;
+    }
+
+    .nav-item[data-category="cv"].selected .nav-icon img {
+      filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(13, 71, 161, 0.4));
+    }
+
+    /* Fallback icon styling */
+    .nav-icon .fallback-icon {
+      width: 22px;
+      height: 22px;
+      background-color: #5f6368;
+      border-radius: 6px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-weight: bold;
+      font-size: 11px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-item.selected .nav-icon .fallback-icon {
+      background-color: #ff4081;
+      transform: translateY(-5px) scale(1.15);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      border-radius: 8px;
+    }
+
+    .nav-item[data-category="cv"].selected .nav-icon .fallback-icon {
+      background-color: #0D47A1;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+
+    <!-- Success Message -->
+    <div id="success-message" class="success-message">
+      <span id="success-text">Changes saved successfully!</span>
+    </div>
+
+    <!-- Account Page -->
+    <div id="account-page" class="page active">
+      <header class="header">
+        <button id="account-back-btn" class="back-button" onclick="history.back()">
+          <div class="chevron-left"></div>
+        </button>
+        <h1 class="header-title">Your account</h1>
+      </header>
+
+      <section class="profile-section">
+        <div class="avatar-container" id="avatar-container">
+          <img id="user-avatar" src="pfp.png" alt="User Avatar" class="profile-avatar">
+          <div class="avatar-overlay">
+            <i class="fas fa-camera"></i>
+          </div>
+          <input type="file" id="avatar-input" accept="image/*" style="display:none;">
+        </div>
+
+        <div class="profile-info">
+          <h2 id="user-name" class="profile-name editable">Guest</h2>
+          <p id="user-username" class="profile-username editable">@guest</p>
+        </div>
+      </section>
+
+      <main>
+        <button class="settings-item" data-page="account-management">
+          <span>Account Management</span>
+          <div class="chevron-right"></div>
+        </button>
+
+        <button class="settings-item" data-page="profile-visibility">
+          <span>Profile Visibility</span>
+          <div class="chevron-right"></div>
+        </button>
+
+        <button class="settings-item" data-page="privacy-data">
+          <span>Privacy and Data</span>
+          <div class="chevron-right"></div>
+        </button>
+
+        <button class="settings-item" data-page="login">
+          <span>Log in</span>
+          <div class="chevron-right"></div>
+        </button>
+
+        <button class="settings-item" data-page="security">
+          <span>Security</span>
+          <div class="chevron-right"></div>
+        </button>
+
+        <button class="settings-item" data-page="support">
+          <span>Support</span>
+          <div class="chevron-right"></div>
+        </button>
+
+        <button class="settings-item" data-page="terms">
+          <span>Terms of Service</span>
+          <div class="chevron-right"></div>
+        </button>
+
+        <button class="settings-item" data-page="help">
+          <span>Help Centre</span>
+          <div class="chevron-right"></div>
+        </button>
+
+        <button class="settings-item" data-page="about">
+          <span>About</span>
+          <div class="chevron-right"></div>
+        </button>
+      </main>
+
+      <footer>
+        <button id="logout-btn" class="logout-button">Log out</button>
+      </footer>
+    </div>
+
+    <!-- Account Management Page -->
+    <div id="account-management-page" class="page">
+      <header class="header">
+        <button class="back-btn" data-destination="account-page">
+          <div class="chevron-left"></div>
+        </button>
+        <h1 class="header-title">Account Management</h1>
+      </header>
+
+      <div class="form-container">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="full-name-input" class="form-input" value="">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" id="username-input" class="form-input" value="">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="email-input" class="form-input" value="">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <input type="tel" id="phone-input" class="form-input" value="">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="password-input" class="form-input" placeholder="Enter new password">
+        </div>
+
+        <button id="save-account-btn" class="save-button">Save Changes</button>
+      </div>
+    </div>
+
+    <!-- Profile Visibility Page -->
+    <div id="profile-visibility-page" class="page">
+      <header class="header">
+        <button class="back-btn" data-destination="account-page">
+          <div class="chevron-left"></div>
+        </button>
+        <h1 class="header-title">Profile Visibility</h1>
+      </header>
+
+      <div class="form-container">
+        <div class="toggle-container">
+          <span class="toggle-label">Public Profile</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="public-profile-toggle">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-container">
+          <span class="toggle-label">Show Email</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="show-email-toggle">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-container">
+          <span class="toggle-label">Show Phone Number</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="show-phone-toggle">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-container">
+          <span class="toggle-label">Show Activity Status</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="activity-status-toggle">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <button id="save-visibility-btn" class="save-button">Save Changes</button>
+      </div>
+    </div>
+
+    <!-- Privacy and Data Page -->
+    <div id="privacy-data-page" class="page">
+      <header class="header">
+        <button class="back-btn" data-destination="account-page">
+          <div class="chevron-left"></div>
+        </button>
+        <h1 class="header-title">Privacy and Data</h1>
+      </header>
+
+      <div class="form-container">
+        <div class="card">
+          <h3 class="card-title">Data Collection</h3>
+          <p class="card-description">We collect data to improve your experience.</p>
+          <button id="data-collection-btn" class="card-button">Manage Data Collection</button>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Cookies</h3>
+          <p class="card-description">We use cookies to personalize content.</p>
+          <button id="cookies-btn" class="card-button">Cookie Settings</button>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Download Your Data</h3>
+          <p class="card-description">Get a copy of your data.</p>
+          <button id="download-data-btn" class="card-button">Request Data</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Login Page (internal demo) -->
+    <div id="login-page" class="page">
+      <header class="header">
+        <button class="back-btn" data-destination="account-page">
+          <div class="chevron-left"></div>
+        </button>
+        <h1 class="header-title">Log in</h1>
+      </header>
+
+      <div class="form-container">
+        <div class="form-group">
+          <label class="form-label">Username or Email</label>
+          <input type="text" id="login-username" class="form-input">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="login-password" class="form-input">
+        </div>
+
+        <div class="form-group">
+          <label style="display:flex;align-items:center;">
+            <input type="checkbox" id="remember-me" style="margin-right:8px;">
+            <span>Remember me</span>
+          </label>
+        </div>
+
+        <button id="login-btn" class="save-button">Log in</button>
+      </div>
+    </div>
+
+    <!-- Security Page -->
+    <div id="security-page" class="page">
+      <header class="header">
+        <button class="back-btn" data-destination="account-page">
+          <div class="chevron-left"></div>
+        </button>
+        <h1 class="header-title">Security</h1>
+      </header>
+
+      <div class="form-container">
+        <div class="card">
+          <h3 class="card-title">Two-Factor Authentication</h3>
+          <p class="card-description">Add an extra layer of security to your account.</p>
+          <button id="two-factor-btn" class="card-button">Enable</button>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Active Sessions</h3>
+          <p class="card-description">Manage devices where you're logged in.</p>
+          <button id="sessions-btn" class="card-button">View Sessions</button>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Login Alerts</h3>
+          <p class="card-description">Get notified when someone logs into your account.</p>
+          <button id="alerts-btn" class="card-button">Configure</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Support Page -->
+    <div id="support-page" class="page">
+      <header class="header">
+        <button class="back-btn" data-destination="account-page">
+          <div class="chevron-left"></div>
+        </button>
+        <h1 class="header-title">Support</h1>
+      </header>
+
+      <div class="form-container">
+        <div class="card">
+          <h3 class="card-title">Contact Us</h3>
+          <p class="card-description">Get help from our support team.</p>
+          <button id="contact-btn" class="card-button">Contact Support</button>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">FAQs</h3>
+          <p class="card-description">Find answers to common questions.</p>
+          <button id="faqs-btn" class="card-button">View FAQs</button>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Report a Problem</h3>
+          <p class="card-description">Let us know about any issues you're experiencing.</p>
+          <button id="report-btn" class="card-button">Report Issue</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Terms Page -->
+    <div id="terms-page" class="page">
+      <header class="header">
+        <button class="back-btn" data-destination="account-page">
+          <div class="chevron-left"></div>
+        </button>
+        <h1 class="header-title">Terms of Service</h1>
+      </header>
+
+      <div class="form-container">
+        <h2 style="margin-bottom:14px;font-size:14px;">1. Acceptance of Terms</h2>
+        <p style="margin-bottom:14px;font-size:13px;">By accessing and using this service, you accept and agree to be bound by terms and provision of this agreement.</p>
+      </div>
+    </div>
+
+    <!-- Help Page -->
+    <div id="help-page" class="page">
+      <header class="header">
+        <button class="back-btn" data-destination="account-page">
+          <div class="chevron-left"></div>
+        </button>
+        <h1 class="header-title">Help Centre</h1>
+      </header>
+
+      <div class="form-container">
+        <div class="form-group">
+          <input type="text" class="form-input" placeholder="Search for help...">
+        </div>
+      </div>
+    </div>
+
+    <!-- About Page -->
+    <div id="about-page" class="page">
+      <header class="header">
+        <button class="back-btn" data-destination="account-page">
+          <div class="chevron-left"></div>
+        </button>
+        <h1 class="header-title">About</h1>
+      </header>
+
+      <div class="form-container" style="text-align:center;">
+        <img src="https://picsum.photos/seed/logo123/100/100.jpg" alt="App Logo"
+             style="width:80px;height:80px;border-radius:50%;margin-bottom:14px;">
+        <h2 style="margin-bottom:7px;font-size:16px;">MindFlex</h2>
+        <p style="color:#65676b;margin-bottom:20px;font-size:13px;">Version 1.0.0</p>
+      </div>
+    </div>
+
+    <!-- ========== NEW SHORTER NAVIGATION BAR ========== -->
+    <nav class="bottom-nav">
+      <a href="cv.html" class="nav-item" data-category="cv">
+        <div class="nav-icon">
+          <img src="cv.png" alt="CV" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="fallback-icon" style="display: none;">
+            <i class="fas fa-file-alt"></i>
+          </div>
+        </div>
+        <div class="nav-label">CV</div>
+      </a>
+
+      <a href="#" class="nav-item" data-category="achievements">
+        <div class="nav-icon">
+          <i class="fas fa-trophy"></i>
+        </div>
+        <div class="nav-label">Achievements</div>
+      </a>
+
+      <a href="main.html" class="nav-item" data-category="home">
+        <div class="nav-icon">
+          <i class="fas fa-home"></i>
+        </div>
+        <div class="nav-label">Home</div>
+      </a>
+
+      <a href="habittracker.html" class="nav-item" data-category="habit-tracker">
+        <div class="nav-icon">
+          <img src="https://z-cdn-media.chatglm.cn/files/a1979dda-a3e4-4b38-b0cf-00e4ad455277_pasted_image_1762936027415.png?auth_key=1862936037-6cc8a5a356484e1cb70a8f599e1f2ce8-0-496c548f3f7ef2ea6a808a3cc812dc2c" alt="Habit Tracker" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="fallback-icon" style="display: none;"><i class="fas fa-check"></i></div>
+        </div>
+        <div class="nav-label">Habits</div>
+      </a>
+
+      <a href="profile.html" class="nav-item selected" data-category="user-account">
+        <div class="nav-icon">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="nav-label">Account</div>
+      </a>
+    </nav>
+
+  </div>
+
+  <script>
+    /**
+     * Dynamic user info:
+     * - Login page should set localStorage key: "currentUser"
+     * Example:
+     * localStorage.setItem("currentUser", JSON.stringify({
+     *   name:"John Doe", username:"@johndoe", email:"john@mail.com", phone:"...", avatar:"..."
+     * }));
+     */
+
+    const defaultUser = {
+      name: "Guest",
+      username: "@guest",
+      email: "",
+      phone: "",
+      avatar: "pfp.png",
+      publicProfile: true,
+      showEmail: false,
+      showPhone: false,
+      activityStatus: true
+    };
+
+    const userData = { ...defaultUser };
+
+    function saveUserData() {
+      // Save as current user (so other pages can use it)
+      localStorage.setItem('currentUser', JSON.stringify(userData));
+    }
+
+    function loadUserData() {
+      const saved = localStorage.getItem('currentUser') || localStorage.getItem('userData');
+      if (saved) {
+        try {
+          Object.assign(userData, defaultUser, JSON.parse(saved));
+        } catch (e) {
+          Object.assign(userData, defaultUser);
+        }
+      } else {
+        Object.assign(userData, defaultUser);
+      }
+      updateUI();
+    }
+
+    function updateUI() {
+      document.getElementById('user-name').textContent = userData.name || defaultUser.name;
+      document.getElementById('user-username').textContent = userData.username || defaultUser.username;
+      document.getElementById('user-avatar').src = userData.avatar || defaultUser.avatar;
+
+      document.getElementById('full-name-input').value = userData.name || "";
+      document.getElementById('username-input').value = userData.username || "";
+      document.getElementById('email-input').value = userData.email || "";
+      document.getElementById('phone-input').value = userData.phone || "";
+
+      document.getElementById('public-profile-toggle').checked = !!userData.publicProfile;
+      document.getElementById('show-email-toggle').checked = !!userData.showEmail;
+      document.getElementById('show-phone-toggle').checked = !!userData.showPhone;
+      document.getElementById('activity-status-toggle').checked = !!userData.activityStatus;
+    }
+
+    function showSuccessMessage(message) {
+      const messageElement = document.getElementById('success-message');
+      document.getElementById('success-text').textContent = message;
+      messageElement.classList.add('show');
+      setTimeout(() => messageElement.classList.remove('show'), 3000);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadUserData();
+
+      // ===== Settings navigation (internal pages) =====
+      const settingsItems = document.querySelectorAll('.settings-item');
+      const backButtons = document.querySelectorAll('.back-btn');
+      const pages = document.querySelectorAll('.page');
+
+      function showPage(pageId) {
+        pages.forEach(p => p.classList.remove('active'));
+        const target = document.getElementById(pageId);
+        if (target) target.classList.add('active');
+      }
+
+      settingsItems.forEach(item => {
+        item.addEventListener('click', function() {
+          const targetPage = this.getAttribute('data-page');
+          showPage(`${targetPage}-page`);
+        });
+      });
+
+      backButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const destinationPage = this.getAttribute('data-destination');
+          showPage(destinationPage);
+        });
+      });
+
+      // ===== Bottom nav interaction (pop + delay) =====
+      const navItems = document.querySelectorAll('.bottom-nav .nav-item');
+      navItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+          const targetUrl = this.getAttribute('href');
+
+          // animate selection always
+          navItems.forEach(i => i.classList.remove('selected'));
+          this.classList.add('selected');
+
+          // navigate with delay if not current page
+          if (targetUrl && targetUrl !== '#') {
+            e.preventDefault();
+            setTimeout(() => { window.location.href = targetUrl; }, 300);
+          }
+        });
+      });
+
+      // ===== Inline editable name/username =====
+      const userNameField = document.getElementById('user-name');
+      const userUsernameField = document.getElementById('user-username');
+
+      userNameField.addEventListener('click', function() {
+        if (this.classList.contains('editing')) return;
+        const currentText = this.textContent;
+        this.classList.add('editing');
+        this.innerHTML = `<input type="text" class="edit-input" value="${currentText}">`;
+        const input = this.querySelector('input');
+        input.focus();
+        input.select();
+
+        input.addEventListener('blur', function() {
+          const newValue = this.value.trim();
+          userNameField.classList.remove('editing');
+          userNameField.textContent = newValue || currentText;
+
+          if (newValue && newValue !== currentText) {
+            userData.name = newValue;
+            saveUserData();
+            updateUI();
+            showSuccessMessage('Name updated successfully!');
+          }
+        });
+
+        input.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') this.blur();
+        });
+      });
+
+      userUsernameField.addEventListener('click', function() {
+        if (this.classList.contains('editing')) return;
+        const currentText = this.textContent;
+        this.classList.add('editing');
+        this.innerHTML = `<input type="text" class="edit-input" value="${currentText}">`;
+        const input = this.querySelector('input');
+        input.focus();
+        input.select();
+
+        input.addEventListener('blur', function() {
+          const newValue = this.value.trim();
+          userUsernameField.classList.remove('editing');
+          userUsernameField.textContent = newValue || currentText;
+
+          if (newValue && newValue !== currentText) {
+            userData.username = newValue;
+            saveUserData();
+            updateUI();
+            showSuccessMessage('Username updated successfully!');
+          }
+        });
+
+        input.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') this.blur();
+        });
+      });
+
+      // ===== Avatar upload =====
+      const avatarContainer = document.getElementById('avatar-container');
+      const avatarInput = document.getElementById('avatar-input');
+
+      avatarContainer.addEventListener('click', function() {
+        avatarInput.click();
+      });
+
+      avatarInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = function(ev) {
+            userData.avatar = ev.target.result;
+            saveUserData();
+            updateUI();
+            showSuccessMessage('Avatar updated successfully!');
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      // ===== Save buttons =====
+      document.getElementById('save-account-btn').addEventListener('click', function() {
+        userData.name = document.getElementById('full-name-input').value.trim() || userData.name;
+        userData.username = document.getElementById('username-input').value.trim() || userData.username;
+        userData.email = document.getElementById('email-input').value.trim();
+        userData.phone = document.getElementById('phone-input').value.trim();
+
+        saveUserData();
+        updateUI();
+        showSuccessMessage('Account information updated successfully!');
+      });
+
+      document.getElementById('save-visibility-btn').addEventListener('click', function() {
+        userData.publicProfile = document.getElementById('public-profile-toggle').checked;
+        userData.showEmail = document.getElementById('show-email-toggle').checked;
+        userData.showPhone = document.getElementById('show-phone-toggle').checked;
+        userData.activityStatus = document.getElementById('activity-status-toggle').checked;
+        saveUserData();
+        showSuccessMessage('Profile visibility settings updated successfully!');
+      });
+
+      // ===== Logout =====
+      document.getElementById('logout-btn').addEventListener('click', function() {
+        if (confirm('Are you sure you want to log out?')) {
+          localStorage.removeItem('currentUser');
+          // change this to your login page file name later:
+          window.location.href = 'login.html';
+        }
+      });
+
+      // Demo internal login (you'll replace this when you send your login/signup page)
+      document.getElementById('login-btn').addEventListener('click', function() {
+        const u = document.getElementById('login-username').value.trim();
+        const p = document.getElementById('login-password').value.trim();
+        if (!u || !p) return alert('Please enter both username and password');
+
+        // DEMO: fake login sets currentUser
+        userData.username = u.startsWith('@') ? u : '@' + u;
+        if (userData.name === "Guest") userData.name = "User";
+        saveUserData();
+        updateUI();
+        showSuccessMessage('Logged in (demo)');
+        showPage('account-page');
+      });
+    });
+  </script>
+</body>
+</html>

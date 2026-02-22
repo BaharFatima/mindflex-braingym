@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Bar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 320px; /* Optimized for 320px width */
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .menu-container {
+            background-color: white;
+            width: 100%;
+            border-radius: 20px; /* Curved frame */
+            padding: 15px 5px; /* Reduced padding for smaller screen */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: space-around;
+            animation: slideUp 0.5s ease-out;
+            position: relative;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px; /* Reduced gap */
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 5px; /* Reduced padding */
+            position: relative;
+            flex: 1; /* Allow items to flex equally */
+        }
+
+        .menu-icon {
+            width: 40px; /* Reduced size */
+            height: 40px; /* Reduced size */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            color: #5f6368;
+        }
+
+        .menu-icon i {
+            font-size: 24px; /* Slightly larger icon for better visibility */
+            transition: all 0.3s ease;
+        }
+
+        .menu-label {
+            font-size: 10px; /* Reduced font size */
+            color: #5f6368;
+            text-align: center;
+            line-height: 1.2; /* Better line height for readability */
+        }
+
+        /* Pop-up effect when selected - only highlight the icon */
+        .menu-item.selected .menu-icon i {
+            transform: translateY(-8px) scale(1.2); /* Move up and scale */
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Specific colors for each menu item */
+        .menu-item[data-category="journal"].selected .menu-icon i {
+            color: #ff9800;
+        }
+
+        .menu-item[data-category="achievements"].selected .menu-icon i {
+            color: #9c27b0;
+        }
+
+        .menu-item[data-category="home"].selected .menu-icon i {
+            color: #4285f4;
+        }
+
+        .menu-item[data-category="habit-tracker"].selected .menu-icon i {
+            color: #ff4081; /* Pink color for habit tracker */
+        }
+
+        .menu-item[data-category="user-account"].selected .menu-icon i {
+            color: #00bcd4;
+        }
+
+        /* Custom image icon styling - same size as other icons */
+        .menu-icon img {
+            width: 24px; /* Same size as Font Awesome icons */
+            height: 24px; /* Same size as Font Awesome icons */
+            transition: all 0.3s ease;
+            object-fit: contain;
+            filter: grayscale(100%) brightness(0.7); /* Make image grey by default */
+            border-radius: 8px; /* Make the habit tracker icon more curvy */
+        }
+
+        .menu-item.selected .menu-icon img {
+            transform: translateY(-8px) scale(1.2); /* Move up and scale */
+            filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15)); /* Remove grayscale to show pink */
+            border-radius: 10px; /* Slightly more rounded when selected */
+        }
+
+        /* Fallback icon styling */
+        .menu-icon .fallback-icon {
+            width: 24px;
+            height: 24px;
+            background-color: #5f6368;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .menu-item.selected .menu-icon .fallback-icon {
+            background-color: #ff4081;
+            transform: translateY(-8px) scale(1.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+        }
+
+        /* Adjust for even smaller screens if needed */
+        @media (max-width: 320px) {
+            .container {
+                max-width: 100%;
+                padding: 10px;
+            }
+            
+            .menu-container {
+                padding: 10px 2px;
+            }
+            
+            .menu-icon {
+                width: 36px;
+                height: 36px;
+            }
+            
+            .menu-icon i {
+                font-size: 20px;
+            }
+            
+            .menu-icon img {
+                width: 20px; /* Same size as Font Awesome icons on smaller screens */
+                height: 20px; /* Same size as Font Awesome icons on smaller screens */
+                border-radius: 6px; /* Adjusted for smaller size */
+            }
+            
+            .menu-icon .fallback-icon {
+                width: 20px;
+                height: 20px;
+                border-radius: 6px;
+            }
+            
+            .menu-item.selected .menu-icon .fallback-icon {
+                border-radius: 8px;
+            }
+            
+            .menu-label {
+                font-size: 9px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="menu-container">
+            <div class="menu-item" data-category="journal">
+                <div class="menu-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div class="menu-label">Journal</div>
+            </div>
+            
+            <div class="menu-item" data-category="achievements">
+                <div class="menu-icon">
+                    <!-- Replace with your custom image: <img src="path/to/your/image.png" alt="Achievements"> -->
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="menu-label">Achievements</div>
+            </div>
+            
+            <div class="menu-item" data-category="home">
+                <div class="menu-icon">
+                    <i class="fas fa-home"></i>
+                </div>
+                <div class="menu-label">Home</div>
+            </div>
+            
+            <div class="menu-item" data-category="habit-tracker">
+                <div class="menu-icon">
+                    <!-- Try to load the image, with a fallback if it fails -->
+                    <img src="https://z-cdn-media.chatglm.cn/files/a1979dda-a3e4-4b38-b0cf-00e4ad455277_pasted_image_1762936027415.png?auth_key=1862936037-6cc8a5a356484e1cb70a8f599e1f2ce8-0-496c548f3f7ef2ea6a808a3cc812dc2c" alt="Habit Tracker" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="fallback-icon" style="display: none;">
+                        <i class="fas fa-check"></i>
+                    </div>
+                </div>
+                <div class="menu-label">Habit Tracker</div>
+            </div>
+            
+            <div class="menu-item" data-category="user-account">
+                <div class="menu-icon">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="menu-label">Account</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuItems = document.querySelectorAll('.menu-item');
+            
+            // Menu item click events
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Toggle selected state
+                    const wasSelected = this.classList.contains('selected');
+                    
+                    // Remove selected class from all items
+                    menuItems.forEach(i => i.classList.remove('selected'));
+                    
+                    // Add selected class to clicked item if it wasn't already selected
+                    if (!wasSelected) {
+                        this.classList.add('selected');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

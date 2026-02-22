@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Create / Edit Exam Timetable</title>
+
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;font-family:"Poppins",sans-serif}
+  body{height:100%;background:linear-gradient(135deg,#d8eaff,#a6ccff);display:flex;align-items:center;justify-content:center}
+  .container{width:320px;height:640px;background:#f8fbff;border-radius:20px;box-shadow:0 18px 40px rgba(0,70,160,0.12);overflow:hidden;position:relative;display:flex;flex-direction:column}
+  header{height:56px;display:flex;align-items:center;justify-content:space-between;padding:12px 14px;color:#0f2b45;font-weight:700}
+  main{flex:1;overflow:auto;padding:14px}
+
+  .label{font-weight:700;color:#0f2b45;margin-bottom:6px}
+  input, textarea, select {
+    width:100%;padding:10px;border-radius:10px;border:1px solid #cfe4ff;background:#fff;margin-bottom:12px;font-size:14px;
+  }
+  textarea{min-height:120px;resize:none;white-space:pre-wrap}
+
+  .row{display:flex;gap:10px}
+  .row input{flex:1}
+
+  .btn {display:block;width:100%;padding:12px;border-radius:12px;border:none;background:#6da8ff;color:white;font-weight:700;cursor:pointer;margin-top:10px}
+  .small-btn{padding:8px 10px;border-radius:8px;border:none;background:rgba(109,168,255,0.15);color:#6da8ff;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div><button onclick="goBack()" style="background:none;border:none;font-size:18px;cursor:pointer">←</button></div>
+    <div id="hdr">Create Timetable</div>
+    <div></div>
+  </header>
+
+  <main>
+    <div class="label">Title (optional)</div>
+    <input id="title" placeholder="E.g. Final Week - May">
+
+    <div class="label">Subjects (format: Subject:weight, ...)</div>
+    <input id="subjectsInput" placeholder="Ex: Math:3, Physics:1, English:2">
+
+    <div class="row">
+      <div style="flex:1">
+        <div class="label">Start time</div>
+        <input id="startInput" type="time" value="09:00">
+      </div>
+      <div style="flex:1">
+        <div class="label">End time</div>
+        <input id="endInput" type="time" value="14:00">
+      </div>
+    </div>
+
+    <button class="btn" id="generateBtn">Generate Timetable</button>
+
+    <div class="label">Generated timetable</div>
+    <textarea id="output" placeholder="Your timetable will appear here."></textarea>
+
+    <button class="btn" id="saveBtn">Save Timetable</button>
+    <button class="small-btn" id="deleteBtn" style="display:none;margin-top:8px;background:#ff6b6b;color:white;">Delete This Timetable</button>
+  </main>
+</div>
+
+<script>
+const STORAGE_KEY = 'examTimetables_v1';
+
+function timeToMinutes(t) {
+  let [h, m] = (t||'00:00').split(":").map(Number);
+  return h * 60 + m;
+}
+function minutesToTime(mins) {
+  let h = Math.floor(mins / 60);
+  let m = mins % 60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+}
+
+function generateTimetableText(subjectsRaw, start, end) {
+  if (!subjectsRaw) return 'Please enter subjects with priorities (ex: Math:3, Physics:1)';
+  let subjects = subjectsRaw.split(",").map(x => x.trim()).map(item => {
+    let [name, weight] = item.split(":").map(s => s.trim());
+    return { name, weight: Number(weight) };
+  });
+  if (subjects.some(s => isNaN(s.weight) || s.weight <= 0)) {
+    return "ERROR: each subject must have a positive number priority.";
+  }
+  let totalWeight = subjects.reduce((a,b)=>a+b.weight,0);
+  let startMin = timeToMinutes(start);
+  let endMin = timeToMinutes(end);
+  if (endMin <= startMin) return "End time must be later than start time.";
+  let totalTime = endMin - startMin;
+  let result = "📅 YOUR PROPORTIONAL TIMETABLE\n\n";
+  let current = startMin;
+  subjects.forEach((sub, idx) => {
+    let allocated = Math.round((sub.weight / totalWeight) * totalTime);
+    let blockStart = minutesToTime(current);
+    let blockEnd = minutesToTime(current + allocated);
+    result += `${blockStart} - ${blockEnd}  →  ${sub.name}\n`;
+    current += allocated;
+  });
+  return result;
+}
+
+/* --------------- CRUD & UI --------------- */
+let editingIndex = null;
+let all = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+function loadEditingIndexAndPopulate(){
+  const idx = localStorage.getItem('editingExamIndex');
+  if (idx !== null) {
+    editingIndex = parseInt(idx,10);
+    all = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    const e = all[editingIndex];
+    if (e) {
+      document.getElementById('hdr').textContent = 'Edit Timetable';
+      document.getElementById('title').value = e.title || '';
+      document.getElementById('subjectsInput').value = e.subjectsRaw || '';
+      document.getElementById('startInput').value = e.start || '09:00';
+      document.getElementById('endInput').value = e.end || '14:00';
+      document.getElementById('output').value = e.resultText || '';
+      document.getElementById('deleteBtn').style.display = 'block';
+    }
+  }
+}
+
+document.getElementById('generateBtn').onclick = () => {
+  const raw = document.getElementById('subjectsInput').value.trim();
+  const start = document.getElementById('startInput').value;
+  const end = document.getElementById('endInput').value;
+  const result = generateTimetableText(raw, start, end);
+  document.getElementById('output').value = result;
+};
+
+document.getElementById('saveBtn').onclick = () => {
+  const title = document.getElementById('title').value.trim();
+  const subjectsRaw = document.getElementById('subjectsInput').value.trim();
+  const start = document.getElementById('startInput').value;
+  const end = document.getElementById('endInput').value;
+  const resultText = document.getElementById('output').value;
+
+  if (!subjectsRaw) { alert('Enter subjects (ex: Math:3, Physics:1)'); return; }
+
+  const entry = {
+    title: title || `Timetable ${new Date().toLocaleString()}`,
+    subjectsRaw,
+    start,
+    end,
+    resultText,
+    savedAt: new Date().toISOString()
+  };
+
+  let arr = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+  if (editingIndex === null) {
+    arr.push(entry);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+    alert('Saved new exam timetable.');
+  } else {
+    arr[editingIndex] = entry;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+    alert('Timetable updated.');
+  }
+
+  // return to list after save
+  localStorage.removeItem('editingExamIndex');
+  window.location.href = 'exam.html';
+};
+
+document.getElementById('deleteBtn').onclick = () => {
+  if (editingIndex === null) return;
+  if (!confirm('Delete this timetable?')) return;
+  let arr = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  arr.splice(editingIndex, 1);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+  localStorage.removeItem('editingExamIndex');
+  window.location.href = 'exam.html';
+};
+
+function goBack(){
+  localStorage.removeItem('editingExamIndex');
+  window.location.href = 'exam.html';
+}
+
+/* init */
+loadEditingIndexAndPopulate();
+</script>
+
+</body>
+</html>

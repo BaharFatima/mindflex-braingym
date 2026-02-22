@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Score</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+
+  html,body{
+    height:100%;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,#dceeff,#a6d9ff);
+    overflow:hidden;
+  }
+
+  .app{
+    width:320px;height:640px;
+    background:linear-gradient(180deg,#a6d9ff,#bce2ff);
+    border-radius:25px;
+    box-shadow:0 10px 25px rgba(0,80,160,0.2);
+    display:flex;flex-direction:column;overflow:hidden;
+    position:relative;
+  }
+
+  header{
+    display:flex;justify-content:center;padding:15px;color:#003366;
+    font-size:1.3rem;font-weight:600;
+  }
+
+  main{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:20px;
+  }
+
+  /* Score Box */
+  #score{
+    font-size:2rem;color:#003366;font-weight:700;
+    margin-bottom:20px;
+    background:white;
+    padding:15px 25px;
+    border-radius:20px;
+    box-shadow:0 8px 18px rgba(0,0,0,0.15);
+    animation: popIn 0.6s ease forwards;
+  }
+
+  @keyframes popIn{
+    0%{transform:scale(0.5);opacity:0;}
+    100%{transform:scale(1);opacity:1;}
+  }
+
+  /* Button */
+  .btn{
+    background:white;
+    padding:12px 22px;
+    border-radius:15px;
+    font-weight:600;
+    color:#003366;
+    box-shadow:0 4px 10px rgba(0,0,0,0.15);
+    text-decoration:none;
+    transition:0.2s;
+  }
+
+  .btn:active{
+    transform:scale(0.95);
+  }
+
+  /* Confetti canvas */
+  #confetti{
+    position:absolute;
+    top:0;left:0;
+    width:100%;height:100%;
+    pointer-events:none;
+  }
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<canvas id="confetti"></canvas>
+
+<header>Score</header>
+
+<main>
+  <div id="score"></div>
+  <a href="QuizCategory.html" class="btn">Back to Quiz</a>
+</main>
+
+</div>
+
+<script>
+/* Load Score */
+const score = localStorage.getItem("quizScore");
+document.getElementById("score").textContent = `You scored ${score}!`;
+
+/* SIMPLE CONFETTI ANIMATION */
+const canvas = document.getElementById('confetti');
+const ctx = canvas.getContext('2d');
+
+canvas.width = canvas.offsetWidth;
+canvas.height = canvas.offsetHeight;
+
+let confetti = [];
+
+for(let i=0; i<70; i++){
+  confetti.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height - canvas.height,
+    r: Math.random() * 6 + 4,
+    d: Math.random() * 2 + 2,
+    color: ["#ff595e","#ffca3a","#8ac926","#1982c4","#6a4c93"][Math.floor(Math.random()*5)],
+    tilt: Math.random()*10 - 10
+  });
+}
+
+function drawConfetti(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  confetti.forEach((c)=>{
+    ctx.beginPath();
+    ctx.fillStyle = c.color;
+    ctx.fillRect(c.x, c.y, c.r, c.r);
+  });
+
+  updateConfetti();
+}
+
+function updateConfetti(){
+  confetti.forEach((c)=>{
+    c.y += c.d;
+    c.tilt += 0.1;
+
+    if(c.y > canvas.height){
+      c.y = -10;
+      c.x = Math.random() * canvas.width;
+    }
+  });
+}
+
+setInterval(drawConfetti, 20);
+</script>
+
+</body>
+</html>

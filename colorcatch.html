@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Color Catch</title>
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#E5E7EB;
+  font-family:'Poppins',sans-serif;
+}
+
+.app{
+  width:320px;
+  height:640px;
+  border-radius:32px;
+  background:linear-gradient(180deg,#a0c9ec,#AFC4D6);
+  box-shadow:0 30px 60px rgba(0,0,0,0.25);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  position:relative;
+}
+
+/* decorative depth */
+.app::before{
+  content:"";
+  position:absolute;
+  width:160px;
+  height:160px;
+  background:rgba(255,255,255,0.2);
+  border-radius:50%;
+  top:-50px;
+  right:-40px;
+}
+
+.app::after{
+  content:"";
+  position:absolute;
+  width:120px;
+  height:120px;
+  background:rgba(255,255,255,0.15);
+  border-radius:50%;
+  bottom:-40px;
+  left:-30px;
+}
+
+/* HEADER */
+header{
+  height:70px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  font-weight:600;
+  font-size:18px;
+  color:#3e61b2;
+}
+
+.back-btn{
+  position:absolute;
+  left:18px;
+  width:36px;
+  height:36px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  color:#3e61b2;
+  text-decoration:none;
+}
+
+.page-title{
+  font-size:18px;
+  font-weight:600;
+  color:#3e61b2;
+}
+
+/* CONTENT */
+.content{
+  flex:1;
+  margin:15px 18px 20px 18px;
+  background:rgba(255,255,255,0.6);
+  backdrop-filter:blur(10px);
+  border-radius:24px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 15px 30px rgba(0,0,0,0.15);
+  padding:18px;
+  text-align:center;
+}
+
+/* TEXT */
+.instruction{
+  font-size:14px;
+  color:#3e61b2;
+}
+
+.target{
+  font-size:18px;
+  font-weight:600;
+  margin:12px 0 18px 0;
+}
+
+.level-display{
+  margin-top:18px;
+  font-size:16px;
+  font-weight:600;
+  color:#3e61b2;
+}
+
+.message{
+  margin-top:10px;
+  font-size:14px;
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:15px;
+  width:100%;
+  max-width:250px;
+  justify-items:center;
+}
+
+.color-box{
+  width:75px;
+  height:75px;
+  border-radius:18px;
+  cursor:pointer;
+  box-shadow:
+    0 8px 18px rgba(0,0,0,0.25),
+    inset 0 2px 6px rgba(255,255,255,0.4);
+  transition:.2s ease;
+}
+
+.color-box:hover{
+  transform:translateY(-3px) scale(1.05);
+}
+
+/* BUTTON */
+.next-btn{
+  margin-top:15px;
+  background:#3e61b2;
+  color:white;
+  border:none;
+  border-radius:22px;
+  padding:10px 22px;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  display:none;
+  box-shadow:0 8px 20px rgba(62,97,178,0.4);
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+  <a href="/focuslab.html" class="back-btn">←</a>
+  <span class="page-title">Color Catch</span>
+</header>
+
+<div class="content">
+
+  <div class="instruction">
+    Tap the correct color as quickly as you can!
+  </div>
+
+  <div class="target" id="targetText"></div>
+
+  <div class="grid" id="colorGrid"></div>
+
+  <div class="level-display" id="levelText">Level 1</div>
+
+  <div class="message" id="message"></div>
+
+  <button class="next-btn" id="nextBtn">Next Level</button>
+
+</div>
+
+</div>
+
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+/* 🔥 YOUR FIREBASE CONFIG */
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
+  authDomain: "mindflex-b2a0c.firebaseapp.com",
+  projectId: "mindflex-b2a0c",
+  storageBucket: "mindflex-b2a0c.firebasestorage.app",
+  messagingSenderId: "148676867562",
+  appId: "1:148676867562:web:3365a72b6fa6b3751cee93",
+  measurementId: "G-Q2T6HD3S0E"
+};
+
+
+
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+/* GAME DATA */
+const colors = [
+  {name: "Red", hex: "#EF5350"},
+  {name: "Blue", hex: "#42A5F5"},
+  {name: "Green", hex: "#66BB6A"},
+  {name: "Yellow", hex: "#FFEE58"},
+  {name: "Purple", hex: "#AB47BC"},
+  {name: "Orange", hex: "#FFA726"},
+  {name: "Pink", hex: "#F06292"},
+  {name: "Teal", hex: "#26A69A"},
+];
+
+const maxLevel = 30;
+let level = 1;
+let correct = 0;
+let wrong = 0;
+let attempts = 0;
+
+const grid = document.getElementById('colorGrid');
+const targetText = document.getElementById('targetText');
+const message = document.getElementById('message');
+const levelText = document.getElementById('levelText');
+const nextBtn = document.getElementById('nextBtn');
+
+async function loadProgress(uid){
+  const ref = doc(db,"users",uid,"games","colorcatch");
+  const snap = await getDoc(ref);
+
+  if(snap.exists()){
+    const data = snap.data();
+    level = data.level || 1;
+    correct = data.correct || 0;
+    wrong = data.wrong || 0;
+    attempts = data.attempts || 0;
+  }
+
+  startLevel();
+}
+
+
+async function saveProgress(uid){
+  const accuracy = attempts === 0 ? 0 :
+      Number(((correct/attempts)*100).toFixed(2));
+
+  await setDoc(doc(db,"users",uid,"games","colorcatch"),{
+    level,
+    correct,
+    wrong,
+    attempts,
+    accuracy,
+    lastPlayed: new Date()
+  }, { merge:true });
+}
+
+function startLevel(){
+  grid.innerHTML = "";
+  nextBtn.style.display = "none";
+  message.textContent = "";
+  levelText.textContent = "Level " + level;
+
+  const numberOfColors = Math.min(3 + Math.floor(level / 2), 9);
+  const shuffled = shuffle(colors).slice(0, numberOfColors);
+  const target = shuffled[Math.floor(Math.random() * shuffled.length)];
+
+  targetText.textContent = `Find: ${target.name}`;
+  targetText.style.color = target.hex;
+
+  shuffled.forEach(c => {
+    const div = document.createElement("div");
+    div.classList.add("color-box");
+    div.style.background = c.hex;
+    div.onclick = () => checkColor(c.hex, target.hex, div);
+    grid.appendChild(div);
+  });
+}
+
+function checkColor(selected, target, box) {
+  attempts++;
+  if (selected === target) {
+    correct++;
+    box.style.border = "4px solid #4CAF50";
+    message.textContent = "✅ Correct!";
+    nextBtn.style.display = "block";
+  } else {
+    wrong++;
+    box.style.border = "4px solid #E53935";
+    message.textContent = "❌ Try again!";
+  }
+}
+
+function shuffle(arr) {
+  return arr.sort(() => Math.random() - 0.5);
+}
+
+nextBtn.addEventListener("click", async () => {
+  if (level < maxLevel) {
+    level++;
+    await saveProgress(auth.currentUser.uid);
+
+    startLevel();
+  } else {
+    levelText.textContent = "🎉 All Levels Complete!";
+    nextBtn.style.display = "none";
+  }
+});
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    await loadProgress(user.uid);
+  } else {
+    console.log("User not logged in");
+    // redirect if needed
+  }
+});
+
+</script>
+
+</body>
+</html>

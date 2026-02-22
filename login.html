@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>MindFlex - Login</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(180deg, #f3f7f9 0%, #E1F5FE 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  width: 320px;
+  height: 640px;
+  border-radius: 30px;
+  background: linear-gradient(180deg, #BBDEFB 0%, #E3F2FD 100%);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  padding: 25px;
+  justify-content: center;
+
+  position: relative;   /* IMPORTANT */
+  overflow: hidden;     /* Keeps circles inside */
+  
+}
+.header {
+  font-family: 'Poppins', sans-serif;
+  font-size: 30px;
+  position: absolute;
+  top: 10px;
+  left:50%;
+  transform: translateX(-50%);
+  margin-bottom: 10px;
+  text-align:center;
+  color:#4338ca;
+  }
+
+
+.header h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+.header p {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.profile {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.profile img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: none;
+}
+
+input {
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 14px;
+  border: 1px solid #E3F2FD;
+  font-size: 13px;
+}
+
+button {
+  padding: 12px;
+  border-radius: 14px;
+  border: none;
+  margin-top: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.primary {
+  background: linear-gradient(135deg, #64B5F6, #1E88E5);
+  color: white;
+}
+
+.google {
+  background: #ffffff;
+  border: 1px solid #E3F2FD;
+}
+
+.link {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 12px;
+  color: #0D47A1;
+  cursor: pointer;
+}
+/* Circles */
+.circle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.25;
+  z-index: 0;
+  animation: float 8s ease-in-out infinite;
+}
+
+.one {
+  width: 100px;
+  height: 100px;
+  background: #64B5F6;
+  top: 80px;
+  left: -40px;
+}
+
+.two {
+  width: 80px;
+  height: 80px;
+  background: #1E88E5;
+  bottom: 120px;
+  right: -30px;
+  animation-delay: 2s;
+}
+
+.three {
+  width: 60px;
+  height: 60px;
+  background: #90CAF9;
+  top: 300px;
+  left: 10px;
+  animation-delay: 4s;
+}
+
+/* Float animation */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-18px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Keep login content above circles */
+.container > *:not(.circle) {
+  position: relative;
+  z-index: 2;
+}
+
+</style>
+</head>
+
+<body>
+<div class="container">
+  <div class="bg-shapes">
+  <span class="circle one"></span>
+  <span class="circle two"></span>
+  <span class="circle three"></span>
+  <span class="blob"></span>
+</div>
+
+  <div class="profile">
+    <img id="profilePic">
+  </div>
+
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+
+  <button class="primary" onclick="login()">Login</button>
+
+  <button class="google" onclick="googleLogin()">
+    Continue with Google
+  </button>
+
+  <div class="link" onclick="goSignup()">
+    Don't have an account? Sign Up
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+/* 🔥 REPLACE WITH YOUR FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
+  authDomain: "mindflex-b2a0c.firebaseapp.com",
+  projectId: "mindflex-b2a0c",
+  storageBucket: "mindflex-b2a0c.firebasestorage.app",
+  messagingSenderId: "148676867562",
+  appId: "1:148676867562:web:3365a72b6fa6b3751cee93",
+  measurementId: "G-Q2T6HD3S0E"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({
+  prompt: "select_account"
+});
+
+window.login = async () => {
+  try {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (error) {
+    alert(error.message);
+  }
+};
+
+window.googleLogin = async () => {
+  try {
+    const result = await signInWithPopup(auth, provider);
+
+    if (result.user.photoURL) {
+      const img = document.getElementById("profilePic");
+      img.src = result.user.photoURL;
+      img.style.display = "block";
+    }
+
+  } catch (error) {
+    alert(error.message);
+  }
+};
+
+window.goSignup = () => {
+  window.location.href = "signin.html";
+};
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    setTimeout(() => {
+      window.location.href = "main.html";
+    }, 1000);
+  }
+});
+</script>
+
+</body>
+</html>
+
+

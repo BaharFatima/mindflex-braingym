@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Achievements</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+/* ===== GLOBAL ===== */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body{
+    display:flex;
+    justify-content:center;
+    background:#bfe6ff;
+    padding:20px 0;
+}
+
+/* FIXED BACK BUTTON */
+.back-btn {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    font-size: 24px;
+    color: #063354;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffffcc;
+    border-radius: 50%;
+    z-index: 999;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+/* ===== MOBILE FRAME ===== */
+.app-frame{
+    width:320px;
+    height:640px;
+    background:#e7f4ff;
+    border-radius:25px;
+    overflow:hidden;
+    box-shadow:0 0 15px rgba(0,0,0,0.15);
+    position:relative;
+    padding-bottom:60px; /* Adjusted to fit the 60px nav bar exactly */
+}
+
+/* ===== HEADER ===== */
+.username{
+    font-size:22px;
+    font-weight:700;
+    text-align:center;
+    margin-top:60px; 
+}
+
+/* ===== ARC BADGE ===== */
+.progress-wrap{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    position:relative;
+    margin-top:15px;
+}
+
+.arc{
+    width:200px;
+    height:100px;
+    border-radius:200px 200px 0 0;
+    border:12px solid #8dbff9;
+    border-bottom:none;
+    background:linear-gradient(to bottom, #d7ecff, #c6e2ff);
+    position:relative;
+}
+
+.badge{
+    position:absolute;
+    top:35%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    width:80px;
+    height:80px;
+}
+
+.badge img{
+    width:100%;
+}
+
+/* ===== LEVEL TEXT ===== */
+.level-title{
+    margin-top:40px;
+    text-align:center;
+    font-size:22px;
+    font-weight:700;
+    color:#2c4b73;
+}
+
+.level-sub{
+    text-align:center;
+    font-size:14px;
+    margin-top:4px;
+    color:#4b6f9b;
+}
+
+/* ===== Boost Button ===== */
+.boost-btn{
+    display:block;
+    margin:15px auto;
+    background:#a7ceff;
+    color:#003566;
+    border:none;
+    padding:10px 25px;
+    border-radius:50px;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.boost-btn:hover{
+    background:#77b7ff;
+}
+
+/* ===== Rewards ===== */
+.section-title{
+    margin-top:15px;
+    font-size:18px;
+    font-weight:700;
+    color:#003d66;
+    text-align:left;
+    padding-left:20px;
+}
+
+.rewards{
+    display:flex;
+    flex-wrap:wrap;
+    gap:20px;
+    padding:20px;
+    justify-content:center;
+}
+
+.reward-item{
+    text-align:center;
+    width: 80px;
+}
+
+.reward-item img{
+    width:55px;
+    height:55px;
+    border-radius:50%;
+    background:#dff0ff;
+    padding:10px;
+}
+
+.reward-label{
+    margin-top:5px;
+    font-size:13px;
+}
+
+/* ========== STANDARD NAV BAR STYLES MATCHING ALL PAGES ========== */
+.bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: #FFFFFF;
+  border-top: 1px solid #E3F2FD;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 -4px 10px rgba(0,0,0,0.08);
+  padding: 8px 5px;
+  z-index: 50;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 2px;
+  flex: 1;
+  text-decoration: none;
+}
+
+.nav-icon {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  color: #90CAF9;
+}
+
+.nav-icon i { 
+  font-size: 18px; 
+  transition: all 0.3s ease; 
+}
+
+.nav-label {
+  font-size: 9px;
+  color: #5f6368;
+  text-align: center;
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+.nav-item.selected .nav-icon i {
+  transform: translateY(-8px) scale(1.2);
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.nav-item[data-category="cv"].selected .nav-icon i { color: #0D47A1; }
+.nav-item[data-category="achievements"].selected .menu-icon i { color: #9c27b0; }
+.nav-item[data-category="home"].selected .nav-icon i { color: #1565C0; }
+.nav-item[data-category="habit-tracker"].selected .nav-icon i { color: #ff4081; }
+.nav-item[data-category="user-account"].selected .nav-icon i { color: #00838F; }
+
+.nav-icon img {
+  width: 18px;
+  height: 18px;
+  transition: all 0.3s ease;
+  object-fit: contain;
+  filter: grayscale(100%) brightness(0.7);
+  border-radius: 6px;
+}
+
+.nav-item.selected .nav-icon img {
+  transform: translateY(-8px) scale(1.2);
+  filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+  border-radius: 8px;
+}
+
+.nav-icon .fallback-icon {
+  width: 18px;
+  height: 18px;
+  background-color: #90CAF9;
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.nav-item.selected .nav-icon .fallback-icon {
+  transform: translateY(-8px) scale(1.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+}
+
+.nav-item[data-category="habit-tracker"].selected .nav-icon .fallback-icon {
+  background-color: #ff4081;
+}
+
+.nav-item[data-category="cv"].selected .nav-icon .fallback-icon {
+  background-color: #0D47A1;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app-frame">
+
+    <!-- FIXED BACK BUTTON INSIDE FRAME -->
+    <div class="back-btn" onclick="window.location.href='main.html'">←</div>
+
+    <div class="username">Achievements</div>
+
+    <div class="progress-wrap">
+        <div class="arc"></div>
+        <div class="badge">
+            <img src="https://img.icons8.com/color/96/diamond.png" alt="Diamond Badge">
+        </div>
+    </div>
+
+    <div class="level-title">Diamond Level</div>
+    <div class="level-sub">12,350 points to Gold level</div>
+
+    <button class="boost-btn">⚡ Boost Level</button>
+
+    <div class="section-title">Rewards</div>
+
+    <div class="rewards">
+        <div class="reward-item">
+            <img src="https://img.icons8.com/color/96/user.png" alt="Badge">
+            <div class="reward-label">New member</div>
+        </div>
+        <div class="reward-item">
+            <img src="https://img.icons8.com/color/96/compass.png" alt="Badge">
+            <div class="reward-label">Explore</div>
+        </div>
+        <div class="reward-item">
+            <img src="https://img.icons8.com/color/96/add-user-male.png" alt="Badge">
+            <div class="reward-label">Invite</div>
+        </div>
+        <div class="reward-item">
+            <img src="https://img.icons8.com/color/96/medal.png" alt="Badge">
+            <div class="reward-label">Milestone</div>
+        </div>
+        <div class="reward-item">
+            <img src="https://img.icons8.com/color/96/like.png" alt="Badge">
+            <div class="reward-label">Supporter</div>
+        </div>
+    </div>
+
+    <!-- ========== STANDARD NAV BAR - CONSISTENT ACROSS ALL PAGES ========== -->
+    <nav class="bottom-nav">
+        <a href="cv.html" class="nav-item" data-category="cv">
+            <div class="nav-icon">
+                <img src="cv.png" alt="CV" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="fallback-icon" style="display: none;">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+            </div>
+            <div class="nav-label">CV</div>
+        </a>
+
+        <a href="#" class="nav-item selected" data-category="achievements">
+            <div class="nav-icon"><i class="fas fa-trophy" style="color: #9c27b0;"></i></div>
+            <div class="nav-label">Achievements</div>
+        </a>
+
+        <a href="main.html" class="nav-item" data-category="home">
+            <div class="nav-icon"><i class="fas fa-home"></i></div>
+            <div class="nav-label">Home</div>
+        </a>
+
+        <a href="habittracker.html" class="nav-item" data-category="habit-tracker">
+            <div class="nav-icon">
+                <img src="https://z-cdn-media.chatglm.cn/files/a1979dda-a3e4-4b38-b0cf-00e4ad455277_pasted_image_1762936027415.png?auth_key=1862936037-6cc8a5a356484e1cb70a8f599e1f2ce8-0-496c548f3f7ef2ea6a808a3cc812dc2c" alt="Habit Tracker" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="fallback-icon" style="display: none;"><i class="fas fa-check"></i></div>
+            </div>
+            <div class="nav-label">Habit Tracker</div>
+        </a>
+
+        <a href="profile.html" class="nav-item" data-category="user-account">
+            <div class="nav-icon"><i class="fas fa-user-circle"></i></div>
+            <div class="nav-label">Account</div>
+        </a>
+    </nav>
+
+</div>
+
+<script>
+// Bottom Nav Interactions with Animation Delay
+document.addEventListener('DOMContentLoaded', function() {
+    const navItems = document.querySelectorAll('.nav-item');
+    
+    navItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            const targetUrl = this.getAttribute('href');
+            
+            if (targetUrl && targetUrl !== '#') {
+                e.preventDefault();
+                navItems.forEach(i => i.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                setTimeout(() => {
+                    window.location.href = targetUrl;
+                }, 300);
+            }
+        });
+    });
+});
+</script>
+
+</body>
+</html>

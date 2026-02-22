@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Match the Shapes - Tier 1</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(180deg, #E3F2FD, #FFFFFF);
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  max-width: 320px;
+  height: 640px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* HEADER */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 18px 0 10px 0;
+  font-size: 20px;
+}
+.page-title {
+  font-weight: 600;
+  color: #1565C0;
+}
+.back-btn {
+  color: #1565C0;
+  text-decoration: none;
+  font-size: 20px;
+  position: absolute;
+  left: 16px;
+  top: 16px;
+}
+
+/* TARGET */
+#target {
+  font-size: 18px;
+  color: #1565C0;
+  margin: 0;
+}
+
+/* GAME SECTIONS */
+#gameContainer {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  padding: 5px 0;
+}
+.shape-row {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  margin: 10px 0;
+}
+.shape {
+  width: 75px;
+  height: 75px;
+  cursor: pointer;
+  transition: transform 0.25s ease, border 0.25s ease;
+  border: 3px solid transparent;
+  border-radius: 12px;
+}
+.shape:hover {
+  transform: scale(1.1);
+}
+
+/* FEEDBACK EFFECTS */
+.correct {
+  border-color: #43A047;
+  animation: pulse 0.4s ease;
+}
+.wrong {
+  border-color: #E53935;
+  animation: shake 0.3s ease;
+}
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+}
+
+/* BUTTON */
+#nextLevel {
+  background: #1E88E5;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 28px;
+  font-size: 16px;
+  cursor: pointer;
+  display: none;
+  margin: 10px auto;
+  transition: background 0.3s ease;
+}
+#nextLevel:hover {
+  background: #1565C0;
+}
+
+/* LEVEL INDICATOR */
+#level {
+  text-align: center;
+  font-weight: 600;
+  font-size: 15px;
+  color: #0D47A1;
+  margin-bottom: 12px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="../focuslab.html" class="back-btn">←</a>
+  <span class="page-title">Match the Shapes</span>
+</header>
+
+<p id="target">Find the 🔵 BLUE CIRCLE</p>
+
+<div id="gameContainer">
+  <div class="shape-row" id="rowTop"></div>
+  <div class="shape-row" id="rowBottom"></div>
+</div>
+
+<button id="nextLevel">Next Level ➜</button>
+<div id="level">Level 1 / 50</div>
+<script src="logistic.js"></script>
+<script>
+const shapes = ['circle', 'square', 'triangle', 'star', 'diamond'];
+const colors = ['#2196F3', '#4CAF50', '#E91E63', '#FF9800', '#9C27B0', '#00BCD4'];
+let level = 1;
+const maxLevel = 50;
+
+const topRow = document.getElementById('rowTop');
+const bottomRow = document.getElementById('rowBottom');
+const targetText = document.getElementById('target');
+const nextButton = document.getElementById('nextLevel');
+const levelDisplay = document.getElementById('level');
+
+function randomItem(list) {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+function getShapeClip(shape) {
+  switch(shape) {
+    case 'circle': return 'circle(50%)';
+    case 'square': return 'none';
+    case 'triangle': return 'polygon(50% 0%, 0% 100%, 100% 100%)';
+    case 'star': return 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)';
+    case 'diamond': return 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)';
+    default: return 'none';
+  }
+}
+
+function generateLevel() {
+  nextButton.style.display = 'none';
+  topRow.innerHTML = '';
+  bottomRow.innerHTML = '';
+
+  const allDivs = [];
+  for (let i = 0; i < 4; i++) {
+    const div = document.createElement('div');
+    div.classList.add('shape');
+    allDivs.push(div);
+  }
+
+  const targetShape = randomItem(shapes);
+  const targetColor = randomItem(colors);
+  targetText.innerHTML = `Find the <b style="color:${targetColor}">${targetShape.toUpperCase()}</b>`;
+  levelDisplay.textContent = `Level ${level} / ${maxLevel}`;
+
+  const correctIndex = Math.floor(Math.random() * 4);
+  for (let i = 0; i < 4; i++) {
+    let shapeType, colorType;
+    if (i === correctIndex) {
+      shapeType = targetShape;
+      colorType = targetColor;
+    } else {
+      do {
+        shapeType = randomItem(shapes);
+        colorType = randomItem(colors);
+      } while (shapeType === targetShape && colorType === targetColor);
+    }
+
+    const div = allDivs[i];
+    div.style.background = colorType;
+    div.style.clipPath = getShapeClip(shapeType);
+
+    div.onclick = () => {
+      if (shapeType === targetShape && colorType === targetColor) {
+        div.classList.add('correct');
+        nextButton.style.display = 'inline-block';
+      } else {
+        div.classList.add('wrong');
+        setTimeout(() => div.classList.remove('wrong'), 400);
+      }
+    };
+
+    if (i < 2) topRow.appendChild(div);
+    else bottomRow.appendChild(div);
+  }
+}
+
+nextButton.onclick = () => {
+  level++;
+  if (level > maxLevel) {
+    alert("🎉 You completed all 50 levels! Baymax is proud of you 🤖");
+    level = 1;
+  }
+  generateLevel();
+};
+
+generateLevel();
+</script>
+
+</body>
+</html>

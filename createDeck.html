@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Create Deck</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+  html,body{height:100%;background:linear-gradient(135deg,#dceeff,#a6d9ff);
+            display:flex;align-items:center;justify-content:center;}
+  .app{width:320px;height:640px;background:#f0f7ff;border-radius:25px;
+       box-shadow:0 10px 25px rgba(0,80,160,0.2);overflow:hidden;
+       display:flex;flex-direction:column;position:relative;}
+  header{background:#e6f3ff;padding:15px 20px;display:flex;
+         justify-content:space-between;align-items:center;color:#003366;}
+  main{flex:1;padding:20px;text-align:center;overflow-y:auto;}
+  input,textarea{width:100%;padding:8px;border-radius:8px;border:1px solid #aacfff;
+                 margin-bottom:10px;}
+  button{background:#0077cc;color:white;border:none;border-radius:8px;
+         padding:8px 15px;cursor:pointer;}
+  .qa-box{margin-top:10px;background:#a3d5ff;padding:8px;border-radius:8px;color:#003366;}
+</style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <a href="flashcardMenu.html" style="text-decoration:none;color:#003366;font-size:1.4rem;">←</a>
+      <h3>New Deck</h3>
+      <div></div>
+    </header>
+
+    <main>
+      <input id="deckName" placeholder="Deck Name" />
+      <input id="question" placeholder="Question" />
+      <input id="answer" placeholder="Answer" />
+      <button onclick="addQA()">Add Card</button>
+      <div id="qaList"></div>
+      <button style="margin-top:15px;background:#00bcd4;" onclick="saveDeck()">Save Deck</button>
+    </main>
+  </div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { 
+    getFirestore, 
+    collection, 
+    addDoc, 
+    doc, 
+    setDoc 
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
+  authDomain: "mindflex-b2a0c.firebaseapp.com",
+  projectId: "mindflex-b2a0c",
+  storageBucket: "mindflex-b2a0c.firebasestorage.app",
+  messagingSenderId: "148676867562",
+  appId: "1:148676867562:web:3365a72b6fa6b3751cee93",
+  measurementId: "G-Q2T6HD3S0E"
+};
+
+
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let cards = [];
+
+  window.addQA = function () {
+    const q = document.getElementById('question').value.trim();
+    const a = document.getElementById('answer').value.trim();
+
+    if (!q || !a) return alert('Please fill both fields!');
+
+    cards.push({ question: q, answer: a });
+
+    const box = document.createElement('div');
+    box.className = 'qa-box';
+    box.textContent = `Q: ${q} | A: ${a}`;
+    document.getElementById('qaList').appendChild(box);
+
+    document.getElementById('question').value = '';
+    document.getElementById('answer').value = '';
+  };
+
+  window.saveDeck = async function () {
+    const name = document.getElementById('deckName').value.trim();
+    if (!name || cards.length === 0)
+      return alert('Add a name and at least one card.');
+
+    const user = auth.currentUser;
+    if (!user) return alert("User not logged in!");
+
+    try {
+      // Create deck document
+      const deckRef = await addDoc(
+        collection(db, "users", user.uid, "flashcardDecks"),
+        {
+          name: name,
+          createdAt: new Date()
+        }
+      );
+
+      // Add cards as subcollection
+      for (let card of cards) {
+        await addDoc(
+          collection(db, "users", user.uid, "flashcardDecks", deckRef.id, "cards"),
+          card
+        );
+      }
+
+      alert("Deck saved to Firebase!");
+      window.location.href = "flashcardMenu.html";
+
+    } catch (error) {
+      console.error(error);
+      alert("Error saving deck");
+    }
+  };
+</script>
+
+<script src="logistic.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attention Switch</title>
+<style>
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(180deg, #E3F2FD, #B3E5FC);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* App container */
+#appContainer {
+  width: 320px;
+  height: 640px;
+  background: linear-gradient(180deg, #F0F9FF, #E1F5FE);
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px;
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Header */
+header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.back-btn {
+  position: absolute;
+  left: 10px;
+  color: #1565C0;
+  text-decoration: none;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0D47A1;
+}
+
+/* Panels vertically stacked */
+#panels {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  flex-grow: 1;
+  width: 100%;
+}
+
+/* Each box */
+.panel {
+  display: grid;
+  gap: 8px;
+  border: 2px solid #90CAF9;
+  padding: 16px;
+  border-radius: 16px;
+  background: #E1F5FE;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+.panel:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.18);
+}
+
+/* Tiles */
+.tile {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  transition: transform 0.3s, background 0.3s;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+/* Flash animation */
+.tile.flash {
+  animation: flashAnim 0.6s ease forwards;
+}
+@keyframes flashAnim {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); }
+  100% { transform: scale(1); }
+}
+
+/* Info section at bottom */
+#bottomSection {
+  text-align: center;
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* Info bar */
+#infoPanel {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1565C0;
+  margin-bottom: 8px;
+}
+
+/* Message */
+#message {
+  font-size: 15px;
+  color: #1565C0;
+  font-weight: 600;
+  min-height: 20px;
+  margin-top: 4px;
+}
+
+/* Next Level button */
+#nextLevelBtn {
+  display: none;
+  background: #1565C0;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  transition: background 0.3s, transform 0.2s;
+}
+#nextLevelBtn:hover {
+  background: #0D47A1;
+  transform: scale(1.05);
+}
+</style>
+</head>
+<body>
+
+<div id="appContainer">
+  <header>
+    <a href="../focuslab.html" class="back-btn">←</a>
+    <div class="title">Attention Switch</div>
+  </header>
+
+  <div id="panels">
+    <div id="topPanel" class="panel"></div>
+    <div id="bottomPanel" class="panel"></div>
+  </div>
+
+  <div id="bottomSection">
+    <div id="infoPanel">
+      <div id="levelBar">Level: 1</div>
+      <div id="score">Score: 0</div>
+      <div id="roundNum">Round: 1 / 10</div>
+    </div>
+    <div id="message"></div>
+    <button id="nextLevelBtn">Next Level →</button>
+  </div>
+</div>
+<script src="logistic.js"></script>
+<script>
+const shapes = ['circle', 'square', 'triangle', 'star', 'diamond'];
+const colors = ['#42A5F5', '#66BB6A', '#FF7043', '#AB47BC', '#FFA726'];
+const TOTAL_LEVELS = 50;
+const ROUNDS_PER_LEVEL = 10;
+
+let level = parseInt(localStorage.getItem('as_level')) || 1;
+let score = parseInt(localStorage.getItem('as_score')) || 0;
+let round = parseInt(localStorage.getItem('as_round')) || 0;
+
+const levelBar = document.getElementById('levelBar');
+const scoreEl = document.getElementById('score');
+const roundNum = document.getElementById('roundNum');
+const topPanel = document.getElementById('topPanel');
+const bottomPanel = document.getElementById('bottomPanel');
+const messageEl = document.getElementById('message');
+const nextBtn = document.getElementById('nextLevelBtn');
+
+let gridSize = 3;
+let topPattern = [];
+let bottomPattern = [];
+let changedPanel = '';
+let acceptingClick = false;
+
+function getShapeClip(shape) {
+  switch (shape) {
+    case 'circle': return 'circle(50%)';
+    case 'square': return 'none';
+    case 'triangle': return 'polygon(50% 0%, 0% 100%, 100% 100%)';
+    case 'star': return 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)';
+    case 'diamond': return 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)';
+    default: return 'none';
+  }
+}
+
+function generatePanel() {
+  const pattern = [];
+  for (let i = 0; i < gridSize * gridSize; i++) {
+    pattern.push({
+      shape: shapes[Math.floor(Math.random() * shapes.length)],
+      color: colors[Math.floor(Math.random() * colors.length)]
+    });
+  }
+  return pattern;
+}
+
+function renderPanel(panel, pattern) {
+  panel.innerHTML = '';
+  panel.style.gridTemplateColumns = `repeat(${gridSize}, 56px)`;
+  pattern.forEach(p => {
+    const div = document.createElement('div');
+    div.classList.add('tile');
+    div.style.background = p.color;
+    div.style.clipPath = getShapeClip(p.shape);
+    panel.appendChild(div);
+  });
+}
+
+function startRound() {
+  nextBtn.style.display = 'none';
+  acceptingClick = false;
+  topPattern = generatePanel();
+  bottomPattern = JSON.parse(JSON.stringify(topPattern));
+
+  changedPanel = Math.random() < 0.5 ? 'top' : 'bottom';
+
+  const changes = Math.max(1, Math.floor(gridSize / 2));
+  let changedIndices = [];
+  for (let i = 0; i < changes; i++) {
+    const idx = Math.floor(Math.random() * bottomPattern.length);
+    changedIndices.push(idx);
+    const newShape = shapes[Math.floor(Math.random() * shapes.length)];
+    const newColor = colors[Math.floor(Math.random() * colors.length)];
+    if (changedPanel === 'top') topPattern[idx] = { shape: newShape, color: newColor };
+    else bottomPattern[idx] = { shape: newShape, color: newColor };
+  }
+
+  renderPanel(topPanel, topPattern);
+  renderPanel(bottomPanel, bottomPattern);
+
+  const panelToFlash = changedPanel === 'top' ? topPanel : bottomPanel;
+  changedIndices.forEach(idx => {
+    const tile = panelToFlash.children[idx];
+    tile.classList.add('flash');
+    setTimeout(() => { tile.classList.remove('flash'); }, 600);
+  });
+
+  setTimeout(() => { acceptingClick = true; }, 650);
+}
+
+function handleClick(panel) {
+  if (!acceptingClick) return;
+  acceptingClick = false;
+  if (panel === changedPanel) {
+    score++;
+    messageEl.textContent = 'Correct! 😊';
+  } else {
+    messageEl.textContent = 'Try again!';
+  }
+
+  round++;
+  if (round >= ROUNDS_PER_LEVEL) {
+    round = 0;
+    nextBtn.style.display = 'inline-block';
+    return;
+  }
+
+  localStorage.setItem('as_level', level);
+  localStorage.setItem('as_score', score);
+  localStorage.setItem('as_round', round);
+
+  updateUI();
+  setTimeout(startRound, 1000);
+}
+
+nextBtn.onclick = () => {
+  level++;
+  if (level > TOTAL_LEVELS) level = 1;
+  gridSize = Math.min(3 + Math.floor(level / 10), 6);
+  localStorage.setItem('as_level', level);
+  localStorage.setItem('as_round', 0);
+  updateUI();
+  startRound();
+};
+
+function updateUI() {
+  levelBar.textContent = `Level: ${level}`;
+  scoreEl.textContent = `Score: ${score}`;
+  roundNum.textContent = `Round: ${round + 1} / ${ROUNDS_PER_LEVEL}`;
+}
+
+topPanel.onclick = () => handleClick('top');
+bottomPanel.onclick = () => handleClick('bottom');
+
+updateUI();
+startRound();
+</script>
+
+</body>
+</html>

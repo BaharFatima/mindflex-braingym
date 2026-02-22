@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Bar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 320px; /* Optimized for 320px width */
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .menu-container {
+            background-color: white;
+            width: 100%;
+            border-radius: 20px;
+            padding: 15px 5px; /* Reduced padding for smaller screen */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: space-around;
+            animation: slideUp 0.5s ease-out;
+            position: relative;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px; /* Reduced gap */
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 5px; /* Reduced padding */
+            border-radius: 12px;
+            position: relative;
+            flex: 1; /* Allow items to flex equally */
+        }
+
+        .menu-icon {
+            width: 40px; /* Reduced size */
+            height: 40px; /* Reduced size */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            background-color: #f0f2f5;
+            color: #5f6368;
+        }
+
+        .menu-icon i {
+            font-size: 18px; /* Reduced icon size */
+        }
+
+        .menu-label {
+            font-size: 10px; /* Reduced font size */
+            color: #5f6368;
+            text-align: center;
+            line-height: 1.2; /* Better line height for readability */
+        }
+
+        /* Pop-up effect when selected */
+        .menu-item.selected .menu-icon {
+            width: 48px; /* Slightly larger when selected */
+            height: 48px; /* Slightly larger when selected */
+            transform: translateY(-8px); /* Reduced transform */
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .menu-item.selected:nth-child(1) .menu-icon {
+            background-color: #4285f4;
+            color: white;
+        }
+
+        .menu-item.selected:nth-child(2) .menu-icon {
+            background-color: #9c27b0;
+            color: white;
+        }
+
+        .menu-item.selected:nth-child(3) .menu-icon {
+            background-color: #ff9800;
+            color: white;
+        }
+
+        .menu-item.selected:nth-child(4) .menu-icon {
+            background-color: #fdd835;
+            color: white;
+        }
+
+        .menu-item.selected:nth-child(5) .menu-icon {
+            background-color: #00bcd4;
+            color: white;
+        }
+
+        /* Adjust for even smaller screens if needed */
+        @media (max-width: 320px) {
+            .container {
+                max-width: 100%;
+                padding: 10px;
+            }
+            
+            .menu-container {
+                padding: 10px 2px;
+            }
+            
+            .menu-icon {
+                width: 36px;
+                height: 36px;
+            }
+            
+            .menu-icon i {
+                font-size: 16px;
+            }
+            
+            .menu-item.selected .menu-icon {
+                width: 44px;
+                height: 44px;
+            }
+            
+            .menu-label {
+                font-size: 9px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="menu-container">
+            <div class="menu-item" data-category="home">
+                <div class="menu-icon">
+                    <i class="fas fa-home"></i>
+                </div>
+                <div class="menu-label">Home</div>
+            </div>
+            
+            <div class="menu-item" data-category="game">
+                <div class="menu-icon">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+                <div class="menu-label">Game</div>
+            </div>
+            
+            <div class="menu-item" data-category="journal">
+                <div class="menu-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div class="menu-label">Journal</div>
+            </div>
+            
+            <div class="menu-item" data-category="tips">
+                <div class="menu-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="menu-label">Tips</div>
+            </div>
+            
+            <div class="menu-item" data-category="user-account">
+                <div class="menu-icon">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="menu-label">Account</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuItems = document.querySelectorAll('.menu-item');
+            
+            // Menu item click events
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Toggle selected state
+                    const wasSelected = this.classList.contains('selected');
+                    
+                    // Remove selected class from all items
+                    menuItems.forEach(i => i.classList.remove('selected'));
+                    
+                    // Add selected class to clicked item if it wasn't already selected
+                    if (!wasSelected) {
+                        this.classList.add('selected');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

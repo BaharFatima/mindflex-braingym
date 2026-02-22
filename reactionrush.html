@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reaction Rush - Tier 2</title>
+<style>
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(180deg, #E3F2FD, #FFFFFF);
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+header {
+  background: none;
+  padding: 16px 0 8px 0;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.page-title {
+  font-weight: 600;
+  color: #1565C0;
+}
+
+.back-btn {
+  color: #1565C0;
+  text-decoration: none;
+  font-size: 20px;
+  position: absolute;
+  left: 15px;
+}
+
+#target {
+  font-size: 18px;
+  margin: 5px 0;
+  color: #1565C0;
+}
+
+#gameArea {
+  width: 90vw;
+  height: 65vh;
+  margin: 0 auto;
+  position: relative;
+  border: 2px dashed #1565C0;
+  border-radius: 15px;
+  background: #E3F2FDaa;
+  overflow: hidden;
+}
+
+.circle {
+  background: #2196F3;
+  border-radius: 50%;
+  position: absolute;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  width: 14vw;
+  height: 14vw;
+  max-width: 80px;
+  max-height: 80px;
+  min-width: 45px;
+  min-height: 45px;
+}
+
+.circle:hover {
+  transform: scale(1.1);
+}
+
+#score {
+  font-size: 18px;
+  color: #0D47A1;
+  margin: 8px 0;
+}
+
+#nextLevel {
+  margin: 10px auto;
+  background: #1E88E5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 25px;
+  font-size: 16px;
+  cursor: pointer;
+  display: none;
+}
+
+#level {
+  font-weight: 600;
+  font-size: 18px;
+  color: #0D47A1;
+  margin-bottom: 15px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="../focuslab.html" class="back-btn">←</a>
+  <span class="page-title">Reaction Rush</span>
+</header>
+
+<p id="target">Click the 🔵 blue circle as fast as you can!</p>
+
+<div id="gameArea"></div>
+
+<p id="score">Score: 0</p>
+<button id="nextLevel">Next Level ➜</button>
+<div id="level">Level 1 / 150</div>
+<script src="logistic.js"></script>
+<script>
+let maxLevel = 150;
+let level = parseInt(localStorage.getItem('reactionRushLevel')) || 1;
+let score = parseInt(localStorage.getItem('reactionRushScore')) || 0;
+
+const gameArea = document.getElementById('gameArea');
+const scoreDisplay = document.getElementById('score');
+const levelDisplay = document.getElementById('level');
+const nextButton = document.getElementById('nextLevel');
+
+function updateDisplays() {
+  scoreDisplay.textContent = `Score: ${score}`;
+  levelDisplay.textContent = `Level ${level} / ${maxLevel}`;
+}
+updateDisplays();
+
+function randomPosition(circleSize) {
+  // safe margins so circle never goes out of bounds
+  const maxX = gameArea.clientWidth - circleSize - 10;
+  const maxY = gameArea.clientHeight - circleSize - 10;
+  const x = Math.random() * maxX + 5;
+  const y = Math.random() * maxY + 5;
+  return { x, y };
+}
+
+function spawnCircle() {
+  const circle = document.createElement('div');
+  circle.classList.add('circle');
+
+  // Get actual circle size after render scaling
+  const circleSize = Math.min(gameArea.clientWidth, gameArea.clientHeight) * 0.14;
+  const pos = randomPosition(circleSize);
+  circle.style.left = pos.x + 'px';
+  circle.style.top = pos.y + 'px';
+
+  circle.onclick = () => {
+    score++;
+    localStorage.setItem('reactionRushScore', score);
+    updateDisplays();
+    circle.remove();
+    if (score >= 10) {
+      nextButton.style.display = 'inline-block';
+    } else {
+      spawnCircle();
+    }
+  };
+
+  gameArea.appendChild(circle);
+}
+
+nextButton.onclick = () => {
+  level++;
+  if (level > maxLevel) {
+    alert("🎉 You completed all 150 levels! Baymax is proud of you 🤖");
+    level = 1;
+  }
+  score = 0;
+  localStorage.setItem('reactionRushLevel', level);
+  localStorage.setItem('reactionRushScore', score);
+  updateDisplays();
+  nextButton.style.display = 'none';
+  gameArea.innerHTML = '';
+  spawnCircle();
+};
+
+// ✅ ensure one ball appears right away
+spawnCircle();
+</script>
+</body>
+</html>

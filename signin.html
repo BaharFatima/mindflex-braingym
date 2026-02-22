@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>MindFlex - Sign Up</title>
+
+<style>
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(180deg, #edefef 0%, #E1F5FE 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.phone{
+  width:320px;
+  height:640px;
+ background: linear-gradient(180deg, #BBDEFB 0%, #E3F2FD 100%);
+  border-radius:30px;
+  padding:30px;
+  box-sizing:border-box;
+  box-shadow:0 20px 40px rgba(0,0,0,0.2);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+h1{
+  text-align:center;
+  color:#1565C0;
+}
+
+.subtitle{
+  text-align:center;
+  font-size:12px;
+  color:#64748b;
+  margin-bottom:25px;
+}
+
+input{
+  padding:12px;
+  margin:8px 0;
+  border-radius:12px;
+  border:1px solid #e2e8f0;
+}
+
+button{
+  padding:12px;
+  border-radius:12px;
+  border:none;
+  margin-top:10px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.primary{
+  background: linear-gradient(135deg, #64B5F6, #1E88E5);
+  color:white;
+}
+
+.google{
+  background:white;
+  border:1px solid #e5e7eb;
+}
+
+.link{
+  text-align:center;
+  margin-top:15px;
+  font-size:12px;
+  color:#4338ca;
+  cursor:pointer;
+}
+
+.message{
+  font-size:12px;
+  text-align:center;
+  margin-top:8px;
+}
+/* Circles */
+.phone {
+  position: relative;   /* IMPORTANT */
+  overflow: hidden;     /* Keeps circles inside */
+}
+.circle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.25;
+  animation: float 8s ease-in-out infinite;
+}
+
+.one {
+  width: 80px;
+  height: 80px;
+  background: #64B5F6;
+  top: 40px;
+  left: 30px;
+}
+
+.two {
+  width: 80px;
+  height: 80px;
+  background: #1E88E5;
+  bottom: 10px;
+  right: -20px;
+  animation-delay: 2s;
+}
+
+.three {
+  width: 60px;
+  height: 60px;
+  background: #90CAF9;
+  top: 300px;
+  left: 10px;
+  animation-delay: 4s;
+}
+
+/* Blob shape */
+.blob {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  background: #BBDEFB;
+  bottom: -60px;
+  left: -60px;
+  border-radius: 40% 60% 60% 40%;
+  opacity: 0.35;
+  filter: blur(10px);
+}
+
+/* Floating animation */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+  100% { transform: translateY(0px); }
+}
+.phone {
+  position: relative;
+  z-index:2;
+}
+.logo {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <img src = "logo.png" class="logo">
+<div class="bg-shapes">
+  <span class="circle one"></span>
+  <span class="circle two"></span>
+  <span class="circle three"></span>
+  <span class="blob"></span>
+</div>
+<h1>MindFlex</h1>
+<div class="subtitle">Create your account</div>
+
+<input type="email" id="email" placeholder="Email">
+<input type="password" id="password" placeholder="Password">
+
+<button class="primary" onclick="signUp()">Sign Up</button>
+
+<button class="google" onclick="googleSignIn()">
+  Continue with Google
+</button>
+
+<div class="link" onclick="goLogin()">Already have an account? Login</div>
+
+<div class="message" id="message"></div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
+  authDomain: "mindflex-b2a0c.firebaseapp.com",
+  projectId: "mindflex-b2a0c",
+  storageBucket: "mindflex-b2a0c.firebasestorage.app",
+  messagingSenderId: "148676867562",
+  appId: "1:148676867562:web:3365a72b6fa6b3751cee93",
+  measurementId: "G-Q2T6HD3S0E"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+const message = document.getElementById("message");
+
+window.signUp = async () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  try {
+    await createUserWithEmailAndPassword(auth,email,password);
+  } catch(error){
+    message.innerText = error.message;
+  }
+};
+
+window.googleSignIn = async () => {
+  try {
+    await signInWithPopup(auth,provider);
+  } catch(error){
+    message.innerText = error.message;
+  }
+};
+
+window.goLogin = () => {
+  window.location.href="login.html";
+};
+
+onAuthStateChanged(auth,(user)=>{
+  if(user){
+    window.location.href="main.html";
+  }
+});
+</script>
+
+</body>
+</html>

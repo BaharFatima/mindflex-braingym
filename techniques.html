@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Study Techniques</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:"Poppins",sans-serif; }
+
+  html, body {
+    width:100%; height:100%;
+    background:linear-gradient(135deg,#dceeff,#a6d9ff);
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  .app {
+    width:320px; height:640px;
+    background:#f0f7ff; border-radius:25px;
+    box-shadow:0 10px 25px rgba(0,80,160,0.2);
+    overflow:hidden; display:flex; flex-direction:column;
+    position:relative;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    background:#e6f3ff; padding:15px 20px;
+    display:flex; justify-content:space-between; align-items:center;
+    color:#003366;
+    flex-shrink: 0;
+  }
+
+  header h3 { font-size: 1rem; color: #003366; }
+
+  .back-btn {
+    text-decoration:none; color:#003366; font-size:1.4rem;
+    font-weight:bold; transition:color 0.2s;
+  }
+
+  .back-btn:hover { color: #0066cc; }
+
+  /* ===== TOP HORIZONTAL DISORDER TAB BAR ===== */
+  .disorder-tabs {
+    display:flex;
+    overflow-x:auto;
+    background:#d9edff;
+    padding:10px;
+    gap:10px;
+    flex-shrink: 0;
+  }
+
+  .disorder-tabs::-webkit-scrollbar { display:none; }
+
+  .tab {
+    padding:8px 14px;
+    background:#b9ddff;
+    color:#003366;
+    border-radius:20px;
+    white-space:nowrap;
+    cursor:pointer;
+    font-size:0.9rem;
+    transition:0.2s;
+    flex-shrink: 0;
+  }
+
+  .tab.active {
+    background:#66b2ff;
+    color:white;
+  }
+
+  .tab:hover {
+    background:#a3d5ff;
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  main {
+    flex:1;
+    overflow-y:auto;
+    padding:15px 18px;
+    /* Space for nav bar */
+    padding-bottom: 75px;
+  }
+
+  .section { display:none; }
+  .section.active { display:block; }
+
+  .technique {
+    background:#66b2ff; color:white;
+    border-radius:12px;
+    padding:10px; margin-bottom:10px;
+    cursor:pointer;
+    transition:0.3s;
+  }
+
+  .technique:hover { background:#4a9ce0; }
+
+  .technique:active { transform: scale(0.98); }
+
+  .details {
+    display:none;
+    background:#a3d5ff;
+    color:#003366;
+    border-radius:0 0 12px 12px;
+    padding:10px;
+    margin-top:5px;
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+
+  /* ===== NAVIGATION BAR ===== */
+  .menu-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    border-radius: 20px 20px 0 0;
+    padding: 8px 5px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+    display: flex;
+    justify-content: space-around;
+    animation: slideUp 0.5s ease-out;
+    z-index: 50;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .menu-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 2px;
+    flex: 1;
+    text-decoration: none;
+  }
+
+  .menu-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+    color: #5f6368;
+  }
+
+  .menu-icon i {
+    font-size: 20px;
+    transition: all 0.3s ease;
+  }
+
+  .menu-label {
+    font-size: 9px;
+    color: #5f6368;
+    text-align: center;
+    line-height: 1.2;
+    font-weight: 600;
+  }
+
+  /* Pop-up animation when selected */
+  .menu-item.selected .menu-icon i {
+    transform: translateY(-5px) scale(1.1);
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Colors per category */
+  .menu-item[data-category="cv"].selected .menu-icon i           { color: #0D47A1; }
+  .menu-item[data-category="achievements"].selected .menu-icon i  { color: #9c27b0; }
+  .menu-item[data-category="home"].selected .menu-icon i          { color: #1565C0; }
+  .menu-item[data-category="habit-tracker"].selected .menu-icon i { color: #ff4081; }
+  .menu-item[data-category="user-account"].selected .menu-icon i  { color: #00838F; }
+
+  /* Image icons */
+  .menu-icon img {
+    width: 20px;
+    height: 20px;
+    transition: all 0.3s ease;
+    object-fit: contain;
+    filter: grayscale(100%) brightness(0.7);
+    border-radius: 6px;
+  }
+
+  .menu-item.selected .menu-icon img {
+    transform: translateY(-5px) scale(1.1);
+    filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+    border-radius: 8px;
+  }
+
+  .menu-item[data-category="cv"].selected .menu-icon img {
+    filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(13,71,161,0.4));
+  }
+
+  /* Fallback icon */
+  .menu-icon .fallback-icon {
+    width: 20px;
+    height: 20px;
+    background-color: #5f6368;
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    font-size: 10px;
+    transition: all 0.3s ease;
+  }
+
+  .menu-item.selected .menu-icon .fallback-icon {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    border-radius: 8px;
+  }
+
+  .menu-item[data-category="cv"].selected .menu-icon .fallback-icon           { background-color: #0D47A1; }
+  .menu-item[data-category="habit-tracker"].selected .menu-icon .fallback-icon { background-color: #ff4081; }
+
+  /* Scrollbar */
+  main::-webkit-scrollbar       { width: 4px; }
+  main::-webkit-scrollbar-track { background: transparent; }
+  main::-webkit-scrollbar-thumb { background: #B3E5FC; border-radius: 10px; }
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <header>
+    <a href="Studyzone.html" class="back-btn">←</a>
+    <h3>Techniques</h3>
+    <div></div>
+  </header>
+
+  <!-- Top Scrollable Disorder Bar -->
+  <div class="disorder-tabs">
+    <div class="tab active" data-target="adhd">ADHD</div>
+    <div class="tab" data-target="autism">Autism</div>
+    <div class="tab" data-target="spd">SPD</div>
+    <div class="tab" data-target="dyscalculia">Dyscalculia</div>
+    <div class="tab" data-target="dyslexia">Dyslexia</div>
+  </div>
+
+  <!-- Content Sections -->
+  <main>
+
+    <!-- ADHD -->
+    <div class="section active" id="adhd">
+      <div class="technique" onclick="toggleDetails(this)">
+        Pomodoro Technique
+        <div class="details">
+          • 20–25 min timer<br>
+          • 5 min break<br>
+          • Loud/visual timer<br>
+          • Long break after 4 cycles
+        </div>
+      </div>
+
+      <div class="technique" onclick="toggleDetails(this)">
+        Body-Doubling
+        <div class="details">
+          • Work near someone else<br>
+          • Say goals out loud<br>
+          • Update after each cycle
+        </div>
+      </div>
+
+      <div class="technique" onclick="toggleDetails(this)">
+        Task Chunking
+        <div class="details">
+          • Break tasks into 3–5 min steps<br>
+          • Focus on ONE step<br>
+          • Celebrate micro wins
+        </div>
+      </div>
+
+      <div class="technique" onclick="toggleDetails(this)">
+        Stimulated Focus
+        <div class="details">
+          • Use brown noise or soft music<br>
+          • Keep sensory input minimal<br>
+          • Use headphones
+        </div>
+      </div>
+
+      <div class="technique" onclick="toggleDetails(this)">
+        Externalized Memory
+        <div class="details">
+          • Sticky notes & reminders<br>
+          • Visual memory aids<br>
+          • Daily brain dump
+        </div>
+      </div>
+    </div>
+
+    <!-- Autism -->
+    <div class="section" id="autism">
+      <div class="technique" onclick="toggleDetails(this)">
+        Visual Schedules
+        <div class="details">
+          • Step-by-step chart<br>
+          • Use symbols/colors<br>
+          • Follow same order daily
+        </div>
+      </div>
+
+      <div class="technique" onclick="toggleDetails(this)">
+        Deep Focus Sessions
+        <div class="details">
+          • 40–60 min sessions<br>
+          • Reduce interruptions<br>
+          • Keep snacks ready
+        </div>
+      </div>
+
+      <div class="technique" onclick="toggleDetails(this)">
+        Sensory-Safe Environment
+        <div class="details">
+          • Soft lighting<br>
+          • Controlled noise<br>
+          • Minimal clutter
+        </div>
+      </div>
+
+      <div class="technique" onclick="toggleDetails(this)">
+        Special Interest Integration
+        <div class="details">
+          • Use interest-based examples<br>
+          • Themed worksheets<br>
+          • Motivational rewards
+        </div>
+      </div>
+
+      <div class="technique" onclick="toggleDetails(this)">
+        Scripted Routine
+        <div class="details">
+          • Fixed study order<br>
+          • Repeat daily<br>
+          • Builds predictability
+        </div>
+      </div>
+    </div>
+
+    <!-- SPD -->
+    <div class="section" id="spd">
+      <div class="technique" onclick="toggleDetails(this)">
+        Sensory Diet Breaks
+        <div class="details">
+          • Break every 20–30 mins<br>
+          • Deep pressure/stretches<br>
+          • Prevent overload early
+        </div>
+      </div>
+
+      <div class="technique" onclick="toggleDetails(this)">
+        Controlled Sensory Workspace
+        <div class="details">
+          • Adjust light/noise<br>
+          • Comfortable textures<br>
+          • Remove triggers
+        </div>
+      </div>
+
+      <div class="technique" onclick="toggleDetails(this)">
+        Weighted Touch
+        <div class="details">
+          • Weighted blanket<br>
+          • Compression sleeves<br>
+          • Helps grounding
+        </div>
+      </div>
+
+      <div class="technique" onclick="toggleDetails(this)">
+        Multi-Sensory Learning
+        <div class="details">
+          • Visual + audio + touch<br>
+          • Color coding<br>
+          • Hands-on learning
+        </div>
+      </div>
+
+      <div class="technique" onclick="toggleDetails(this)">
+        Environmental Zoning
+        <div class="details">
+          • Separate areas per task<br>
+          • Switch zones for clarity
+        </div>
+      </div>
+    </div>
+
+    <!-- Dyscalculia -->
+    <div class="section" id="dyscalculia">
+      <div class="technique" onclick="toggleDetails(this)">
+        CRA Method
+        <div class="details">
+          • Concrete → drawings → numbers<br>
+          • Move step-by-step
+        </div>
+      </div>
+
+      <div class="technique" onclick="toggleDetails(this)">
+        Color Coding
+        <div class="details">
+          • Colors for each operation<br>
+          • Helps separate steps
+        </div>
+      </div>
+
+      <div class="technique" onclick="toggleDetails(this)">
+        Worked Examples
+        <div class="details">
+          • Study step-by-step examples<br>
+          • Cover steps & re-solve
+        </div>
+      </div>
+
+      <div class="technique" onclick="toggleDetails(this)">
+        Graph Paper Alignment
+        <div class="details">
+          • Align numbers tightly<br>
+          • Reduces place-value errors
+        </div>
+      </div>
+
+      <div class="technique" onclick="toggleDetails(this)">
+        Feynman Technique
+        <div class="details">
+          • Explain math simply<br>
+          • Find gaps in understanding
+        </div>
+      </div>
+    </div>
+
+    <!-- Dyslexia -->
+    <div class="section" id="dyslexia">
+      <div class="technique" onclick="toggleDetails(this)">
+        Text-to-Speech
+        <div class="details">
+          • Listen while reading<br>
+          • Adjust playback speed
+        </div>
+      </div>
+
+      <div class="technique" onclick="toggleDetails(this)">
+        Chunked Reading
+        <div class="details">
+          • Read small blocks<br>
+          • Use finger/ruler guide
+        </div>
+      </div>
+
+      <div class="technique" onclick="toggleDetails(this)">
+        Visual Mnemonics
+        <div class="details">
+          • Pictures for words<br>
+          • Color coding rules
+        </div>
+      </div>
+
+      <div class="technique" onclick="toggleDetails(this)">
+        Multi-Sensory Reading
+        <div class="details">
+          • Read → write → trace → say<br>
+          • Strengthens pathways
+        </div>
+      </div>
+
+      <div class="technique" onclick="toggleDetails(this)">
+        Cornell Notes + Mind Maps
+        <div class="details">
+          • Visual summaries<br>
+          • Regular review
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Navigation Bar -->
+  <div class="menu-container">
+
+    <a href="cv.html" class="menu-item" data-category="cv">
+      <div class="menu-icon">
+        <img src="cv.png" alt="CV"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="fallback-icon" style="display:none;">
+          <i class="fas fa-file-alt"></i>
+        </div>
+      </div>
+      <div class="menu-label">CV</div>
+    </a>
+
+    <a href="achievements.html" class="menu-item" data-category="achievements">
+      <div class="menu-icon"><i class="fas fa-trophy"></i></div>
+      <div class="menu-label">Achievements</div>
+    </a>
+
+    <a href="main.html" class="menu-item" data-category="home">
+      <div class="menu-icon"><i class="fas fa-home"></i></div>
+      <div class="menu-label">Home</div>
+    </a>
+
+    <a href="habittracker.html" class="menu-item" data-category="habit-tracker">
+      <div class="menu-icon">
+        <img src="https://z-cdn-media.chatglm.cn/files/a1979dda-a3e4-4b38-b0cf-00e4ad455277_pasted_image_1762936027415.png?auth_key=1862936037-6cc8a5a356484e1cb70a8f599e1f2ce8-0-496c548f3f7ef2ea6a808a3cc812dc2c" 
+             alt="Habit Tracker"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="fallback-icon" style="display:none;">
+          <i class="fas fa-check"></i>
+        </div>
+      </div>
+      <div class="menu-label">Habits</div>
+    </a>
+
+    <a href="profile.html" class="menu-item" data-category="user-account">
+      <div class="menu-icon"><i class="fas fa-user-circle"></i></div>
+      <div class="menu-label">Account</div>
+    </a>
+
+  </div>
+
+</div>
+
+<script>
+  // Toggle technique details
+  function toggleDetails(el) {
+    const d = el.querySelector('.details');
+    d.style.display = d.style.display === 'block' ? 'none' : 'block';
+  }
+
+  // Disorder tab switching
+  document.querySelectorAll(".tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+
+      document.querySelectorAll(".section").forEach(sec => sec.classList.remove("active"));
+      document.getElementById(tab.dataset.target).classList.add("active");
+    });
+  });
+
+  // Nav bar interaction
+  document.addEventListener('DOMContentLoaded', function() {
+    const menuItems = document.querySelectorAll('.menu-item');
+
+    menuItems.forEach(item => {
+      item.addEventListener('click', function(e) {
+        const targetUrl = this.getAttribute('href');
+
+        const wasSelected = this.classList.contains('selected');
+        menuItems.forEach(i => i.classList.remove('selected'));
+        if (!wasSelected) this.classList.add('selected');
+
+        if (targetUrl && targetUrl !== '#') {
+          e.preventDefault();
+          setTimeout(() => { window.location.href = targetUrl; }, 250);
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

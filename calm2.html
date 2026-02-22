@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sound Haven — Calm Space</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+/* ========== BASE ========== */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to bottom, #caf0f8, #ade8f4);
+  font-family: 'Poppins', sans-serif;
+  color: #023e8a;
+}
+
+/* ========== APP FRAME ========== */
+.app-container {
+  width: 320px;
+  height: 640px;
+  background-color: #e7f4ff;
+  border-radius: 40px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column; /* Stacks content and nav vertically */
+  overflow: hidden; /* Hides overflow from the rounded corners */
+  position: relative;
+}
+
+/* ========== SCROLLABLE CONTENT AREA ========== */
+.content-scroll {
+  flex: 1; /* Takes up all available space above nav */
+  overflow-y: auto; /* Enables scrolling for this section only */
+  overflow-x: hidden;
+  padding-bottom: 20px;
+  position: relative;
+}
+
+/* ========== HEADER ========== */
+h1 {
+  font-size: 1.8em;
+  margin: 20px 0 5px;
+  text-align: center;
+}
+
+p.subtitle {
+  text-align: center;
+  font-size: 0.9em;
+  margin-bottom: 10px;
+}
+
+/* ========== BACK BUTTON ========== */
+.back-btn {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background-color: #e7f4ff;
+  border: none;
+  border-radius: 50px;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.3s;
+  z-index: 10;
+}
+
+
+/* ========== SOUND LIST ========== */
+.sound-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 15px;
+}
+
+.sound-card {
+  background: #f6fbff;
+  border-radius: 20px;
+  padding: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.sound-card h3 {
+  margin-top: 0;
+  font-size: 1.1em;
+}
+
+iframe {
+  width: 100%;
+  height: 150px;
+  border-radius: 12px;
+  border: none;
+}
+
+/* ========== BREATHING EXERCISE ========== */
+.breathing-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.baymax-img {
+  width: 100px;
+  margin-bottom: 8px;
+}
+
+.breathing-circle {
+  width: 120px;
+  height: 120px;
+  background-color: #00b4d8;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  transition: transform 4s ease-in-out;
+}
+
+.breathing-text {
+  font-size: 1.1em;
+  font-weight: 500;
+  text-align: center;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.controls button,
+#enter-btn {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: none;
+  background: #00b4d8;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* ========== FULLSCREEN ========== */
+.fullscreen {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(to bottom, #caf0f8, #ade8f4);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ========== NAVIGATION BAR ========== */
+.menu-container {
+    background-color: white;
+    width: 100%;
+    border-radius: 20px 20px 0 0;
+    padding: 10px 5px; 
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+    display: flex;
+    justify-content: space-around;
+    z-index: 100;
+    flex-shrink: 0; /* Prevents nav from shrinking */
+}
+
+.menu-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 5px;
+    flex: 1;
+}
+
+.menu-icon {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+    color: #5f6368;
+}
+
+.menu-icon i {
+    font-size: 20px;
+    transition: all 0.3s ease;
+}
+
+.menu-label {
+    font-size: 9px;
+    color: #5f6368;
+    text-align: center;
+    line-height: 1.2;
+    font-weight: bold; /* Bolded as requested */
+}
+
+/* Active State Logic */
+.menu-item.selected .menu-icon i {
+    transform: translateY(-6px) scale(1.1);
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Colors - Dark Blue #0D47A1 */
+.menu-item[data-category="cv"].selected .menu-icon i { color: #0D47A1; }
+.menu-item[data-category="home"].selected .menu-icon i { color: #0D47A1; }
+.menu-item[data-category="user-account"].selected .menu-icon i { color: #0D47A1; }
+
+.menu-item[data-category="achievements"].selected .menu-icon i { color: #9c27b0; }
+.menu-item[data-category="habit-tracker"].selected .menu-icon i { color: #ff4081; }
+
+/* Image Icons */
+.menu-icon img {
+    width: 20px;
+    height: 20px;
+    transition: all 0.3s ease;
+    object-fit: contain;
+    filter: grayscale(100%) brightness(0.7);
+    border-radius: 6px;
+}
+
+.menu-item.selected .menu-icon img {
+    transform: translateY(-6px) scale(1.1);
+    border-radius: 8px;
+}
+
+/* Dark Blue Filter for CV */
+.menu-item[data-category="cv"].selected .menu-icon img {
+    filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(13, 71, 161, 0.3));
+}
+
+/* Pink Filter for Habits */
+.menu-item[data-category="habit-tracker"].selected .menu-icon img {
+    filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(255, 64, 129, 0.3));
+}
+
+/* Fallback Icon */
+.menu-icon .fallback-icon {
+    width: 20px;
+    height: 20px;
+    background-color: #5f6368;
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.menu-item.selected .menu-icon .fallback-icon {
+    transform: translateY(-6px) scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.menu-item[data-category="cv"].selected .menu-icon .fallback-icon { background-color: #0D47A1; }
+.menu-item[data-category="habit-tracker"].selected .menu-icon .fallback-icon { background-color: #ff4081; }
+
+</style>
+</head>
+
+<body>
+
+<div class="app-container">
+  
+  <!-- Content Wrapper allows scrolling independently of the fixed Nav Bar -->
+  <div class="content-scroll">
+    <button class="back-btn" onclick="window.location.href='main.html'">←</button>
+      
+    </button>
+
+    <h1> Calm Space</h1>
+    <p class="subtitle">Listen to soothing calm sounds</p>
+
+    <div class="sound-list">
+
+        <div class="sound-card">
+        <h3>Ocean Waves 🌊</h3>
+        <iframe src="https://www.youtube.com/embed/rET3lp6kk2E" allowfullscreen></iframe>
+        </div>
+
+        <div class="sound-card">
+        <h3>Buddy Breathing 🫂</h3>
+        <p>Click Enter to start</p>
+        <button id="enter-btn">Enter</button>
+
+        <div class="breathing-container" id="breathing-container" style="display:none;">
+            <img src="baymax.png" class="baymax-img" alt="Baymax">
+            <div class="breathing-circle"></div>
+            <p class="breathing-text">Inhale...</p>
+
+            <div class="controls">
+            <button id="start-stop-btn">Start</button>
+            <button id="fullscreen-btn">Full Screen</button>
+            </div>
+        </div>
+        </div>
+
+        <div class="sound-card">
+        <h3>Forest Ambience 🌲</h3>
+        <iframe src="https://www.youtube.com/embed/Qm846KdZN_c" allowfullscreen></iframe>
+        </div>
+
+        <div class="sound-card">
+        <h3>Soft Rain ☔</h3>
+        <iframe src="https://www.youtube.com/embed/q76bMs-NwRk" allowfullscreen></iframe>
+        </div>
+        
+        <div class="sound-card">
+        <h3>Wind Chimes 🌬️</h3>
+        <iframe src="https://www.youtube.com/embed/oWxFwmuG21g?start=24" allowfullscreen></iframe>
+        </div>
+
+        <div class="sound-card">
+        <h3>Peaceful Piano 🎹</h3>
+        <iframe src="https://www.youtube.com/embed/3NycM9lYdRI?start=24" allowfullscreen></iframe>
+        </div>
+
+        <div class="sound-card">
+        <h3>Mountain Stream 💧</h3>
+        <iframe src="https://www.youtube.com/embed/aVS7PHjSxdI?start=24" allowfullscreen></iframe>
+        </div>
+
+        <div class="sound-card">
+        <h3>Morning Birds 🕊️</h3>
+        <iframe src="https://www.youtube.com/embed/zwenk-MvUWc?start=24" allowfullscreen></iframe>
+        </div>
+
+        <div class="sound-card">
+        <h3>Night Crickets 🌌</h3>
+        <iframe src="https://www.youtube.com/embed/7GoXVDH656g?start=24" allowfullscreen></iframe>
+        </div>
+
+        <div class="sound-card">
+        <h3>Tibetan Singing Bowls 🕉️</h3>
+        <iframe src="https://www.youtube.com/embed/TAESZsLJdVw?start=11" allowfullscreen></iframe>
+        </div>
+    </div>
+  </div> <!-- End Content Scroll -->
+
+  <!-- Navigation Bar (Fixed at bottom via Flexbox) -->
+  <div class="menu-container">
+    <div class="menu-item" data-category="cv" onclick="window.location.href='cv.html'">
+        <div class="menu-icon">
+            <img src="cv.png" alt="CV" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="fallback-icon" style="display: none;">
+                <i class="fas fa-file-alt"></i>
+            </div>
+        </div>
+        <div class="menu-label">CV</div>
+    </div>
+    
+    <div class="menu-item" data-category="achievements" onclick="window.location.href='achievements.html'">
+        <div class="menu-icon">
+            <i class="fas fa-trophy"></i>
+        </div>
+        <div class="menu-label">Achieve</div>
+    </div>
+    
+    <div class="menu-item" data-category="home" onclick="window.location.href='index.html'">
+        <div class="menu-icon">
+            <i class="fas fa-home"></i>
+        </div>
+        <div class="menu-label">Home</div>
+    </div>
+    
+    <div class="menu-item" data-category="habit-tracker" onclick="window.location.href='habittracker.html'">
+        <div class="menu-icon">
+            <img src="https://z-cdn-media.chatglm.cn/files/a1979dda-a3e4-4b38-b0cf-00e4ad455277_pasted_image_1762936027415.png?auth_key=1862936037-6cc8a5a356484e1cb70a8f599e1f2ce8-0-496c548f3f7ef2ea6a808a3cc812dc2c" alt="Habit Tracker" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="fallback-icon" style="display: none;">
+                <i class="fas fa-check"></i>
+            </div>
+        </div>
+        <div class="menu-label">Habit Tracker</div>
+    </div>
+    
+    <div class="menu-item" data-category="user-account" onclick="window.location.href='account.html'">
+        <div class="menu-icon">
+            <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="menu-label">Account</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// --- Breathing Exercise Logic ---
+const enterBtn = document.getElementById('enter-btn');
+const breathing = document.getElementById('breathing-container');
+const startStopBtn = document.getElementById('start-stop-btn');
+const fullscreenBtn = document.getElementById('fullscreen-btn');
+const circle = document.querySelector('.breathing-circle');
+const text = document.querySelector('.breathing-text');
+
+let inhale = true;
+let running = false;
+let interval;
+
+enterBtn.onclick = () => {
+  breathing.style.display = 'flex';
+  enterBtn.style.display = 'none';
+};
+
+startStopBtn.onclick = () => {
+  if (running) {
+    clearInterval(interval);
+    startStopBtn.textContent = 'Start';
+  } else {
+    interval = setInterval(() => {
+      circle.style.transform = inhale ? 'scale(1.5)' : 'scale(1)';
+      text.textContent = inhale ? 'Exhale...' : 'Inhale...';
+      inhale = !inhale;
+    }, 4000);
+    startStopBtn.textContent = 'Stop';
+  }
+  running = !running;
+};
+
+fullscreenBtn.onclick = () => {
+  breathing.classList.toggle('fullscreen');
+};
+
+// --- Nav Bar Logic ---
+const menuItems = document.querySelectorAll('.menu-item');
+menuItems.forEach(item => {
+    item.addEventListener('click', function() {
+        menuItems.forEach(i => i.classList.remove('selected'));
+        this.classList.add('selected');
+    });
+});
+</script>
+
+</body>
+</html>

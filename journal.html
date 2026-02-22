@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Journal — Entries</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;font-family:"Poppins",sans-serif}
+  body{height:100%;background:linear-gradient(135deg,#d8eaff,#a6ccff);display:flex;align-items:center;justify-content:center}
+  .container{width:320px;height:640px;background:#f8fbff;border-radius:20px;box-shadow:0 18px 40px rgba(0,70,160,0.12);overflow:hidden;position:relative;display:flex;flex-direction:column}
+
+  header{
+    height:56px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#0f2b45;
+    font-weight:700;
+    position:relative;
+  }
+
+  /* Back button */
+  .back-btn{
+    position:absolute;
+    left:14px;
+    font-size:22px;
+    cursor:pointer;
+    color:#0f2b45;
+    font-weight:bold;
+  }
+
+  main{flex:1;overflow:auto;padding:14px}
+
+  .list-title{font-size:18px;margin-bottom:12px;color:#0f2b45;font-weight:700;text-align:center}
+  .entries{display:flex;flex-direction:column;gap:10px}
+  .entry-card{background:#e6f4ff;border-radius:12px;padding:12px;box-shadow:0 6px 14px rgba(0,0,0,0.03)}
+  .entry-top{display:flex;justify-content:space-between;align-items:center}
+  .entry-title{font-weight:700;color:#0f2b45}
+  .entry-date{font-size:12px;color:#2e5a78}
+  .entry-snippet{margin-top:8px;color:#234;opacity:.9}
+
+  .entry-actions{display:flex;gap:8px;margin-top:10px}
+  .small-btn{padding:6px 8px;border-radius:8px;border:none;background:rgba(109,168,255,0.15);color:#6da8ff;cursor:pointer}
+
+  .empty{color:#4b708f;text-align:center;margin-top:40px;opacity:.8}
+
+  /* Floating Add Button */
+  .fab {
+    position:absolute;
+    bottom:18px;
+    right:18px;
+    width:56px;
+    height:56px;
+    border-radius:50%;
+    background:#5bb0ff;
+    color:white;
+    font-size:30px;
+    border:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    box-shadow:0 6px 18px rgba(0,0,0,0.18);
+  }
+
+  /* Clear All */
+  .top-right {
+    position:absolute;
+    top:12px;
+    right:12px;
+  }
+  .clear-btn{padding:8px 10px;border-radius:10px;border:none;background:#ff8b8b;color:white;cursor:pointer}
+
+  /* scrollbar */
+  main::-webkit-scrollbar{width:10px}
+  main::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.12);border-radius:10px}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <div class="back-btn" onclick="window.location.href='main.html'">←</div>
+    My Journal
+  </header>
+
+  <main>
+    <div class="list-title">Saved Entries</div>
+
+    <div class="entries" id="entries"></div>
+
+    <div class="empty" id="emptyMsg">No saved entries yet. Tap + to add one.</div>
+  </main>
+
+  <div class="top-right">
+    <button class="clear-btn" id="clearAllBtn">Clear All</button>
+  </div>
+
+  <button class="fab" id="fabAdd" title="New entry">+</button>
+</div>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+ 
+   const firebaseConfig = {
+  apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
+  authDomain: "mindflex-b2a0c.firebaseapp.com",
+  projectId: "mindflex-b2a0c",
+  storageBucket: "mindflex-b2a0c.firebasestorage.app",
+  messagingSenderId: "148676867562",
+  appId: "1:148676867562:web:3365a72b6fa6b3751cee93",
+  measurementId: "G-Q2T6HD3S0E"
+};
+
+  firebase.initializeApp(firebaseConfig);
+
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  const entriesEl = document.getElementById('entries');
+  const emptyMsg = document.getElementById('emptyMsg');
+  const fab = document.getElementById('fabAdd');
+  const clearAllBtn = document.getElementById('clearAllBtn');
+
+  // Wait for login
+  auth.onAuthStateChanged(async (user) => {
+    if (user) {
+      loadEntries(user.uid);
+    } else {
+      window.location.href = "login.html"; // or wherever your login is
+    }
+  });
+
+  async function loadEntries(uid) {
+    entriesEl.innerHTML = "";
+
+    const snapshot = await db
+      .collection("users")
+      .doc(uid)
+      .collection("journal")
+      .orderBy("savedAt", "desc")
+      .get();
+
+    if (snapshot.empty) {
+      emptyMsg.style.display = "block";
+      return;
+    }
+
+    emptyMsg.style.display = "none";
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const docId = doc.id;
+
+      const card = document.createElement('div');
+      card.className = 'entry-card';
+
+      const top = document.createElement('div');
+      top.className = 'entry-top';
+      top.innerHTML = `
+  <div class="entry-title">${escapeHtml(data.title || "Untitled")}</div>
+  <div class="entry-date">
+    ${data.savedAt ? data.savedAt.toDate().toLocaleString() : ""}
+  </div>
+`;
+
+      const snippet = document.createElement('div');
+      snippet.className = 'entry-snippet';
+      snippet.textContent = (data.content || "").slice(0, 160);
+
+      const actions = document.createElement('div');
+      actions.className = 'entry-actions';
+
+      // DELETE BUTTON
+      const delBtn = document.createElement('button');
+      delBtn.className = 'small-btn';
+      delBtn.textContent = 'Delete';
+      delBtn.onclick = async () => {
+        if (!confirm("Delete this entry?")) return;
+
+        await db
+          .collection("users")
+          .doc(auth.currentUser.uid)
+          .collection("journal")
+          .doc(docId)
+          .delete();
+
+        loadEntries(auth.currentUser.uid);
+      };
+
+      actions.appendChild(delBtn);
+
+      card.appendChild(top);
+      card.appendChild(snippet);
+      card.appendChild(actions);
+
+      entriesEl.appendChild(card);
+    });
+  }
+
+  function escapeHtml(s) {
+    return (s + '').replace(/[&<>"']/g, c => (
+      {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
+    ));
+  }
+
+  fab.onclick = () => {
+    window.location.href = "journal-create.html";
+  };
+
+  clearAllBtn.onclick = async () => {
+    if (!confirm("Clear ALL entries?")) return;
+
+    const snapshot = await db
+      .collection("users")
+      .doc(auth.currentUser.uid)
+      .collection("journal")
+      .get();
+
+    const batch = db.batch();
+
+    snapshot.forEach(doc => {
+      batch.delete(doc.ref);
+    });
+
+    await batch.commit();
+
+    loadEntries(auth.currentUser.uid);
+  };
+</script>
+
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MindFlex – Habit Tracker</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(180deg, #B3E5FC 0%, #E1F5FE 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+    position: relative;
+  width: 320px;
+  height: 640px;
+  border-radius: 30px;
+  background: linear-gradient(180deg, #BBDEFB 0%, #E3F2FD 100%);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+
+/* Header */
+.header {
+  padding: 22px;
+  text-align: center;
+  color: #0D47A1;
+}
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  color: #0D47A1;
+}
+
+.header-text {
+  flex: 1;
+  text-align: center;
+}
+
+.back-btn {
+  border: none;
+  background: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #0D47A1;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.back-btn:hover {
+  background: rgba(13, 71, 161, 0.1);
+}
+
+
+.header h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.header p {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* Add habit */
+.add-habit {
+  padding: 0 16px 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.add-habit input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid #E3F2FD;
+  font-size: 13px;
+}
+
+.add-habit button {
+  background: linear-gradient(135deg, #64B5F6, #1E88E5);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  padding: 0 14px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* Habit list */
+.habits {
+  flex: 1;
+  padding: 0 16px;
+  overflow-y: auto;
+}
+
+.habit {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.habit-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.habit-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1565C0;
+}
+
+.streak {
+  font-size: 11px;
+  color: #0D47A1;
+  opacity: 0.7;
+}
+
+.habit-actions button {
+  border: none;
+  background: none;
+  font-size: 18px;
+  cursor: pointer;
+  margin-left: 6px;
+}
+
+/* Bottom nav */
+/* ===== Bottom Navigation ===== */
+/* ===== Bottom Navigation ===== */
+/*STYLES ========== */
+.bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: #FFFFFF;
+  border-top: 1px solid #E3F2FD;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 -4px 10px rgba(0,0,0,0.08);
+  padding: 8px 5px;
+  z-index: 50;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 2px;
+  flex: 1;
+  text-decoration: none;
+}
+
+.nav-icon {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  color: #90CAF9;
+}
+
+.nav-icon i { 
+  font-size: 18px; 
+  transition: all 0.3s ease; 
+}
+
+.nav-label {
+  font-size: 9px;
+  color: #5f6368;
+  text-align: center;
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+.nav-item.selected .nav-icon i {
+  transform: translateY(-8px) scale(1.2);
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.nav-item[data-category="cv"].selected .nav-icon i { color: #0D47A1; }
+.nav-item[data-category="achievements"].selected .menu-icon i { color: #9c27b0; }
+.nav-item[data-category="home"].selected .nav-icon i { color: #1565C0; }
+.nav-item[data-category="habit-tracker"].selected .nav-icon i { color: #ff4081; }
+.nav-item[data-category="user-account"].selected .nav-icon i { color: #00838F; }
+
+.nav-icon img {
+  width: 18px;
+  height: 18px;
+  transition: all 0.3s ease;
+  object-fit: contain;
+  filter: grayscale(100%) brightness(0.7);
+  border-radius: 6px;
+}
+
+.nav-item.selected .nav-icon img {
+  transform: translateY(-8px) scale(1.2);
+  filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+  border-radius: 8px;
+}
+
+.nav-icon .fallback-icon {
+  width: 18px;
+  height: 18px;
+  background-color: #90CAF9;
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.nav-item.selected .nav-icon .fallback-icon {
+  transform: translateY(-8px) scale(1.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+}
+
+.nav-item[data-category="habit-tracker"].selected .nav-icon .fallback-icon {
+  background-color: #ff4081;
+}
+
+.nav-item[data-category="cv"].selected .nav-icon .fallback-icon {
+  background-color: #0D47A1;
+}
+/* ===== ACTIVE COLORS ===== */
+.analysis-box {
+  background: #ffffff;
+  margin: 10px 16px 70px 16px;
+  padding: 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  color: #0D47A1;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+}
+.analysis-box h3 {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <!-- Bottom nav -->
+  <!-- NAV BAR -->
+  <nav class="bottom-nav">
+        <a href="cv.html" class="nav-item" data-category="cv">
+            <div class="nav-icon">
+                <img src="cv.png" alt="CV" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="fallback-icon" style="display: none;">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+            </div>
+            <div class="nav-label">CV</div>
+        </a>
+
+        <a href="achievements.html" class="nav-item" data-category="achievements">
+            <div class="nav-icon"><i class="fas fa-trophy" style="color: #9c27b0;"></i></div>
+            <div class="nav-label">Achievements</div>
+        </a>
+
+        <a href="main.html" class="nav-item" data-category="home">
+            <div class="nav-icon"><i class="fas fa-home"></i></div>
+            <div class="nav-label">Home</div>
+        </a>
+
+        <a href="#" class="nav-item selected" data-category="habit-tracker">
+            <div class="nav-icon">
+                <img src="https://z-cdn-media.chatglm.cn/files/a1979dda-a3e4-4b38-b0cf-00e4ad455277_pasted_image_1762936027415.png?auth_key=1862936037-6cc8a5a356484e1cb70a8f599e1f2ce8-0-496c548f3f7ef2ea6a808a3cc812dc2c" alt="Habit Tracker" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="fallback-icon" style="display: none;"><i class="fas fa-check"></i></div>
+            </div>
+            <div class="nav-label">Habit Tracker</div>
+        </a>
+
+        <a href="profile.html" class="nav-item" data-category="user-account">
+            <div class="nav-icon"><i class="fas fa-user-circle"></i></div>
+            <div class="nav-label">Account</div>
+        </a>
+    </nav>
+
+  <!-- Header -->
+ <div class="header">
+  <button class="back-btn" onclick="goBack()">←</button>
+  <div class="header-text">
+    <h2>Habit Tracker</h2>
+    <p>Build small habits, stay consistent</p>
+  </div>
+</div>
+
+
+  <!-- Add habit -->
+  <div class="add-habit">
+    <input type="text" id="habitInput" placeholder="Enter new habit">
+    <button onclick="addHabit()">+</button>
+  </div>
+
+  <!-- Habit list -->
+  <div class="habits" id="habitList"></div>
+<div class="analysis-box">
+  <h3>📊 Your Insights</h3>
+  <p id="totalHabits"></p>
+  <p id="completedToday"></p>
+  <p id="bestHabit"></p>
+  <p id="completionRate"></p>
+</div>
+
+
+ 
+
+
+</div>
+
+<script>
+    function goBack() {
+  if (history.length > 1) {
+    history.back();
+  } else {
+    window.location.href = "index.html";
+  }
+}
+
+let habits = JSON.parse(localStorage.getItem("mindflexHabits")) || [];
+
+function saveHabits() {
+  localStorage.setItem("mindflexHabits", JSON.stringify(habits));
+}
+
+function addHabit() {
+  const input = document.getElementById("habitInput");
+  const name = input.value.trim();
+  if (!name) return;
+
+  habits.push({
+    name,
+    streak: 0,
+    lastDone: null
+  });
+
+  input.value = "";
+  saveHabits();
+  renderHabits();
+}
+
+function toggleDone(index) {
+  const today = new Date().toDateString();
+  const habit = habits[index];
+
+  if (habit.lastDone !== today) {
+    habit.streak += 1;
+    habit.lastDone = today;
+  }
+
+  saveHabits();
+  renderHabits();
+}
+
+function deleteHabit(index) {
+  habits.splice(index, 1);
+  saveHabits();
+  renderHabits();
+}
+function updateInsights() {
+  const today = new Date().toDateString();
+
+  const total = habits.length;
+  const completed = habits.filter(h => h.lastDone === today).length;
+
+  let best = "None";
+  let maxStreak = 0;
+
+  habits.forEach(h => {
+    if (h.streak > maxStreak) {
+      maxStreak = h.streak;
+      best = h.name;
+    }
+  });
+
+  const percentage = total === 0 
+    ? 0 
+    : Math.round((completed / total) * 100);
+
+  document.getElementById("totalHabits").innerText =
+    `Total Habits: ${total}`;
+
+  document.getElementById("completedToday").innerText =
+    `Completed Today: ${completed}`;
+
+  document.getElementById("bestHabit").innerText =
+    `Best Streak: ${best} (${maxStreak} days)`;
+
+  document.getElementById("completionRate").innerText =
+    `Completion Rate: ${percentage}%`;
+}
+
+function renderHabits() {
+  const list = document.getElementById("habitList");
+  list.innerHTML = "";
+
+  habits.forEach((habit, index) => {
+    const div = document.createElement("div");
+    div.className = "habit";
+
+    div.innerHTML = `
+      <div class="habit-info">
+        <span class="habit-name">${habit.name}</span>
+        <span class="streak"> ${habit.streak} day streak</span>
+      </div>
+      <div class="habit-actions">
+        <button onclick="toggleDone(${index})">✔️</button>
+        <button onclick="deleteHabit(${index})">🗑️</button>
+      </div>
+    `;
+
+    list.appendChild(div);
+  });
+  updateInsights();
+
+}
+renderHabits();
+</script>
+<script>// Bottom Nav Interactions with Animation Delay
+document.addEventListener('DOMContentLoaded', function() {
+    const navItems = document.querySelectorAll('.nav-item');
+    
+    navItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            const targetUrl = this.getAttribute('href');
+            
+            if (targetUrl && targetUrl !== '#') {
+                e.preventDefault();
+                navItems.forEach(i => i.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                setTimeout(() => {
+                    window.location.href = targetUrl;
+                }, 300);
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>

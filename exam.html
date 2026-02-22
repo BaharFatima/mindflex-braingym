@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Exam Timetables — Log</title>
+
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;font-family:"Poppins",sans-serif}
+  body{height:100%;background:linear-gradient(135deg,#d8eaff,#a6ccff);display:flex;align-items:center;justify-content:center}
+  .container{width:320px;height:640px;background:#f8fbff;border-radius:20px;box-shadow:0 18px 40px rgba(0,70,160,0.12);overflow:hidden;position:relative;display:flex;flex-direction:column}
+
+  header{height:56px;display:flex;align-items:center;justify-content:center;color:#0f2b45;font-weight:700}
+  main{flex:1;overflow:auto;padding:14px}
+
+  .list-title{font-size:18px;margin-bottom:12px;color:#0f2b45;font-weight:700;text-align:center}
+  .entries{display:flex;flex-direction:column;gap:10px}
+  .entry-card{background:#e6f4ff;border-radius:12px;padding:12px;box-shadow:0 6px 14px rgba(0,0,0,0.03)}
+  .entry-top{display:flex;justify-content:space-between;align-items:center}
+  .entry-title{font-weight:700;color:#0f2b45}
+  .entry-date{font-size:12px;color:#2e5a78}
+  .entry-snippet{margin-top:8px;color:#234;opacity:.9;white-space:pre-wrap}
+
+  .entry-actions{display:flex;gap:8px;margin-top:10px}
+  .small-btn{padding:6px 8px;border-radius:8px;border:none;background:rgba(109,168,255,0.15);color:#6da8ff;cursor:pointer}
+
+  .empty{color:#4b708f;text-align:center;margin-top:40px;opacity:.8}
+
+  /* Floating Add Button */
+  .fab {
+    position:absolute;
+    bottom:18px;
+    right:18px;
+    width:56px;
+    height:56px;
+    border-radius:50%;
+    background:#5bb0ff;
+    color:white;
+    font-size:30px;
+    border:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    box-shadow:0 6px 18px rgba(0,0,0,0.18);
+  }
+
+  /* Clear All button */
+  .top-right {
+    position:absolute;
+    top:12px;
+    right:12px;
+  }
+  .clear-btn{padding:8px 10px;border-radius:10px;border:none;background:#ff8b8b;color:white;cursor:pointer}
+
+  /* scrollbar */
+  main::-webkit-scrollbar{width:10px}
+  main::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.12);border-radius:10px}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>Exam Timetables</header>
+
+  <main>
+    <div class="list-title">Saved Exam Timetables</div>
+
+    <div class="entries" id="entries"></div>
+
+    <div class="empty" id="emptyMsg">No saved exam timetables yet. Tap + to add one.</div>
+  </main>
+
+  <div class="top-right">
+    <button class="clear-btn" id="clearAllBtn">Clear All</button>
+  </div>
+
+  <button class="fab" id="fabAdd" title="New entry">+</button>
+</div>
+
+<script>
+(() => {
+  const STORAGE_KEY = 'examTimetables_v1';
+  const entriesEl = document.getElementById('entries');
+  const emptyMsg = document.getElementById('emptyMsg');
+  const fab = document.getElementById('fabAdd');
+  const clearAllBtn = document.getElementById('clearAllBtn');
+
+  function load() {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  }
+
+  function save(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function render() {
+    const data = load();
+    entriesEl.innerHTML = '';
+    if (!data || data.length === 0) {
+      emptyMsg.style.display = 'block';
+      return;
+    }
+    emptyMsg.style.display = 'none';
+
+    data.forEach((e, i) => {
+      const card = document.createElement('div');
+      card.className = 'entry-card';
+
+      const top = document.createElement('div');
+      top.className = 'entry-top';
+      top.innerHTML = `<div class="entry-title">${escapeHtml(e.title || 'Exam Timetable')}</div>
+                       <div class="entry-date">${new Date(e.savedAt||Date.now()).toLocaleString()}</div>`;
+
+      const snippet = document.createElement('div');
+      snippet.className = 'entry-snippet';
+      // show generated timetable text or a short preview
+      snippet.textContent = (e.resultText || '').slice(0, 300) || 'Tap Open to view generated timetable.';
+
+      const actions = document.createElement('div');
+      actions.className = 'entry-actions';
+      // Open (edit) button
+      const openBtn = document.createElement('button');
+      openBtn.className = 'small-btn';
+      openBtn.textContent = 'Open';
+      openBtn.onclick = () => {
+        localStorage.setItem('editingExamIndex', i);
+        window.location.href = 'exam-create.html';
+      };
+      // Delete button
+      const delBtn = document.createElement('button');
+      delBtn.className = 'small-btn';
+      delBtn.textContent = 'Delete';
+      delBtn.onclick = () => {
+        if (!confirm('Delete this exam timetable?')) return;
+        const d = load();
+        d.splice(i,1);
+        save(d);
+        render();
+      };
+
+      actions.appendChild(openBtn);
+      actions.appendChild(delBtn);
+
+      card.appendChild(top);
+      card.appendChild(snippet);
+      card.appendChild(actions);
+
+      entriesEl.appendChild(card);
+    });
+  }
+
+  // helper
+  function escapeHtml(s){
+    return (s+'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // Floating button -> create new entry (remove any existing editing index)
+  fab.onclick = () => {
+    localStorage.removeItem('editingExamIndex');
+    window.location.href = 'exam-create.html';
+  };
+
+  // clear all entries
+  clearAllBtn.onclick = () => {
+    if (!confirm('Clear ALL saved exam timetables? This cannot be undone.')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    render();
+  };
+
+  // initial render
+  render();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MindFlex – Camera Text Reader</title>
+
+<!-- Fonts and Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+/* --- Global & Layout --- */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Poppins, sans-serif;
+  background: linear-gradient(180deg, #B3E5FC, #E1F5FE);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  width: 320px;
+  height: 640px;
+  background: #E3F2FD;
+  border-radius: 30px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* --- Header with Back Button --- */
+header {
+  display: flex;
+  align-items: center;
+  padding: 14px;
+  background: #E3F2FD;
+  color: #0D47A1;
+  z-index: 10;
+  border-bottom: 1px solid rgba(13, 71, 161, 0.1);
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #0D47A1;
+  cursor: pointer;
+  padding: 5px;
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-text {
+  flex: 1;
+  text-align: center;
+  padding-right: 25px; /* Balance the back button spacing */
+}
+
+.header-text h3 {
+  font-size: 16px;
+  margin: 0;
+  font-weight: 700;
+}
+
+.header-text p {
+  font-size: 11px;
+  margin: 0;
+  opacity: 0.8;
+}
+
+/* --- Main Content Area --- */
+.app-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 10px 80px 10px; /* Bottom padding ensures content isn't hidden by nav */
+  display: flex;
+  flex-direction: column;
+}
+
+video {
+  width: 100%;
+  border-radius: 20px;
+  background: black;
+  margin-bottom: 10px;
+  border: 2px solid #BBDEFB;
+}
+
+/* --- Controls --- */
+.controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.controls button {
+  flex: 1;
+  border: none;
+  padding: 10px;
+  border-radius: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: Poppins, sans-serif;
+  transition: transform 0.1s;
+}
+
+.controls button:active { transform: scale(0.98); }
+
+.scan { background: #1565C0; color: white; } /* Darker blue for action */
+.read { background: #BBDEFB; color: #0D47A1; }
+.flip { background: #E3F2FD; color: #0D47A1; border: 1px solid #BBDEFB; }
+
+/* --- Speed Control --- */
+.speed {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #BBDEFB;
+  border-radius: 14px;
+  margin-bottom: 10px;
+}
+
+.speed button {
+  background: #1565C0;
+  color: white;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#speedDisplay {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0D47A1;
+}
+
+textarea {
+  width: 100%;
+  border-radius: 14px;
+  padding: 10px;
+  height: 100px;
+  resize: none;
+  border: 1px solid #BBDEFB;
+  font-family: Poppins, sans-serif;
+  font-size: 12px;
+  color: #0D47A1;
+}
+
+/* --- Navigation Bar Styles --- */
+.menu-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    border-radius: 20px 20px 0 0;
+    padding: 10px 5px; 
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+    display: flex;
+    justify-content: space-around;
+    z-index: 100;
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.menu-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 5px;
+    flex: 1;
+}
+
+.menu-icon {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+    color: #5f6368;
+}
+
+.menu-icon i {
+    font-size: 20px;
+    transition: all 0.3s ease;
+}
+
+.menu-label {
+    font-size: 9px;
+    color: #5f6368;
+    text-align: center;
+    line-height: 1.2;
+    font-weight: bold; /* BOLD REQUESTED */
+}
+
+/* --- Active State Logic --- */
+.menu-item.selected .menu-icon i {
+    transform: translateY(-6px) scale(1.1);
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* UPDATED: Dark Blue Colors (#0D47A1) */
+.menu-item[data-category="cv"].selected .menu-icon i { color: #0D47A1; }
+.menu-item[data-category="home"].selected .menu-icon i { color: #0D47A1; }
+.menu-item[data-category="user-account"].selected .menu-icon i { color: #0D47A1; }
+
+/* Keep Achievement Purple and Habits Pink */
+.menu-item[data-category="achievements"].selected .menu-icon i { color: #9c27b0; }
+.menu-item[data-category="habit-tracker"].selected .menu-icon i { color: #ff4081; }
+
+/* Image Icons */
+.menu-icon img {
+    width: 20px;
+    height: 20px;
+    transition: all 0.3s ease;
+    object-fit: contain;
+    filter: grayscale(100%) brightness(0.7);
+    border-radius: 6px;
+}
+
+.menu-item.selected .menu-icon img {
+    transform: translateY(-6px) scale(1.1);
+    border-radius: 8px;
+}
+
+/* Filter for Dark Blue CV Icon */
+.menu-item[data-category="cv"].selected .menu-icon img {
+    /* Filters to make it look active with dark blue shadow/tone */
+    filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(13, 71, 161, 0.3));
+}
+
+/* Filter for Habits Icon */
+.menu-item[data-category="habit-tracker"].selected .menu-icon img {
+    filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(255, 64, 129, 0.3));
+}
+
+/* Fallback Icon */
+.menu-icon .fallback-icon {
+    width: 20px;
+    height: 20px;
+    background-color: #5f6368;
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.menu-item.selected .menu-icon .fallback-icon {
+    transform: translateY(-6px) scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.menu-item[data-category="cv"].selected .menu-icon .fallback-icon { background-color: #0D47A1; }
+.menu-item[data-category="habit-tracker"].selected .menu-icon .fallback-icon { background-color: #ff4081; }
+
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<!-- Header with Back Button -->
+<header>
+  <button class="back-btn" onclick="goBack()">
+    <i class="fas fa-chevron-left"></i>
+  </button>
+  <div class="header-text">
+    <h3>📷 MindFlex Reader</h3>
+    <p>Camera → OCR → Speech</p>
+  </div>
+</header>
+
+<!-- Scrollable Content Wrapper -->
+<div class="app-content">
+  <video id="video" autoplay playsinline></video>
+
+  <div class="controls">
+    <button class="flip" onclick="flipCamera()">🔄 Flip</button>
+    <button class="scan" onclick="scanText()">Scan</button>
+    <button class="read" onclick="speakText()">Read</button>
+  </div>
+
+  <div class="speed">
+    <button onclick="decreaseSpeed()">−</button>
+    <span id="speedDisplay">Speed: 1.0</span>
+    <button onclick="increaseSpeed()">+</button>
+  </div>
+
+  <textarea id="outputText" placeholder="Recognized text will appear here"></textarea>
+</div>
+
+<  <!-- Navigation Bar (Fixed at bottom via Flexbox) -->
+  <div class="menu-container">
+    <div class="menu-item" data-category="cv" onclick="window.location.href='cv.html'">
+        <div class="menu-icon">
+            <img src="cv.png" alt="CV" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="fallback-icon" style="display: none;">
+                <i class="fas fa-file-alt"></i>
+            </div>
+        </div>
+        <div class="menu-label">CV</div>
+    </div>
+    
+    <div class="menu-item" data-category="achievements" onclick="window.location.href='achievements.html'">
+        <div class="menu-icon">
+            <i class="fas fa-trophy"></i>
+        </div>
+        <div class="menu-label">Achieve</div>
+    </div>
+    
+    <div class="menu-item" data-category="home" onclick="window.location.href='main.html'">
+        <div class="menu-icon">
+            <i class="fas fa-home"></i>
+        </div>
+        <div class="menu-label">Home</div>
+    </div>
+    
+    <div class="menu-item" data-category="habit-tracker" onclick="window.location.href='habittracker.html'">
+        <div class="menu-icon">
+            <img src="https://z-cdn-media.chatglm.cn/files/a1979dda-a3e4-4b38-b0cf-00e4ad455277_pasted_image_1762936027415.png?auth_key=1862936037-6cc8a5a356484e1cb70a8f599e1f2ce8-0-496c548f3f7ef2ea6a808a3cc812dc2c" alt="Habit Tracker" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="fallback-icon" style="display: none;">
+                <i class="fas fa-check"></i>
+            </div>
+        </div>
+        <div class="menu-label">Habit Tracker</div>
+    </div>
+    
+    <div class="menu-item" data-category="user-account" onclick="window.location.href='account.html'">
+        <div class="menu-icon">
+            <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="menu-label">Account</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<script>
+/* --- Camera & OCR Logic --- */
+let extractedText = "";
+let speechRate = 1.0;
+let facingMode = "environment";
+let stream = null;
+
+const video = document.getElementById("video");
+const canvas = document.createElement("canvas");
+const ctx = canvas.getContext("2d");
+
+async function startCamera() {
+  if (stream) stream.getTracks().forEach(t => t.stop());
+
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: facingMode } },
+      audio: false
+    });
+    video.srcObject = stream;
+    console.log("Camera started:", facingMode);
+  } catch (e) {
+    alert("Camera error: " + e.message);
+  }
+}
+
+function flipCamera() {
+  facingMode = facingMode === "environment" ? "user" : "environment";
+  startCamera();
+}
+
+// Start camera on load
+startCamera();
+
+function scanText() {
+  if (!video.videoWidth) {
+    alert("Camera not ready");
+    return;
+  }
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  ctx.drawImage(video, 0, 0);
+
+  document.getElementById("outputText").value = "Scanning...";
+
+  Tesseract.recognize(canvas, "eng")
+    .then(res => {
+      extractedText = res.data.text.trim();
+      document.getElementById("outputText").value = extractedText || "No text detected";
+    })
+    .catch(() => alert("OCR failed"));
+}
+
+function speakText() {
+  if (!extractedText) {
+    alert("No text to read");
+    return;
+  }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(extractedText);
+  u.rate = speechRate;
+  speechSynthesis.speak(u);
+}
+
+function increaseSpeed() {
+  speechRate = Math.min(1.5, +(speechRate + 0.1).toFixed(1));
+  document.getElementById("speedDisplay").innerText = "Speed: " + speechRate;
+}
+
+function decreaseSpeed() {
+  speechRate = Math.max(0.5, +(speechRate - 0.1).toFixed(1));
+  document.getElementById("speedDisplay").innerText = "Speed: " + speechRate;
+}
+
+/* --- Navigation & Back Button Logic --- */
+
+function goBack() {
+    window.history.back();
+}
+
+function navigateTo(url) {
+    // console.log("Navigating to: " + url);
+    // window.location.href = url; 
+}
+
+// Navigation Bar Selection Animation
+document.addEventListener('DOMContentLoaded', function() {
+    const menuItems = document.querySelectorAll('.menu-item');
+    
+    menuItems.forEach(item => {
+        item.addEventListener('click', function() {
+            menuItems.forEach(i => i.classList.remove('selected'));
+            this.classList.add('selected');
+        });
+    });
+});
+</script>
+</body>
+</html>

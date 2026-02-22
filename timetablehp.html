@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Select Timetable Type</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+  body {
+    background: #bcdcff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .phone {
+    width: 320px;
+    height: 640px;
+    background: linear-gradient(180deg, #a6d9ff, #bce2ff);
+    border-radius: 25px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0, 80, 160, 0.25);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .back-btn {
+    position: absolute;
+    left: 18px;
+    top: 15px;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #4a72b8;
+    user-select: none;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .back-btn:hover { color: #2a4d8f; }
+
+  .header h2 {
+    text-align: center;
+    color: #2a4d8f;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 75px;
+  }
+
+  .btn {
+    width: 80%;
+    padding: 15px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 12px;
+    background: #4fa3ff;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+    font-family: inherit;
+    transition: 0.2s;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .btn:hover {
+    background: #1f8aff;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .btn:active {
+    transform: scale(0.98);
+  }
+
+  /* ===== NAVIGATION BAR ===== */
+  .menu-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    border-radius: 20px 20px 0 0;
+    padding: 8px 5px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+    display: flex;
+    justify-content: space-around;
+    animation: slideUp 0.5s ease-out;
+    z-index: 50;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .menu-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 2px;
+    flex: 1;
+    text-decoration: none;
+  }
+
+  .menu-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+    color: #5f6368;
+  }
+
+  .menu-icon i {
+    font-size: 20px;
+    transition: all 0.3s ease;
+  }
+
+  .menu-label {
+    font-size: 9px;
+    color: #5f6368;
+    text-align: center;
+    line-height: 1.2;
+    font-weight: 600;
+  }
+
+  /* Pop-up animation when selected */
+  .menu-item.selected .menu-icon i {
+    transform: translateY(-5px) scale(1.1);
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Colors per category */
+  .menu-item[data-category="cv"].selected .menu-icon i           { color: #0D47A1; }
+  .menu-item[data-category="achievements"].selected .menu-icon i  { color: #9c27b0; }
+  .menu-item[data-category="home"].selected .menu-icon i          { color: #1565C0; }
+  .menu-item[data-category="habit-tracker"].selected .menu-icon i { color: #ff4081; }
+  .menu-item[data-category="user-account"].selected .menu-icon i  { color: #00838F; }
+
+  /* Image icons */
+  .menu-icon img {
+    width: 20px;
+    height: 20px;
+    transition: all 0.3s ease;
+    object-fit: contain;
+    filter: grayscale(100%) brightness(0.7);
+    border-radius: 6px;
+  }
+
+  .menu-item.selected .menu-icon img {
+    transform: translateY(-5px) scale(1.1);
+    filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+    border-radius: 8px;
+  }
+
+  .menu-item[data-category="cv"].selected .menu-icon img {
+    filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(13,71,161,0.4));
+  }
+
+  /* Fallback icon */
+  .menu-icon .fallback-icon {
+    width: 20px;
+    height: 20px;
+    background-color: #5f6368;
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    font-size: 10px;
+    transition: all 0.3s ease;
+  }
+
+  .menu-item.selected .menu-icon .fallback-icon {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    border-radius: 8px;
+  }
+
+  .menu-item[data-category="cv"].selected .menu-icon .fallback-icon           { background-color: #0D47A1; }
+  .menu-item[data-category="habit-tracker"].selected .menu-icon .fallback-icon { background-color: #ff4081; }
+</style>
+</head>
+
+<body>
+
+<div class="phone">
+
+  <!-- Header -->
+  <div class="header">
+    <a href="Studyzone.html" class="back-btn">←</a>
+    <h2>Select Timetable Type</h2>
+  </div>
+
+  <!-- Main Content -->
+  <main>
+    <button class="btn" onclick="location.href='exam.html'">
+      Go to Exam Timetable
+    </button>
+
+    <button class="btn" onclick="location.href='timetable.html'">
+      Go to Individual Timetable
+    </button>
+  </main>
+
+  <!-- Navigation Bar -->
+  <div class="menu-container">
+
+    <a href="cv.html" class="menu-item" data-category="cv">
+      <div class="menu-icon">
+        <img src="cv.png" alt="CV"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="fallback-icon" style="display:none;">
+          <i class="fas fa-file-alt"></i>
+        </div>
+      </div>
+      <div class="menu-label">CV</div>
+    </a>
+
+    <a href="achievements.html" class="menu-item" data-category="achievements">
+      <div class="menu-icon"><i class="fas fa-trophy"></i></div>
+      <div class="menu-label">Achievements</div>
+    </a>
+
+    <a href="main.html" class="menu-item" data-category="home">
+      <div class="menu-icon"><i class="fas fa-home"></i></div>
+      <div class="menu-label">Home</div>
+    </a>
+
+    <a href="habittracker.html" class="menu-item" data-category="habit-tracker">
+      <div class="menu-icon">
+        <img src="https://z-cdn-media.chatglm.cn/files/a1979dda-a3e4-4b38-b0cf-00e4ad455277_pasted_image_1762936027415.png?auth_key=1862936037-6cc8a5a356484e1cb70a8f599e1f2ce8-0-496c548f3f7ef2ea6a808a3cc812dc2c" 
+             alt="Habit Tracker"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="fallback-icon" style="display:none;">
+          <i class="fas fa-check"></i>
+        </div>
+      </div>
+      <div class="menu-label">Habits</div>
+    </a>
+
+    <a href="profile.html" class="menu-item" data-category="user-account">
+      <div class="menu-icon"><i class="fas fa-user-circle"></i></div>
+      <div class="menu-label">Account</div>
+    </a>
+
+  </div>
+
+</div>
+
+<script>
+  // Nav bar interaction
+  document.addEventListener('DOMContentLoaded', function() {
+    const menuItems = document.querySelectorAll('.menu-item');
+
+    menuItems.forEach(item => {
+      item.addEventListener('click', function(e) {
+        const targetUrl = this.getAttribute('href');
+
+        const wasSelected = this.classList.contains('selected');
+        menuItems.forEach(i => i.classList.remove('selected'));
+        if (!wasSelected) this.classList.add('selected');
+
+        if (targetUrl && targetUrl !== '#') {
+          e.preventDefault();
+          setTimeout(() => { window.location.href = targetUrl; }, 250);
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

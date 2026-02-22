@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyLens — CV Study Module</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(180deg, #B3E5FC 0%, #E1F5FE 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      width: 320px;
+      height: 640px;
+      border-radius: 30px;
+      background: linear-gradient(180deg, #BBDEFB 0%, #E3F2FD 100%);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Header */
+    .header {
+      padding: 14px 16px 10px;
+      color: #0D47A1;
+      flex-shrink: 0;
+    }
+    
+    .back-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #1565C0;
+      font-Size: 13px;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      padding: 4px 0;
+      margin-bottom: 6px;
+    }
+    
+    .header-title {
+      text-align: center;
+    }
+    
+    .header h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+    }
+    
+    .header p {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+    
+    /* Content area */
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 0 16px 16px;
+    }
+    
+    /* Upload screen */
+    .drop-zone {
+      flex: 1;
+      border: 2px dashed #90CAF9;
+      border-radius: 20px;
+      background: #FFFFFF;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .drop-zone:hover,
+    .drop-zone.drag-over {
+      border-color: #1E88E5;
+      background: rgba(30, 136, 229, 0.05);
+      transform: scale(1.01);
+    }
+    
+    .drop-zone-icon {
+      font-size: 40px;
+    }
+    
+    .drop-zone-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1565C0;
+      text-align: center;
+    }
+    
+    .drop-zone-hint {
+      font-size: 10px;
+      color: #90CAF9;
+      text-align: center;
+      line-height: 1.7;
+    }
+    
+    .choose-file-btn {
+      padding: 9px 22px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(135deg, #64B5F6, #1E88E5);
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      margin-top: 4px;
+    }
+    
+    .feature-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+    
+    .chip {
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: #FFFFFF;
+      border: 1px solid #90CAF9;
+      color: #1565C0;
+      font-size: 10px;
+      font-weight: 500;
+    }
+    
+    /* Error message */
+    .error {
+      background: rgba(229, 62, 62, 0.07);
+      border: 1px solid rgba(229, 62, 62, 0.25);
+      border-radius: 14px;
+      padding: 10px 14px;
+      color: #C62828;
+      font-size: 11px;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    
+    /* Processing screen */
+    .processing {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      padding: 0 24px;
+    }
+    
+    .progress-circle {
+      position: relative;
+      width: 88px;
+      height: 88px;
+    }
+    
+    .progress-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #1565C0;
+    }
+    
+    .progress-msg {
+      font-size: 12px;
+      color: #5C6BC0;
+      text-align: center;
+      line-height: 1.6;
+    }
+    
+    .dot-pulse {
+      display: flex;
+      gap: 7px;
+    }
+    
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #1E88E5;
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    
+    .dot:nth-child(2) { animation-delay: 0.18s; }
+    .dot:nth-child(3) { animation-delay: 0.36s; }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 0.2; transform: scale(0.7); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+    
+    .step-indicators {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+    }
+    
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 12px;
+      border: 1px solid;
+    }
+    
+    .step.done {
+      background: rgba(30, 136, 229, 0.1);
+      border-color: #90CAF9;
+    }
+    
+    .step.pending {
+      background: #FFFFFF;
+      border-color: #E3F2FD;
+    }
+    
+    .step-label {
+      font-size: 11px;
+    }
+    
+    .step.done .step-label {
+      color: #1565C0;
+      font-weight: 600;
+    }
+    
+    .step.pending .step-label {
+      color: #90CAF9;
+      font-weight: 400;
+    }
+    
+    /* Results screen */
+    .results-content {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-bottom: 12px;
+    }
+    
+    .scroll-area::-webkit-scrollbar {
+      width: 3px;
+    }
+    
+    .scroll-area::-webkit-scrollbar-thumb {
+      background: #90CAF9;
+      border-radius: 4px;
+    }
+    
+    /* Flashcard */
+    .flashcard-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0;
+      padding-bottom: 12px;
+    }
+    
+    .flashcard-progress {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .flashcard-counter {
+      font-size: 10px;
+      font-weight: 600;
+      color: #1565C0;
+      min-width: 30px;
+    }
+    
+    .flashcard-bar {
+      flex: 1;
+      height: 4px;
+      background: #E3F2FD;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    
+    .flashcard-bar-fill {
+      height: 100%;
+      background: linear-gradient(135deg, #64B5F6, #1E88E5);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+    
+    .flashcard-term {
+      font-size: 9px;
+      color: #90CAF9;
+      max-width: 60px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .flashcard-3d {
+      flex: 1;
+      cursor: pointer;
+      perspective: 1000px;
+      min-height: 0;
+    }
+    
+    .flashcard-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .flashcard-inner.flipped {
+      transform: rotateY(180deg);
+    }
+    
+    .flashcard-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    }
+    
+    .flashcard-front {
+      background: #FFFFFF;
+      border: 1px solid #E3F2FD;
+    }
+    
+    .flashcard-back {
+      background: linear-gradient(160deg, #E3F2FD, #FFFFFF);
+      border: 1.5px solid #90CAF9;
+      transform: rotateY(180deg);
+    }
+    
+    .flashcard-label {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+    
+    .flashcard-front .flashcard-label {
+      color: #1E88E5;
+    }
+    
+    .flashcard-back .flashcard-label {
+      color: #1565C0;
+    }
+    
+    .flashcard-text {
+      font-size: 12px;
+      color: #1A237E;
+      line-height: 1.7;
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    .flashcard-back .flashcard-text {
+      font-size: 11px;
+    }
+    
+    .flashcard-hint {
+      font-size: 9px;
+      color: #90CAF9;
+      text-align: center;
+    }
+    
+    .flashcard-nav {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .nav-btn {
+      flex: 1;
+      padding: 9px 0;
+      border-radius: 14px;
+      border: none;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    .nav-btn.primary {
+      background: linear-gradient(135deg, #64B5F6, #1E88E5);
+      color: white;
+    }
+    
+    .nav-btn.secondary {
+      background: #FFFFFF;
+      color: #1565C0;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    }
+    
+    .nav-btn.disabled {
+      background: #E3F2FD;
+      color: #90CAF9;
+      cursor: default;
+    }
+    
+    /* Cards */
+    .card {
+      background: #FFFFFF;
+      border-radius: 14px;
+      padding: 12px 14px;
+      border: 1px solid #E3F2FD;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    }
+    
+    .keypoint-card {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    
+    .keypoint-number {
+      min-width: 22px;
+      height: 22px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #64B5F6, #1E88E5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+    
+    .keypoint-text {
+      font-size: 12px;
+      color: #1A237E;
+      line-height: 1.65;
+    }
+    
+    .glossary-term {
+      font-size: 12px;
+      font-weight: 600;
+      color: #1E88E5;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .glossary-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #1E88E5;
+      flex-shrink: 0;
+    }
+    
+    .glossary-def {
+      font-size: 11px;
+      color: #5C6BC0;
+      line-height: 1.65;
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 1px solid #E3F2FD;
+      background: #FFFFFF;
+      font-size: 12px;
+      color: #1A237E;
+      font-family: 'Poppins', sans-serif;
+      outline: none;
+      margin-bottom: 8px;
+    }
+    
+    .summary-label {
+      font-size: 9px;
+      font-weight: 600;
+      color: #1E88E5;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    
+    .summary-text {
+      font-size: 12px;
+      color: #1A237E;
+      line-height: 1.8;
+      margin-bottom: 10px;
+    }
+    
+    .summary-text:last-child {
+      margin-bottom: 0;
+    }
+    
+    .new-doc-btn {
+      padding: 10px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(135deg, #64B5F6, #1E88E5);
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      width: 100%;
+      margin-top: 10px;
+    }
+    
+    /* Bottom nav */
+    .bottom-nav {
+      height: 58px;
+      background: #FFFFFF;
+      border-top: 1px solid #E3F2FD;
+      border-radius: 20px 20px 0 0;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.08);
+      flex-shrink: 0;
+    }
+    
+    .nav-tab {
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 4px 10px;
+      transition: transform 0.15s;
+    }
+    
+    .nav-tab.active {
+      transform: scale(1.15);
+    }
+    
+    .nav-tab-icon {
+      font-size: 20px;
+    }
+    
+    .nav-tab-label {
+      font-size: 9px;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      letter-spacing: 0.3px;
+    }
+    
+    .nav-tab .nav-tab-label {
+      color: #90CAF9;
+    }
+    
+    .nav-tab.active .nav-tab-label {
+      color: #1565C0;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+    
+    .fade-in {
+      animation: fadeUp 0.3s ease both;
+    }
+    
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <button class="back-btn" id="backBtn">
+      <header>
+    <div class="back-btn" onclick="window.location.href='Studyzone.html'">←</div>
+  </header>
+    </button>
+    <div class="header-title">
+      <h2 id="headerTitle">📚 StudyLens</h2>
+      <p id="headerSubtitle">Upload a doc to generate a study set</p>
+    </div>
+  </div>
+  
+  <!-- Upload Screen -->
+  <div class="content" id="uploadScreen">
+    <div id="errorMsg" class="error hidden"></div>
+    
+    <div class="drop-zone" id="dropZone">
+      <span class="drop-zone-icon" id="dropIcon">📂</span>
+      <p class="drop-zone-text">Tap to choose a file</p>
+      <p class="drop-zone-hint">PDF · DOCX · PNG · JPG · WEBP</p>
+      <button class="choose-file-btn" id="chooseBtn">Choose File</button>
+      <input type="file" id="fileInput" accept=".pdf,.docx,image/png,image/jpeg,image/webp,image/gif,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display: none;">
+    </div>
+    
+    <div class="feature-chips">
+      <span class="chip">🃏 Cards</span>
+      <span class="chip">📖 Glossary</span>
+      <span class="chip">✅ Key Points</span>
+      <span class="chip">📝 Summary</span>
+    </div>
+  </div>
+
+  <!-- Processing Screen -->
+  <div class="content processing hidden" id="processingScreen">
+    <div class="progress-circle">
+      <svg width="88" height="88" style="transform: rotate(-90deg);">
+        <circle cx="44" cy="44" r="37" fill="none" stroke="#E3F2FD" stroke-width="6"/>
+        <circle id="progressCircle" cx="44" cy="44" r="37" fill="none" stroke="#1E88E5" stroke-width="6"
+          stroke-linecap="round"
+          stroke-dasharray="232.5"
+          stroke-dashoffset="232.5"
+          style="transition: stroke-dashoffset 0.4s ease"/>
+      </svg>
+      <div class="progress-text">
+        <span id="progressPct">0%</span>
+      </div>
+    </div>
+    
+    <p class="progress-msg" id="progressMsg">Initializing...</p>
+    
+    <div class="dot-pulse">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    
+    <div class="step-indicators">
+      <div class="step pending" id="step1">
+        <span style="font-size: 12px;">⏳</span>
+        <span class="step-label">Extract text</span>
+      </div>
+      <div class="step pending" id="step2">
+        <span style="font-size: 12px;">⏳</span>
+        <span class="step-label">NLP analysis</span>
+      </div>
+      <div class="step pending" id="step3">
+        <span style="font-size: 12px;">⏳</span>
+        <span class="step-label">Build cards</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Screen -->
+  <div class="results-content hidden" id="resultsScreen">
+    <!-- Flashcards Tab -->
+    <div class="content flashcard-container" id="flashcardsTab">
+      <div class="flashcard-progress">
+        <span class="flashcard-counter" id="cardCounter">1/12</span>
+        <div class="flashcard-bar">
+          <div class="flashcard-bar-fill" id="cardProgress"></div>
+        </div>
+        <span class="flashcard-term" id="cardTerm">Term</span>
+      </div>
+      
+      <div class="flashcard-3d" id="flashcard3d">
+        <div class="flashcard-inner" id="flashcardInner">
+          <div class="flashcard-face flashcard-front">
+            <span class="flashcard-label">Question</span>
+            <p class="flashcard-text" id="flashcardFront">Loading...</p>
+            <span class="flashcard-hint">tap to reveal ↓</span>
+          </div>
+          <div class="flashcard-face flashcard-back">
+            <span class="flashcard-label">Answer</span>
+            <p class="flashcard-text" id="flashcardBack">Loading...</p>
+            <span class="flashcard-hint">tap to flip back ↑</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flashcard-nav">
+        <button class="nav-btn secondary" id="prevBtn">← Prev</button>
+        <button class="nav-btn primary" id="flipBtn">Reveal</button>
+        <button class="nav-btn secondary" id="nextBtn">Next →</button>
+      </div>
+    </div>
+
+    <!-- Key Points Tab -->
+    <div class="content scroll-area hidden" id="keypointsTab"></div>
+
+    <!-- Glossary Tab -->
+    <div class="content hidden" id="glossaryTab" style="display: flex; flex-direction: column; overflow: hidden;">
+      <input type="text" class="search-input" id="searchInput" placeholder="Search terms…">
+      <div class="scroll-area" id="glossaryList"></div>
+    </div>
+
+    <!-- Summary Tab -->
+    <div class="content scroll-area hidden" id="summaryTab"></div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+      <button class="nav-tab active" data-tab="flashcards">
+        <span class="nav-tab-icon">🃏</span>
+        <span class="nav-tab-label">Cards</span>
+      </button>
+      <button class="nav-tab" data-tab="keypoints">
+        <span class="nav-tab-icon">✅</span>
+        <span class="nav-tab-label">Points</span>
+      </button>
+      <button class="nav-tab" data-tab="glossary">
+        <span class="nav-tab-icon">📖</span>
+        <span class="nav-tab-label">Glossary</span>
+      </button>
+      <button class="nav-tab" data-tab="summary">
+        <span class="nav-tab-icon">📝</span>
+        <span class="nav-tab-label">Summary</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Load external libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+
+<script>
+// ═════════════════════════════════════════════════════════════════════════════
+//  STATE
+// ═════════════════════════════════════════════════════════════════════════════
+
+let currentStage = 'upload'; // 'upload' | 'processing' | 'results'
+let currentFileName = '';
+let currentResults = null;
+let currentCardIndex = 0;
+let isFlipped = false;
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  EXTRACTION
+// ═════════════════════════════════════════════════════════════════════════════
+
+async function extractFromPDF(file, onProgress) {
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  let text = '';
+  for (let i = 1; i <= Math.min(pdf.numPages, 40); i++) {
+    onProgress(10 + Math.floor((i / pdf.numPages) * 30), `Reading page ${i} of ${pdf.numPages}…`);
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    text += content.items.map(s => s.str).join(' ') + '\n\n';
+  }
+  if (text.trim().length < 80) {
+    throw new Error('This PDF looks scanned. Export a page as an image and upload it instead.');
+  }
+  return text.trim();
+}
+
+async function extractFromDocx(file, onProgress) {
+  onProgress(20, 'Reading Word document…');
+  const buf = await file.arrayBuffer();
+  const result = await mammoth.extractRawText({ arrayBuffer: buf });
+  if (!result.value || result.value.trim().length < 30) {
+    throw new Error('Could not read text from this Word document.');
+  }
+  return result.value.trim();
+}
+
+async function extractFromImage(file, onProgress) {
+  onProgress(15, 'Loading OCR engine…');
+  const worker = await Tesseract.createWorker('eng', 1, {
+    logger: m => {
+      if (m.status === 'recognizing text') {
+        onProgress(20 + Math.floor(m.progress * 35), `OCR ${Math.floor(m.progress * 100)}%…`);
+      }
+    }
+  });
+  const { data: { text } } = await worker.recognize(file);
+  await worker.terminate();
+  if (text.trim().length < 30) {
+    throw new Error('Could not extract text from this image.');
+  }
+  return text.trim();
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  NLP ENGINE
+// ═════════════════════════════════════════════════════════════════════════════
+
+const STOP = new Set([
+  'a','about','above','after','again','all','also','am','an','and','any','are','as','at',
+  'be','because','been','before','being','below','between','both','but','by','can','did',
+  'do','does','doing','down','during','each','few','for','from','further','get','had','has',
+  'have','having','he','her','here','him','his','how','i','if','in','into','is','it','its',
+  'itself','just','me','more','most','my','no','nor','not','now','of','off','on','once',
+  'only','or','other','our','out','over','own','same','she','should','so','some','such',
+  'than','that','the','their','them','then','there','these','they','this','those','through',
+  'to','too','under','until','up','us','very','was','we','were','what','when','where',
+  'which','while','who','why','will','with','would','you','your','s','t','re','ll','ve','d'
+]);
+
+const sentences = t =>
+  t.replace(/\s+/g,' ').split(/(?<=[.!?])\s+(?=[A-Z])/)
+   .map(s=>s.trim()).filter(s=>s.split(' ').length>5&&s.length>30);
+
+const words = t => (t.toLowerCase().match(/\b[a-z]{3,}\b/g)||[]);
+
+function keywords(text, n=20) {
+  const ws = words(text).filter(w=>!STOP.has(w));
+  const freq={}; for(const w of ws) freq[w]=(freq[w]||0)+1;
+  const cap=new Set((text.match(/\b[A-Z][a-z]{2,}\b/g)||[]).map(w=>w.toLowerCase()));
+  return Object.entries(freq).filter(([,c])=>c>=2)
+    .map(([w,c])=>({w,s:c*(1+Math.log(1+w.length/5))*(cap.has(w)?1.8:1)}))
+    .sort((a,b)=>b.s-a.s).slice(0,n).map(x=>x.w);
+}
+
+function ngrams(text, n=12) {
+  const grams={};
+  for(const s of sentences(text)){
+    const ws=s.toLowerCase().match(/\b[a-z]{3,}\b/g)||[];
+    for(let i=0;i<ws.length-1;i++){
+      if(STOP.has(ws[i])||STOP.has(ws[i+1]))continue;
+      const bi=`${ws[i]} ${ws[i+1]}`; grams[bi]=(grams[bi]||0)+1;
+      if(i<ws.length-2&&!STOP.has(ws[i+2])){
+        const tri=`${ws[i]} ${ws[i+1]} ${ws[i+2]}`; grams[tri]=(grams[tri]||0)+1;
+      }
+    }
+  }
+  return Object.entries(grams).filter(([,c])=>c>=2)
+    .sort((a,b)=>b[1]-a[1]).slice(0,n)
+    .map(([t])=>t.replace(/\b\w/g,c=>c.toUpperCase()));
+}
+
+function rankSentences(text, kws) {
+  const ss=sentences(text), kwSet=new Set(kws);
+  const ws=words(text).filter(w=>!STOP.has(w));
+  const freq={}; for(const w of ws) freq[w]=(freq[w]||0)+1;
+  return ss.map((sent,idx)=>{
+    const ws2=words(sent).filter(w=>!STOP.has(w));
+    if(!ws2.length)return{sent,score:0,idx};
+    const kh=ws2.filter(w=>kwSet.has(w)).length;
+    const tf=ws2.reduce((s,w)=>s+(1/(freq[w]||1)),0)/ws2.length;
+    const pb=idx<3?1.5:idx>ss.length-3?1.2:1;
+    const lp=(ws2.length<8||ws2.length>50)?0.6:1;
+    return{sent,score:(kh*2+tf*100)*pb*lp,idx};
+  });
+}
+
+function glossary(text, terms) {
+  const ss=sentences(text);
+  return terms.map(term=>{
+    const tl=term.toLowerCase();
+    const def=ss.find(s=>{const sl=s.toLowerCase();return sl.includes(tl)&&(
+      sl.includes(' is ')||sl.includes(' are ')||sl.includes(' refers to')||
+      sl.includes(' defined as')||sl.includes(' means ')||sl.includes(' involves ')
+    )})||ss.find(s=>s.toLowerCase().includes(tl));
+    return def?{term,definition:def.trim().replace(/^[\s.]+|[\s.]+$/g,'')+'.' }:null;
+  }).filter(Boolean).slice(0,12);
+}
+
+function flashcards(text, kws) {
+  const ranked=rankSentences(text,kws).filter(s=>s.score>0).sort((a,b)=>b.score-a.score);
+  const cards=[], used=new Set();
+  for(const{sent}of ranked){
+    if(cards.length>=12)break;
+    const ws=words(sent).filter(w=>!STOP.has(w)&&w.length>4);
+    const top=ws.find(w=>!used.has(w)); if(!top)continue;
+    used.add(top);
+    const term=top.charAt(0).toUpperCase()+top.slice(1);
+    const masked=sent.replace(new RegExp(`\\b${top}\\b`,'gi'),'______');
+    cards.push({front:masked.length<200?masked:`What does "${term}" refer to in this context?`,back:sent.trim(),term});
+  }
+  return cards.slice(0,12);
+}
+
+function summary(text, kws) {
+  const ranked=rankSentences(text,kws).filter(s=>s.score>0)
+    .sort((a,b)=>b.score-a.score).slice(0,8).sort((a,b)=>a.idx-b.idx);
+  if(!ranked.length)return 'Could not extract a meaningful summary.';
+  const h=Math.ceil(ranked.length/2);
+  const p1=ranked.slice(0,h).map(s=>s.sent).join(' ');
+  const p2=ranked.slice(h).map(s=>s.sent).join(' ');
+  return p2.trim()?`${p1.trim()}\n\n${p2.trim()}`:p1.trim();
+}
+
+function keypoints(text, kws) {
+  return rankSentences(text,kws).filter(s=>s.score>0)
+    .sort((a,b)=>b.score-a.score).slice(0,8).map(s=>s.sent.trim());
+}
+
+function processText(text) {
+  const kws = keywords(text, 25);
+  const terms = [...new Set([...ngrams(text,12),...kws.slice(0,8).map(w=>w.charAt(0).toUpperCase()+w.slice(1))])];
+  return {
+    summary: summary(text, kws),
+    keyPoints: keypoints(text, kws),
+    glossary: glossary(text, terms),
+    flashcards: flashcards(text, kws),
+    wordCount: text.split(/\s+/).length
+  };
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  UI HELPERS
+// ═════════════════════════════════════════════════════════════════════════════
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = '⚠️ ' + msg;
+  el.classList.remove('hidden');
+}
+
+function hideError() {
+  document.getElementById('errorMsg').classList.add('hidden');
+}
+
+function updateProgress(pct, msg) {
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressMsg').textContent = msg;
+  
+  const circle = document.getElementById('progressCircle');
+  const circumference = 2 * Math.PI * 37;
+  const offset = circumference * (1 - pct / 100);
+  circle.style.strokeDashoffset = offset;
+  
+  // Update step indicators
+  if (pct >= 50) {
+    document.getElementById('step1').className = 'step done';
+    document.getElementById('step1').querySelector('span').textContent = '✅';
+  }
+  if (pct >= 75) {
+    document.getElementById('step2').className = 'step done';
+    document.getElementById('step2').querySelector('span').textContent = '✅';
+  }
+  if (pct >= 95) {
+    document.getElementById('step3').className = 'step done';
+    document.getElementById('step3').querySelector('span').textContent = '✅';
+  }
+}
+
+function setStage(stage) {
+  currentStage = stage;
+  
+  document.getElementById('uploadScreen').classList.add('hidden');
+  document.getElementById('processingScreen').classList.add('hidden');
+  document.getElementById('resultsScreen').classList.add('hidden');
+  
+  if (stage === 'upload') {
+    document.getElementById('uploadScreen').classList.remove('hidden');
+    document.getElementById('headerTitle').textContent = '📚 StudyLens';
+    document.getElementById('headerSubtitle').textContent = 'Upload a doc to generate a study set';
+  } else if (stage === 'processing') {
+    document.getElementById('processingScreen').classList.remove('hidden');
+    document.getElementById('headerTitle').textContent = '⚙️ Processing…';
+    // Reset step indicators
+    ['step1', 'step2', 'step3'].forEach(id => {
+      document.getElementById(id).className = 'step pending';
+      document.getElementById(id).querySelector('span').textContent = '⏳';
+    });
+  } else if (stage === 'results') {
+    document.getElementById('resultsScreen').classList.remove('hidden');
+    const shortName = currentFileName.length > 20 ? currentFileName.slice(0, 17) + '…' : currentFileName;
+    document.getElementById('headerTitle').textContent = '📄 ' + shortName;
+    document.getElementById('headerSubtitle').textContent = 
+      `${currentResults.wordCount.toLocaleString()} words · ${currentResults.flashcards.length} cards`;
+  }
+}
+
+function reset() {
+  currentFileName = '';
+  currentResults = null;
+  currentCardIndex = 0;
+  isFlipped = false;
+  hideError();
+  document.getElementById('fileInput').value = '';
+  setStage('upload');
+}
+
+function updateFlashcard() {
+  const card = currentResults.flashcards[currentCardIndex];
+  const total = currentResults.flashcards.length;
+  
+  document.getElementById('cardCounter').textContent = `${currentCardIndex + 1}/${total}`;
+  document.getElementById('cardProgress').style.width = `${((currentCardIndex + 1) / total) * 100}%`;
+  document.getElementById('cardTerm').textContent = card.term;
+  document.getElementById('flashcardFront').textContent = card.front;
+  document.getElementById('flashcardBack').textContent = card.back;
+  
+  // Update button states
+  document.getElementById('prevBtn').className = currentCardIndex === 0 ? 'nav-btn disabled' : 'nav-btn secondary';
+  document.getElementById('nextBtn').className = currentCardIndex === total - 1 ? 'nav-btn disabled' : 'nav-btn secondary';
+  
+  // Reset flip
+  isFlipped = false;
+  document.getElementById('flashcardInner').classList.remove('flipped');
+  document.getElementById('flipBtn').textContent = 'Reveal';
+}
+
+function renderKeyPoints() {
+  const container = document.getElementById('keypointsTab');
+  container.innerHTML = '';
+  currentResults.keyPoints.forEach((pt, i) => {
+    const div = document.createElement('div');
+    div.className = 'card keypoint-card fade-in';
+    div.innerHTML = `
+      <div class="keypoint-number">${i + 1}</div>
+      <p class="keypoint-text">${pt}</p>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function renderGlossary(filter = '') {
+  const container = document.getElementById('glossaryList');
+  container.innerHTML = '';
+  const filtered = currentResults.glossary.filter(g =>
+    g.term.toLowerCase().includes(filter.toLowerCase()) ||
+    g.definition.toLowerCase().includes(filter.toLowerCase())
+  );
+  
+  if (filtered.length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:#90CAF9;font-size:12px;padding-top:20px;">No matching terms.</p>';
+    return;
+  }
+  
+  filtered.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'card fade-in';
+    div.innerHTML = `
+      <div class="glossary-term">
+        <span class="glossary-dot"></span>
+        ${item.term}
+      </div>
+      <p class="glossary-def">${item.definition}</p>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function renderSummary() {
+  const container = document.getElementById('summaryTab');
+  const paragraphs = currentResults.summary.split('\n\n');
+  container.innerHTML = `
+    <div class="card fade-in">
+      <p class="summary-label">📝 Document Summary</p>
+      ${paragraphs.map(p => `<p class="summary-text">${p}</p>`).join('')}
+    </div>
+    <button class="new-doc-btn" onclick="reset()">+ Scan New Document</button>
+  `;
+}
+
+function switchTab(tabName) {
+  // Hide all tabs
+  ['flashcardsTab', 'keypointsTab', 'glossaryTab', 'summaryTab'].forEach(id => {
+    document.getElementById(id).classList.add('hidden');
+  });
+  
+  // Show selected tab
+  document.getElementById(tabName + 'Tab').classList.remove('hidden');
+  
+  // Update nav
+  document.querySelectorAll('.nav-tab').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  document.querySelector(`.nav-tab[data-tab="${tabName}"]`).classList.add('active');
+  
+  // Reset card flip when switching to flashcards
+  if (tabName === 'flashcards') {
+    isFlipped = false;
+    document.getElementById('flashcardInner').classList.remove('flipped');
+    document.getElementById('flipBtn').textContent = 'Reveal';
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  FILE PROCESSING
+// ═════════════════════════════════════════════════════════════════════════════
+
+async function processFile(file) {
+  if (!file) return;
+  
+  const isPDF = file.type === 'application/pdf';
+  const isDocx = file.name.toLowerCase().endsWith('.docx') || file.type.includes('wordprocessingml');
+  const isImg = file.type.startsWith('image/');
+  
+  if (!isPDF && !isDocx && !isImg) {
+    showError('Please upload a PDF, Word document (.docx), or an image.');
+    return;
+  }
+  
+  currentFileName = file.name;
+  hideError();
+  setStage('processing');
+  
+  try {
+    let text = '';
+    
+    if (isPDF) {
+      updateProgress(5, 'Loading PDF engine…');
+      text = await extractFromPDF(file, updateProgress);
+    } else if (isDocx) {
+      updateProgress(5, 'Loading DOCX parser…');
+      text = await extractFromDocx(file, updateProgress);
+    } else {
+      updateProgress(5, 'Loading OCR engine…');
+      text = await extractFromImage(file, updateProgress);
+    }
+    
+    updateProgress(65, 'Running NLP analysis…');
+    await new Promise(r => setTimeout(r, 60));
+    
+    const data = processText(text);
+    
+    updateProgress(95, 'Building your study set…');
+    await new Promise(r => setTimeout(r, 80));
+    
+    currentResults = data;
+    updateProgress(100, 'Done!');
+    
+    setTimeout(() => {
+      setStage('results');
+      updateFlashcard();
+      renderKeyPoints();
+      renderGlossary();
+      renderSummary();
+      switchTab('flashcards');
+    }, 300);
+    
+  } catch (err) {
+    showError(err.message);
+    setStage('upload');
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  EVENT LISTENERS
+// ═════════════════════════════════════════════════════════════════════════════
+
+document.getElementById('backBtn').addEventListener('click', () => {
+  if (currentStage === 'upload') {
+    // TODO: navigate to home page in your app
+    console.log('Navigate to home');
+  } else {
+    reset();
+  }
+});
+
+document.getElementById('chooseBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('fileInput').click();
+});
+
+document.getElementById('dropZone').addEventListener('click', () => {
+  document.getElementById('fileInput').click();
+});
+
+document.getElementById('fileInput').addEventListener('change', (e) => {
+  processFile(e.target.files[0]);
+});
+
+// Drag and drop
+const dropZone = document.getElementById('dropZone');
+const dropIcon = document.getElementById('dropIcon');
+
+dropZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  dropZone.classList.add('drag-over');
+  dropIcon.textContent = '⬇️';
+});
+
+dropZone.addEventListener('dragleave', () => {
+  dropZone.classList.remove('drag-over');
+  dropIcon.textContent = '📂';
+});
+
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  dropIcon.textContent = '📂';
+  processFile(e.dataTransfer.files[0]);
+});
+
+// Flashcard interactions
+document.getElementById('flashcard3d').addEventListener('click', () => {
+  isFlipped = !isFlipped;
+  document.getElementById('flashcardInner').classList.toggle('flipped');
+  document.getElementById('flipBtn').textContent = isFlipped ? 'Question' : 'Reveal';
+});
+
+document.getElementById('flipBtn').addEventListener('click', () => {
+  isFlipped = !isFlipped;
+  document.getElementById('flashcardInner').classList.toggle('flipped');
+  document.getElementById('flipBtn').textContent = isFlipped ? 'Question' : 'Reveal';
+});
+
+document.getElementById('prevBtn').addEventListener('click', () => {
+  if (currentCardIndex > 0) {
+    currentCardIndex--;
+    updateFlashcard();
+  }
+});
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  if (currentCardIndex < currentResults.flashcards.length - 1) {
+    currentCardIndex++;
+    updateFlashcard();
+  }
+});
+
+// Bottom nav
+document.querySelectorAll('.nav-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    switchTab(btn.dataset.tab);
+  });
+});
+
+// Glossary search
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  renderGlossary(e.target.value);
+});
+
+</script>
+
+</body>
+</html>

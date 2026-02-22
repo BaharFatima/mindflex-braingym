@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mirror Match Game</title>
+<style>
+/* Base Layout */
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(180deg, #E3F2FD, #FFFFFF);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* App Container */
+#appContainer {
+  width: 320px;
+  height: 640px;
+  background: #F7FAFF;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Header */
+header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.back-btn {
+  position: absolute;
+  left: 10px;
+  top: 0;
+  color: #1565C0;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* Title and Info */
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1565C0;
+  margin-top: 5px;
+  margin-bottom: 8px;
+}
+
+#levelBar, #score, #patternNum {
+  font-weight: 600;
+  color: #0D47A1;
+  margin: 3px 0;
+  font-size: 14px;
+}
+
+/* Grid Container */
+#grids {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  flex-grow: 1;
+  padding: 6px 0;
+}
+
+/* Each Grid */
+.grid {
+  display: grid;
+  gap: 5px;
+  width: 46%;
+}
+
+/* Tiles */
+.tile {
+  width: 100%;
+  aspect-ratio: 1/1;
+  border-radius: 10px;
+  background: #42A5F5;
+  transition: transform 0.2s, background 0.2s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+}
+.tile.off {
+  background: #FFFFFF;
+  border: 2px solid #42A5F5;
+}
+
+/* Buttons */
+#buttons {
+  margin-top: 6px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+button {
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  border-radius: 8px;
+  background: #1565C0;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+button:hover {
+  transform: scale(1.05);
+}
+
+/* Message */
+#message {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #1565C0;
+  font-weight: 600;
+  min-height: 20px;
+}
+
+/* Next Level Button */
+#nextLevel {
+  margin-top: 6px;
+  background: #1E88E5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  display: none;
+  font-weight: 600;
+}
+</style>
+</head>
+<body>
+
+<div id="appContainer">
+
+<header>
+  <a href="../focuslab.html" class="back-btn">←</a>
+  <div class="title">Mirror Match</div>
+  <div id="levelBar">Level: 1</div>
+  <div id="score">Score: 0</div>
+  <div id="patternNum">Pattern: 1 / 10</div>
+</header>
+
+<div id="grids">
+  <div id="leftGrid" class="grid"></div>
+  <div id="rightGrid" class="grid"></div>
+</div>
+
+<div id="buttons">
+  <button id="yesBtn">Yes, it mirrors</button>
+  <button id="noBtn">No, it doesn’t</button>
+</div>
+
+<div id="message"></div>
+<button id="nextLevel">Next Level ➜</button>
+
+</div>
+<script src="logistic.js"></script>
+<script>
+const TOTAL_LEVELS = 50;
+const PATTERNS_PER_LEVEL = 10;
+
+let level = parseInt(localStorage.getItem('mm_level')) || 1;
+let score = parseInt(localStorage.getItem('mm_score')) || 0;
+let patternIndex = parseInt(localStorage.getItem('mm_pattern')) || 0;
+
+const levelBar = document.getElementById('levelBar');
+const scoreEl = document.getElementById('score');
+const patternNum = document.getElementById('patternNum');
+const leftGrid = document.getElementById('leftGrid');
+const rightGrid = document.getElementById('rightGrid');
+const messageEl = document.getElementById('message');
+const nextLevelBtn = document.getElementById('nextLevel');
+
+let gridSize = 3;
+let leftPattern = [];
+let rightPattern = [];
+let isMirrorCorrect = true;
+
+function updateUI() {
+  levelBar.textContent = `Level: ${level}`;
+  scoreEl.textContent = `Score: ${score}`;
+  patternNum.textContent = `Pattern: ${patternIndex + 1} / ${PATTERNS_PER_LEVEL}`;
+}
+
+function generatePattern() {
+  leftPattern = [];
+  for (let i = 0; i < gridSize * gridSize; i++) {
+    leftPattern.push(Math.random() < 0.5 ? 1 : 0);
+  }
+}
+
+function mirrorPattern(pattern) {
+  const mirrored = [];
+  for (let row = 0; row < gridSize; row++) {
+    const start = row * gridSize;
+    const rowArray = pattern.slice(start, start + gridSize).reverse();
+    mirrored.push(...rowArray);
+  }
+  return mirrored;
+}
+
+function generateRightPattern() {
+  isMirrorCorrect = Math.random() < 0.5;
+  rightPattern = mirrorPattern(leftPattern);
+  if (!isMirrorCorrect) {
+    const flips = Math.max(1, Math.floor(gridSize / 2));
+    for (let i = 0; i < flips; i++) {
+      const idx = Math.floor(Math.random() * rightPattern.length);
+      rightPattern[idx] = 1 - rightPattern[idx];
+    }
+  }
+}
+
+function renderGrids() {
+  leftGrid.innerHTML = '';
+  rightGrid.innerHTML = '';
+  leftGrid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+  rightGrid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+
+  leftPattern.forEach(v => {
+    const tile = document.createElement('div');
+    tile.classList.add('tile');
+    if (v === 0) tile.classList.add('off');
+    leftGrid.appendChild(tile);
+  });
+  rightPattern.forEach(v => {
+    const tile = document.createElement('div');
+    tile.classList.add('tile');
+    if (v === 0) tile.classList.add('off');
+    rightGrid.appendChild(tile);
+  });
+}
+
+function checkAnswer(choice) {
+  if ((choice === 'yes' && isMirrorCorrect) || (choice === 'no' && !isMirrorCorrect)) {
+    score++;
+    messageEl.textContent = 'Correct! 🎉';
+  } else {
+    messageEl.textContent = 'Wrong!';
+  }
+  localStorage.setItem('mm_score', score);
+  setTimeout(nextPattern, 700);
+}
+
+function nextPattern() {
+  patternIndex++;
+  if (patternIndex >= PATTERNS_PER_LEVEL) {
+    nextLevelBtn.style.display = 'inline-block';
+    return;
+  }
+  localStorage.setItem('mm_pattern', patternIndex);
+  generatePattern();
+  generateRightPattern();
+  renderGrids();
+  updateUI();
+  messageEl.textContent = '';
+}
+
+nextLevelBtn.onclick = () => {
+  patternIndex = 0;
+  level++;
+  if (level > TOTAL_LEVELS) {
+    alert("🎉 You've completed all levels! Baymax is proud 🤖");
+    level = 1;
+  }
+  gridSize = Math.min(3 + Math.floor(level / 10), 6);
+  localStorage.setItem('mm_level', level);
+  localStorage.setItem('mm_pattern', patternIndex);
+  nextLevelBtn.style.display = 'none';
+  generatePattern();
+  generateRightPattern();
+  renderGrids();
+  updateUI();
+  messageEl.textContent = '';
+};
+
+// Event Listeners
+document.getElementById('yesBtn').onclick = () => checkAnswer('yes');
+document.getElementById('noBtn').onclick = () => checkAnswer('no');
+
+// Initialize
+updateUI();
+generatePattern();
+generateRightPattern();
+renderGrids();
+</script>
+
+</body>
+</html>
