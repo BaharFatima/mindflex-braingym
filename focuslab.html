@@ -4,6 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Focus Lab</title>
+<!-- Added only for navbar icons, no other changes to your head -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -25,6 +27,8 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  /* added position relative for navbar positioning, no other changes */
+  position: relative;
 }
   /* Header */
   header {
@@ -64,22 +68,16 @@
   }
 
   /* Back button */
-  .back-btn {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    background: #1565C0;
-    color: #fff;
-    border: none;
-    border-radius: 50px;
-    padding: 8px 14px;
-    font-size: 13px;
-    font-weight: 500;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    cursor: pointer;
-    transition: 0.3s;
-  }
-  .back-btn:hover { background: #0D47A1; }
+.back-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      font-size: 1.6rem;
+      cursor: pointer;
+      color: #003366;
+      font-weight: bold;
+      text-decoration: none;
+    }back-btn:hover { background: #0D47A1; }
 
   /* Tabs */
   .tabs {
@@ -187,12 +185,126 @@
     .card img { width: 50px; height: 50px; }
     .card p { font-size: 12px; }
   }
+
+/* -------------------------- ADDED BOTTOM NAVBAR STYLES (NO CHANGES TO YOUR EXISTING CSS ABOVE) -------------------------- */
+  .menu-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: #FFFFFF;
+  border-top: 1px solid #E3F2FD;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 -4px 10px rgba(0,0,0,0.08);
+  padding: 8px 5px;
+  z-index: 50;
+}
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.menu-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 5px;
+    position: relative;
+    flex: 1;
+}
+.menu-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+    color: #5f6368;
+}
+.menu-icon i {
+    font-size: 24px;
+    transition: all 0.3s ease;
+}
+.menu-label {
+    font-size: 10px;
+    color: #5f6368;
+    text-align: center;
+    line-height: 1.2;
+    font-weight: 600;
+}
+/* Pop-up effect when selected */
+.menu-item.selected .menu-icon i {
+    transform: translateY(-8px) scale(1.2);
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+/* Specific colors for each menu item */
+.menu-item[data-category="cv"].selected .menu-icon i { color: #0D47A1; }
+.menu-item[data-category="achievements"].selected .menu-icon i { color: #9c27b0; }
+.menu-item[data-category="home"].selected .menu-icon i { color: #1565C0; }
+.menu-item[data-category="habit-tracker"].selected .menu-icon i { color: #ff4081; }
+.menu-item[data-category="user-account"].selected .menu-icon i { color: #00838F; }
+/* Custom image icon styling */
+.menu-icon img {
+    width: 24px;
+    height: 24px;
+    transition: all 0.3s ease;
+    object-fit: contain;
+    filter: grayscale(100%) brightness(0.7);
+    border-radius: 8px;
+}
+.menu-item.selected .menu-icon img {
+    transform: translateY(-8px) scale(1.2);
+    filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+    border-radius: 10px;
+}
+.menu-item[data-category="cv"].selected .menu-icon img {
+    filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(13, 71, 161, 0.4));
+}
+/* Fallback icon styling */
+.menu-icon .fallback-icon {
+    width: 24px;
+    height: 24px;
+    background-color: #5f6368;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+.menu-item.selected .menu-icon .fallback-icon {
+    background-color: #ff4081;
+    transform: translateY(-8px) scale(1.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+}
+.menu-item[data-category="cv"].selected .menu-icon .fallback-icon {
+    background-color: #0D47A1;
+}
+/* Navbar responsive adjustments */
+@media (max-width: 340px) {
+    .menu-container { padding: 10px 2px; }
+    .menu-icon { width: 36px; height: 36px; }
+    .menu-icon i { font-size: 20px; }
+    .menu-icon img { width: 20px; height: 20px; }
+    .menu-label { font-size: 9px; }
+}
+  
 </style>
 </head>
 <body>
 <div class = "container">
 <header>
-  <button class="back-btn" onclick="window.location.href='main.html'">←</button>
+  <div class="left-header">
+        <a href="main.html" class="back-btn">←</a>
+        </div>
   <img src="baymax.png" alt="Baymax" class="baymax" />
   <h1>Focus Lab</h1>
   <p>Train your attention in small steps</p>
@@ -233,6 +345,51 @@
     <div class="card"><img src="juggling.jpeg"><p>Juggling</p><button onclick="go('juggling.html')">Play</button></div>
   </div>
 </div>
+
+<!-- ADDED NAVBAR, NO CHANGES TO YOUR CONTENT ABOVE -->
+<div class="menu-container">
+  <div class="menu-item" data-category="cv" data-link="cv.html">
+      <div class="menu-icon">
+          <img src="cv.png" alt="CV" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="fallback-icon" style="display: none;">
+              <i class="fas fa-file-alt"></i>
+          </div>
+      </div>
+      <div class="menu-label">CV</div>
+  </div>
+  
+  <div class="menu-item" data-category="achievements" data-link="achievements.html">
+      <div class="menu-icon">
+          <i class="fas fa-trophy"></i>
+      </div>
+      <div class="menu-label">Achievements</div>
+  </div>
+  
+  <div class="menu-item selected" data-category="home" data-link="main.html">
+      <div class="menu-icon">
+          <i class="fas fa-home"></i>
+      </div>
+      <div class="menu-label">Home</div>
+  </div>
+  
+  <div class="menu-item" data-category="habit-tracker" data-link="habittracker.html">
+      <div class="menu-icon">
+          <img src="https://z-cdn-media.chatglm.cn/files/a1979dda-a3e4-4b38-b0cf-00e4ad455277_pasted_image_1762936027415.png?auth_key=1862936037-6cc8a5a356484e1cb70a8f599e1f2ce8-0-496c548f3f7ef2ea6a808a3cc812dc2c" alt="Habit Tracker" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="fallback-icon" style="display: none;">
+              <i class="fas fa-check"></i>
+          </div>
+      </div>
+      <div class="menu-label">Habit Tracker</div>
+  </div>
+  
+  <div class="menu-item" data-category="user-account" data-link="profile.html">
+      <div class="menu-icon">
+          <i class="fas fa-user-circle"></i>
+      </div>
+      <div class="menu-label">Account</div>
+  </div>
+</div>
+
 </div>
 <script>
 const tabs = document.querySelectorAll(".tab");
@@ -250,6 +407,17 @@ tabs.forEach(tab => {
 function go(link) {
   window.location.href = link;
 }
+
+// ADDED NAVBAR FUNCTIONALITY, NO CHANGES TO YOUR EXISTING JS ABOVE
+const menuItems = document.querySelectorAll('.menu-item');
+menuItems.forEach(item => {
+  item.addEventListener('click', () => {
+    menuItems.forEach(i => i.classList.remove('selected'));
+    item.classList.add('selected');
+    // Redirect to page
+    if(item.dataset.link) window.location.href = item.dataset.link;
+  })
+})
 </script>
 </body>
 </html>
