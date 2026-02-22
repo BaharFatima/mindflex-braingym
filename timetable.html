@@ -4,9 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Timetable</title>
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
 <style>
   *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
   body{
@@ -75,14 +73,6 @@
     display:flex;justify-content:center;align-items:center;font-size:2rem;cursor:pointer;
     box-shadow:0 4px 12px rgba(0,0,0,0.3);
   }
-
-  /* NAV BAR */
-  .navbar{
-    height:60px;background:white;border-top:2px solid #cce6ff;
-    display:flex;justify-content:space-around;align-items:center;
-    position:absolute;bottom:0;width:100%;
-  }
-  .nav-item{color:#003366;font-size:1.3rem;}
 
   /* BOTTOM SHEET */
   .sheet-bg{
@@ -177,10 +167,9 @@
     font-weight: 600;
     box-shadow: 0 4px 12px rgba(0,0,0,0.25);
   } 
+  
   /* Back arrow */
   .back-btn {
-
-
     font-size: 22px;
     font-weight: bold;
     cursor: pointer;
@@ -191,14 +180,129 @@
     user-select: none;
   }
 
+  /* ===== NEW NAVIGATION BAR ===== */
+  .bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    border-radius: 20px 20px 0 0;
+    padding: 10px 5px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+    display: flex;
+    justify-content: space-around;
+    z-index: 100;
+  }
+
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 5px;
+    position: relative;
+    flex: 1;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .nav-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+    color: #5f6368;
+  }
+
+  .nav-icon i {
+    font-size: 24px;
+    transition: all 0.3s ease;
+  }
+
+  .nav-label {
+    font-size: 10px;
+    color: #5f6368;
+    text-align: center;
+    line-height: 1.2;
+    font-weight: 600;
+  }
+
+  /* Pop-up effect when selected */
+  .nav-item.selected .nav-icon i {
+    transform: translateY(-8px) scale(1.2);
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Specific colors for each menu item */
+  .nav-item[data-category="cv"].selected .nav-icon i { color: #0D47A1; }
+  .nav-item[data-category="achievements"].selected .nav-icon i { color: #9c27b0; }
+  .nav-item[data-category="home"].selected .nav-icon i { color: #1565C0; }
+  .nav-item[data-category="habit-tracker"].selected .nav-icon i { color: #ff4081; }
+  .nav-item[data-category="user-account"].selected .nav-icon i { color: #00838F; }
+
+  /* Image styling */
+  .nav-icon img {
+    width: 24px;
+    height: 24px;
+    transition: all 0.3s ease;
+    object-fit: contain;
+    filter: grayscale(100%) brightness(0.7);
+    border-radius: 8px;
+  }
+
+  .nav-item.selected .nav-icon img {
+    transform: translateY(-8px) scale(1.2);
+    filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+    border-radius: 10px;
+  }
+
+  .nav-item[data-category="cv"].selected .nav-icon img {
+    filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(13, 71, 161, 0.4));
+  }
+
+  /* Fallback icon styling */
+  .nav-icon .fallback-icon {
+    width: 24px;
+    height: 24px;
+    background-color: #5f6368;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    transition: all 0.3s ease;
+  }
+
+  .nav-item.selected .nav-icon .fallback-icon {
+    background-color: #ff4081;
+    transform: translateY(-8px) scale(1.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+  }
+
+  .nav-item[data-category="cv"].selected .nav-icon .fallback-icon {
+    background-color: #0D47A1;
+  }
+
+  /* Adjust for smaller screens */
+  @media (max-width: 340px) {
+    .nav-icon { width: 36px; height: 36px; }
+    .nav-icon i { font-size: 20px; }
+    .nav-icon img { width: 20px; height: 20px; }
+    .nav-label { font-size: 9px; }
+  }
 </style>
 </head>
 
 <body>
-
-
 <div class="app">
- <div class="back-btn" onclick="location.href='Studyzone.html'">←</div>
+  <div class="back-btn" onclick="location.href='Studyzone.html'">←</div>
   <header style="margin-top:10px; margin-left:-10px;">Timetable</header>
 
   <!-- DAY SELECTOR -->
@@ -218,18 +322,53 @@
   <!-- ADD BUTTON -->
   <div class="add-btn" id="openSheet"><i class="fa-solid fa-plus"></i></div>
 
-  <!-- NAV BAR -->
-  <div class="navbar">
-    <div class="nav-item"><i class="fa-solid fa-house"></i></div>
-    <div class="nav-item"><i class="fa-solid fa-layer-group"></i></div>
-    <div class="nav-item"><i class="fa-solid fa-book"></i></div>
-    <div class="nav-item"><i class="fa-solid fa-gear"></i></div>
+  <!-- ===== NEW NAVIGATION BAR ===== -->
+  <div class="bottom-nav">
+    <a href="cv.html" class="nav-item" data-category="cv">
+      <div class="nav-icon">
+        <img src="cv.png" alt="CV" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="fallback-icon" style="display: none;">
+          <i class="fas fa-file-alt"></i>
+        </div>
+      </div>
+      <div class="nav-label">CV</div>
+    </a>
+
+    <a href="achievements.html" class="nav-item" data-category="achievements">
+      <div class="nav-icon">
+        <i class="fas fa-trophy"></i>
+      </div>
+      <div class="nav-label">Achievements</div>
+    </a>
+
+    <a href="main.html" class="nav-item" data-category="home">
+      <div class="nav-icon">
+        <i class="fas fa-home"></i>
+      </div>
+      <div class="nav-label">Home</div>
+    </a>
+
+    <a href="habittracker.html" class="nav-item" data-category="habit-tracker">
+      <div class="nav-icon">
+        <img src="https://z-cdn-media.chatglm.cn/files/a1979dda-a3e4-4b38-b0cf-00e4ad455277_pasted_image_1762936027415.png?auth_key=1862936037-6cc8a5a356484e1cb70a8f599e1f2ce8-0-496c548f3f7ef2ea6a808a3cc812dc2c" alt="Habit Tracker" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="fallback-icon" style="display: none;">
+          <i class="fas fa-check"></i>
+        </div>
+      </div>
+      <div class="nav-label">Habits</div>
+    </a>
+
+    <a href="profile.html" class="nav-item" data-category="user-account">
+      <div class="nav-icon">
+        <i class="fas fa-user-circle"></i>
+      </div>
+      <div class="nav-label">Account</div>
+    </a>
   </div>
 
   <!-- BOTTOM SHEET -->
   <div class="sheet-bg" id="sheetBg">
     <div class="sheet">
-
       <label class="field-label">Emoji</label>
       <div class="input-row">
         <input type="text" id="emojiDisplay" placeholder="Choose emoji" readonly>
@@ -288,7 +427,6 @@
       <button id="addItem" class="add-btn-sheet">Add</button>
     </div>
   </div>
-
 </div>
 
 <script>
@@ -431,8 +569,30 @@ document.getElementById("addItem").onclick = ()=>{
   loadDay();
 };
 
+/* NAVIGATION BAR FUNCTIONALITY */
+document.addEventListener('DOMContentLoaded', function() {
+  const navItems = document.querySelectorAll('.bottom-nav .nav-item');
+  
+  navItems.forEach(item => {
+    item.addEventListener('click', function(e) {
+      // Animate selection
+      navItems.forEach(i => i.classList.remove('selected'));
+      this.classList.add('selected');
+      
+      // Get target URL
+      const href = this.getAttribute('href');
+      if (href && href !== '#') {
+        e.preventDefault();
+        // Add slight delay for animation
+        setTimeout(() => {
+          window.location.href = href;
+        }, 300);
+      }
+    });
+  });
+});
+
 loadDay();
 </script>
-
 </body>
 </html>
