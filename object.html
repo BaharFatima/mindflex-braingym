@@ -1,182 +1,387 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Emoji Spelling</title>
+<title>Emoji Spelling | MindFlex</title>
+
 <style>
-  body {
-    margin: 0;
-    font-family: "Poppins", sans-serif;
-    background: linear-gradient(180deg, #E3F2FD, #FFFFFF);
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+/* BASE */
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#E5E7EB;
+  font-family:'Poppins',sans-serif;
+}
 
-  header {
-    position: relative;
-    width: 100%;
-    text-align: center;
-    margin-top: 10px;
-  }
+/* APP CONTAINER */
+.app{
+  width:320px;
+  height:640px;
+  border-radius:30px;
+  background:linear-gradient(180deg,#BBDEFB 0%, #E3F2FD 100%);
+  box-shadow:0 25px 60px rgba(0,0,0,0.25);
+  display:flex;
+  flex-direction:column;
+  padding:18px;
+  box-sizing:border-box;
+  position:relative;
+  overflow:hidden;
+}
 
-  .back-btn {
-    position: absolute;
-    left: 14px;
-    top: 0;
-    color: #1565C0;
-    text-decoration: none;
-    font-size: 22px;
-    font-weight: 600;
-  }
+/* Decorative bubbles */
+.app::before{
+  content:"";
+  position:absolute;
+  width:200px;
+  height:200px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.25);
+  top:-70px;
+  right:-60px;
+}
 
-  .title {
-    font-size: 24px;
-    font-weight: 700;
-    color: #1565C0;
-    margin-bottom: 10px;
-  }
+.app::after{
+  content:"";
+  position:absolute;
+  width:170px;
+  height:170px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.18);
+  bottom:-60px;
+  left:-50px;
+}
 
-  /* Main box */
-  .container {
-    width: 92%;
-    max-width: 360px;
-    height: 85vh;
-    background: #EAF3FE;
-    border-radius: 22px;
-    box-shadow: 0 6px 14px rgba(0,0,0,0.1);
-    padding: 20px 16px;
-    box-sizing: border-box;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    margin-top: 10px;
-  }
+/* HEADER */
+header{
+  position:relative;
+  text-align:center;
+  margin-bottom:8px;
+  z-index:2;
+}
 
-  /* Stats */
-  .stats {
-    margin-top: 8px;
-  }
-  #score, #levelBar, #questionNum {
-    font-weight: 600;
-    color: #0D47A1;
-    margin: 6px 0;
-    font-size: 16px;
-  }
+.back-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      font-size: 1.6rem;
+      cursor: pointer;
+      color: #003366;
+      font-weight: bold;
+      text-decoration: none;
+    }
 
-  /* Emoji */
-  .emoji {
-    font-size: 130px;
-    margin: 20px 0;
-  }
 
-  /* Input field */
-  input {
-    width: 85%;
-    padding: 14px;
-    font-size: 18px;
-    border-radius: 12px;
-    border: 2px solid #64B5F6;
-    outline: none;
-    text-align: center;
-  }
+.title{
+  font-size:18px;
+  font-weight:700;
+  color:#0D47A1;
+}
 
-  /* Buttons */
-  button {
-    background: #1565C0;
-    color: white;
-    border: none;
-    padding: 14px 24px;
-    border-radius: 12px;
-    font-size: 18px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 14px;
-    width: 70%;
-    align-self: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-  }
+/* GAME CARD */
+.appContainer{
+  width:280px;
+  height:620px;
+  border-radius:30px;
+  background:linear-gradient(180deg,#BBDEFB 0%, #E3F2FD 100%);
+  box-shadow:0 25px 60px rgba(0,0,0,0.25);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  position:relative;
+  padding:18px;
+  box-sizing:border-box;
+}
 
-  button:hover {
-    background: #0D47A1;
-  }
+.stats{
+  text-align:center;
+}
 
-  #nextLevelBtn {
-    display: none;
-    background: #2E7D32;
-  }
+.stats div{
+  font-size:14px;
+  font-weight:600;
+  color:#0D47A1;
+  margin:2px 0;
+}
+
+
+.emoji{
+  font-size:90px;
+}
+
+/* INPUT */
+input{
+  width:85%;
+  padding:12px;
+  border-radius:14px;
+  border:2px solid #64B5F6;
+  text-align:center;
+  font-size:16px;
+  outline:none;
+}
+
+/* BUTTONS */
+.primary-btn{
+  width:70%;
+  padding:12px;
+  border:none;
+  border-radius:18px;
+  background:#1565C0;
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+  margin-top:10px;
+  box-shadow:0 8px 20px rgba(21,101,192,0.4);
+  transition:.2s;
+}
+
+.primary-btn:hover{
+  transform:scale(1.05);
+}
+
+#nextLevel{
+  width:70%;
+  padding:12px;
+  border:none;
+  border-radius:20px;
+  background:#1E88E5;
+  color:white;
+  font-weight:600;
+  align-self:center;
+  margin-top:10px;
+  display:none;
+  box-shadow:0 8px 20px rgba(30,136,229,0.4);
+  cursor:pointer;
+  flex:none;
+}
+.game-center{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;   /* TRUE vertical centering */
+  align-items:center;
+  gap:20px;
+}
+
 </style>
 </head>
+
 <body>
-  <header>
-    <a href="../focuslab.html" class="back-btn">←</a>
-    <div class="title">Emoji Spelling</div>
-  </header>
 
-  <div class="container">
-    <div class="stats">
-      <div id="score">Score: 0</div>
-      <div id="levelBar">Level: 1</div>
-      <div id="questionNum">Object 1 / 10</div>
-    </div>
+<div class="app">
 
-    <div class="emoji" id="emoji">🍎</div>
+<header>
+  <div class="left-header">
+        <a href="focuslab.html" class="back-btn">←</a>
+        </div>
+  <div class="title">Emoji Spelling</div>
+</header>
 
-    <div>
-      <input type="text" id="answer" placeholder="Type spelling here">
-      <button id="submitBtn">Submit</button>
-      <button id="nextLevelBtn">Next Level →</button>
-    </div>
-  </div>
-<script src="logistic.js"></script>
-<script>
-  const emojis = ["🍎", "🍌", "🍇", "🐶", "🐱", "🚗", "🌙", "⭐", "❤️", "🎁"];
-  const answers = ["apple", "banana", "grapes", "dog", "cat", "car", "moon", "star", "heart", "gift"];
+<div class="appContainer">
 
-  let score = 0;
-  let level = 1;
-  let currentIndex = 0;
+<div class="stats">
+  <div id="score">Score: 0</div>
+  <div id="levelBar">Level 1</div>
+  <div id="questionNum">Object 1 / 10</div>
+</div>
 
-  const emojiEl = document.getElementById("emoji");
-  const answerEl = document.getElementById("answer");
-  const scoreEl = document.getElementById("score");
-  const levelEl = document.getElementById("levelBar");
-  const questionNumEl = document.getElementById("questionNum");
-  const submitBtn = document.getElementById("submitBtn");
-  const nextBtn = document.getElementById("nextLevelBtn");
+<div class="game-center">
+  <div class="emoji" id="emoji">🍎</div>
 
-  submitBtn.addEventListener("click", () => {
-    const userAnswer = answerEl.value.trim().toLowerCase();
-    if (userAnswer === answers[currentIndex]) {
-      score += 10;
-      scoreEl.textContent = `Score: ${score}`;
-      currentIndex++;
-      if (currentIndex < emojis.length) {
-        emojiEl.textContent = emojis[currentIndex];
-        questionNumEl.textContent = `Object ${currentIndex + 1} / 10`;
-        answerEl.value = "";
-      } else {
-        emojiEl.textContent = "🎉";
-        questionNumEl.textContent = "All objects complete!";
-        nextBtn.style.display = "inline-block";
-      }
-    } else {
-      answerEl.value = "";
-      answerEl.placeholder = "Try again!";
-    }
-  });
+  <input type="text" id="answer" placeholder="Type spelling here">
+  <button class="primary-btn" id="submitBtn">Submit</button>
+  <button class="primary-btn" id="nextLevelBtn" style="display:none;">
+  Next Level 
+</button>
 
-  nextBtn.addEventListener("click", () => {
-    level++;
-    currentIndex = 0;
+</div>
+
+
+</div>
+</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+/* 🔥 YOUR REAL FIREBASE CONFIG */
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+ apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
+  authDomain: "mindflex-b2a0c.firebaseapp.com",
+  projectId: "mindflex-b2a0c",
+  storageBucket: "mindflex-b2a0c.firebasestorage.app",
+  messagingSenderId: "148676867562",
+  appId: "1:148676867562:web:3365a72b6fa6b3751cee93",
+  measurementId: "G-Q2T6HD3S0E"
+};
+
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    currentUser = user;
+    loadProgress();
+  } else {
+    window.location.href = "../login.html"; // redirect if not logged in
+  }
+});
+
+/* GAME DATA */
+const QUESTIONS_PER_LEVEL = 5;
+
+const questions = [
+  {emoji:"🍎", answers:["apple"]},
+  {emoji:"🍌", answers:["banana"]},
+  {emoji:"🍇", answers:["grapes","grape"]},
+  {emoji:"🐶", answers:["dog"]},
+  {emoji:"🐱", answers:["cat"]},
+  {emoji:"🚗", answers:["car"]},
+  {emoji:"🌙", answers:["moon"]},
+  {emoji:"⭐", answers:["star"]},
+  {emoji:"❤️", answers:["heart"]},
+  {emoji:"🎁", answers:["gift","present"]},
+  {emoji:"🕷", answers:["spider"]},
+  {emoji:"🦉", answers:["owl"]},
+  {emoji:"🐊", answers:["crocodile","alligator"]},
+  {emoji:"⌚️", answers:["watch","clock"]},
+  {emoji:"☎️", answers:["phone","telephone"]},
+  {emoji:"🎈", answers:["balloon"]},
+  {emoji:"📕", answers:["book"]},
+  {emoji:"🏊‍♀️", answers:["swimming","swim"]},
+  {emoji:"🎻", answers:["violin"]}
+];
+
+let score = 0;
+let level = 1;
+let currentIndex = 0;
+
+/* DOM */
+const emojiEl = document.getElementById("emoji");
+const answerEl = document.getElementById("answer");
+const scoreEl = document.getElementById("score");
+const levelEl = document.getElementById("levelBar");
+const questionNumEl = document.getElementById("questionNum");
+const submitBtn = document.getElementById("submitBtn");
+const nextBtn = document.getElementById("nextLevelBtn");
+
+/* GLOBAL INDEX */
+function getGlobalIndex(){
+  return ((level - 1) * QUESTIONS_PER_LEVEL + currentIndex) % questions.length;
+}
+
+
+/* LOAD QUESTION */
+function loadQuestion(){
+  const globalIndex = getGlobalIndex();
+
+  if(globalIndex >= questions.length){
+    emojiEl.textContent = "🎉";
+    questionNumEl.textContent = "All Levels Complete!";
+    submitBtn.disabled = true;
     nextBtn.style.display = "none";
-    emojiEl.textContent = emojis[currentIndex];
-    questionNumEl.textContent = "Object 1 / 10";
-    levelEl.textContent = `Level: ${level}`;
-  });
+    return;
+  }
+
+  emojiEl.textContent = questions[globalIndex].emoji;
+  questionNumEl.textContent =
+    "Object " + (currentIndex + 1) + " / " + QUESTIONS_PER_LEVEL;
+}
+
+/* UPDATE UI */
+function updateUI(){
+  scoreEl.textContent = "Score: " + score;
+  levelEl.textContent = "Level " + level;
+}
+
+/* SAVE PROGRESS */
+async function saveProgress(){
+  if(!currentUser) return;
+
+  await setDoc(
+    doc(db, "users", currentUser.uid, "games", "emojiSpelling"),
+    {
+      score,
+      level,
+      currentIndex,
+      lastPlayed: new Date()
+    },
+    { merge: true }
+  );
+}
+/* LOAD PROGRESS */
+async function loadProgress(){
+  if(!currentUser) return;
+
+  try{
+    const snap = await getDoc(
+      doc(db, "users", currentUser.uid, "games", "emojiSpelling")
+    );
+
+    if(snap.exists()){
+      const data = snap.data();
+      score = data.score || 0;
+      level = data.level || 1;
+      currentIndex = data.currentIndex || 0;
+    }
+  }catch(e){
+    console.log("Load error:", e);
+  }
+
+  updateUI();
+  loadQuestion();
+}
+/* SUBMIT ANSWER */
+submitBtn.onclick = ()=>{
+  const globalIndex = getGlobalIndex();
+
+  if(globalIndex >= questions.length) return;
+
+  const userAnswer = answerEl.value.trim().toLowerCase();
+  const correctAnswers = questions[globalIndex].answers;
+
+  if(correctAnswers.includes(userAnswer)){
+    score += 10;
+    currentIndex++;
+
+    if(currentIndex < QUESTIONS_PER_LEVEL &&
+       getGlobalIndex() < questions.length){
+        answerEl.value = "";
+        loadQuestion();
+    } else {
+        nextBtn.style.display = "block";
+    }
+
+    updateUI();
+    saveProgress();
+  } else {
+    answerEl.value = "";
+    answerEl.placeholder = "Try again!";
+  }
+};
+
+/* NEXT LEVEL */
+nextBtn.onclick = ()=>{
+  level++;
+  currentIndex = 0;
+  nextBtn.style.display = "none";
+
+  updateUI();
+  loadQuestion();
+  saveProgress();
+};
+
+/* INIT */
 </script>
 </body>
 </html>
