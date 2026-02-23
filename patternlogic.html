@@ -1,0 +1,448 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pattern Logic</title>
+
+<style>
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#E5E7EB;
+  font-family:"Poppins",sans-serif;
+}
+
+/* APP CONTAINER */
+.app{
+  width:320px;
+  height:620px;
+  border-radius:30px;
+  background:linear-gradient(180deg,#BBDEFB 0%, #E3F2FD 100%);
+  box-shadow:0 25px 60px rgba(0,0,0,0.25);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  padding:18px;
+  box-sizing:border-box;
+  position:relative;
+}
+
+/* Decorative transparent circles */
+.app::before{
+  content:"";
+  position:absolute;
+  width:200px;
+  height:200px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.25);
+  top:-70px;
+  right:-60px;
+  z-index:0;
+}
+
+.app::after{
+  content:"";
+  position:absolute;
+  width:170px;
+  height:170px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.18);
+  bottom:-60px;
+  left:-50px;
+  z-index:0;
+}
+
+/* HEADER */
+header{
+  height:60px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  z-index:2;
+}
+
+.page-title{
+  font-weight:600;
+  font-size:20px;
+  color:#0D47A1;
+}
+
+/* Glass Back Button */
+.back-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      font-size: 1.6rem;
+      cursor: pointer;
+      color: #003366;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+
+.back-btn:hover{
+  transform:scale(1.05);
+  background:rgba(255,255,255,0.9);
+}
+
+/* GLASS CONTENT CARD */
+.content{
+  flex:1;
+  background:rgba(255,255,255,0.65);
+  backdrop-filter:blur(14px);
+  border-radius:26px;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  position:relative;
+  z-index:1;
+  box-shadow:0 15px 35px rgba(0,0,0,0.15);
+}
+
+/* LEVEL */
+.level{
+  font-size:16px;
+  font-weight:600;
+  color:#0D47A1;
+  margin-bottom:10px;
+}
+
+/* SEQUENCE */
+.sequence{
+  font-size:22px;
+  font-weight:600;
+  margin:20px 0;
+  color:#1565C0;
+  min-height:40px;
+}
+
+/* OPTIONS */
+.options{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.option{
+  width:100%;
+  background:rgba(187,222,251,0.9);
+  border:none;
+  border-radius:18px;
+  padding:16px 0;
+  font-size:18px;
+  font-weight:600;
+  cursor:pointer;
+  transition:.2s;
+  box-shadow:0 8px 18px rgba(0,0,0,0.15);
+}
+
+.option:hover{
+  background:#90CAF9;
+  transform:scale(1.03);
+}
+
+/* EXPLANATION */
+.explanation{
+  margin-top:15px;
+  font-size:14px;
+  color:#0D47A1;
+  min-height:40px;
+  text-align:center;
+}
+
+/* NEXT BUTTON */
+.next-btn{
+  margin-top:auto;
+  background:#1565C0;
+  color:white;
+  border:none;
+  border-radius:18px;
+  padding:12px 0;
+  width:100%;
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+  display:none;
+  box-shadow:0 10px 20px rgba(21,101,192,0.4);
+}
+
+.level{
+  font-size:18px;
+  font-weight:600;
+  color:#0D47A1;
+  margin-top:10px;
+}
+
+.sequence{
+  font-size:24px;
+  font-weight:600;
+  margin:25px 0;
+  color:#1565C0;
+  min-height:40px;
+}
+
+.options{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-top:10px;
+}
+
+.option{
+  width:100%;
+  background:#BBDEFB;
+  border:none;
+  border-radius:16px;
+  padding:16px 0;
+  font-size:18px;
+  font-weight:600;
+  cursor:pointer;
+  transition:.2s;
+  box-shadow:0 6px 14px rgba(0,0,0,0.1);
+}
+
+.option:hover{
+  background:#90CAF9;
+  transform:scale(1.02);
+}
+
+
+.explanation{
+  margin-top:15px;
+  font-size:14px;
+  color:#0D47A1;
+  min-height:40px;
+}
+
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header> 
+  <div class="page-title">Pattern Logic</div>
+</header>
+
+
+<div class="container">
+  
+   <div class="left-header">
+        <a href="focuslab.html" class="back-btn">←</a>
+        </div>
+<div class="content">
+
+<div class="level" id="levelText"></div>
+<div class="sequence" id="sequenceBox"></div>
+<div class="options" id="optionsBox"></div>
+<div class="explanation" id="explanationBox"></div>
+<button class="next-btn" id="nextBtn">Next Level</button>
+
+</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+/* 🔥 PUT YOUR REAL FIREBASE CONFIG HERE */
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+ apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
+  authDomain: "mindflex-b2a0c.firebaseapp.com",
+  projectId: "mindflex-b2a0c",
+  storageBucket: "mindflex-b2a0c.firebasestorage.app",
+  messagingSenderId: "148676867562",
+  appId: "1:148676867562:web:3365a72b6fa6b3751cee93",
+  measurementId: "G-Q2T6HD3S0E"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+let currentUser = null;
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    currentUser = user;
+    loadProgress();
+  } else {
+    window.location.href = "../login.html";
+  }
+});
+
+
+/* GAME STATE */
+let level=1;
+const maxLevel=50;
+let correct=0;
+let attempts=0;
+let currentAnswer=null;
+let highestLevel = 1;
+let explanationText="";
+
+const levelText=document.getElementById("levelText");
+const sequenceBox=document.getElementById("sequenceBox");
+const optionsBox=document.getElementById("optionsBox");
+const explanationBox=document.getElementById("explanationBox");
+const nextBtn=document.getElementById("nextBtn");
+
+/* LOAD PROGRESS */
+async function loadProgress(){
+  if(!currentUser) return;
+
+  try{
+    const snap = await getDoc(
+      doc(db,"users", currentUser.uid, "games", "patternLogic")
+    );
+
+    if(snap.exists()){
+      const data = snap.data();
+
+      level = data.level || 1;
+      correct = data.correct || 0;
+      attempts = data.attempts || 0; 
+highestLevel = data.highestLevel || level;
+    }
+
+  }catch(e){
+    console.log("Load failed:", e);
+  }
+
+  generatePattern();
+}
+
+/* SAVE PROGRESS */
+async function saveProgress(){
+  if(!currentUser) return;
+
+  const accuracy =
+    attempts === 0 ? 0 :
+    Number(((correct / attempts) * 100).toFixed(2));
+
+  await setDoc(
+    doc(db,"users", currentUser.uid, "games", "patternLogic"),
+    {
+      level,
+      highestLevel,
+      correct,
+      attempts,
+      accuracy,
+      lastPlayed: new Date()
+    },
+    { merge:true }
+  );
+}
+/* PATTERN GENERATOR */
+function generatePattern(){
+
+  optionsBox.innerHTML="";
+  explanationBox.textContent="";
+  nextBtn.style.display="none";
+
+  levelText.textContent="Level "+level;
+
+  let seq=[];
+  let diff;
+
+  if(level<=10){
+    let start=Math.floor(Math.random()*10)+1;
+    diff=Math.floor(Math.random()*5)+2;
+    seq=[start,start+diff,start+2*diff,start+3*diff];
+    currentAnswer=start+4*diff;
+    explanationText="Each number increases by "+diff+".";
+  }
+  else if(level<=20){
+    let start=2;
+    diff=Math.floor(Math.random()*3)+2;
+    seq=[start,start*diff,start*diff*diff,start*diff*diff*diff];
+    currentAnswer=seq[3]*diff;
+    explanationText="Each number is multiplied by "+diff+".";
+  }
+  else if(level<=30){
+    let start=20;
+    let a=4;
+    let b=3;
+    seq=[start,start+a,start+a-b,start+a-b+a];
+    currentAnswer=start+a-b+a-b;
+    explanationText="Add "+a+", subtract "+b+", repeat.";
+  }
+  else{
+    let start=3;
+    seq=[start,start+2,start+6,start+12];
+    currentAnswer=start+20;
+    explanationText="Differences increase progressively.";
+  }
+
+  sequenceBox.textContent=seq.join(" , ")+" , ?";
+
+  let options=new Set([currentAnswer]);
+  while(options.size<4){
+    options.add(currentAnswer + Math.floor(Math.random()*10)-5);
+  }
+
+  Array.from(options)
+    .sort(()=>Math.random()-0.5)
+    .forEach(num=>{
+      const btn=document.createElement("button");
+      btn.className="option";
+      btn.textContent=num;
+      btn.onclick=()=>checkAnswer(num,btn);
+      optionsBox.appendChild(btn);
+    });
+}
+
+/* CHECK ANSWER */
+function checkAnswer(selected,btn){
+  attempts++;
+	saveProgress();
+  if(selected===currentAnswer){
+    correct++;
+    btn.style.background="#4CAF50";
+    explanationBox.textContent=explanationText;
+    nextBtn.style.display="block";
+    document.querySelectorAll(".option").forEach(b=>b.disabled=true);
+  }else{
+    btn.style.background="#E57373";
+    explanationBox.textContent="Look carefully at the pattern.";
+    setTimeout(()=>btn.style.background="#BBDEFB",700);
+  }
+}
+
+
+/* NEXT */
+nextBtn.onclick = async () => {
+  level++;
+
+  if(level > maxLevel){
+    alert("Completed all 50 levels.");
+    level = 1;
+  }
+
+  if(level > highestLevel){
+    highestLevel = level;
+  }
+
+  await saveProgress();
+  generatePattern();
+};
+
+</script>
+
+</body>
+</html>
