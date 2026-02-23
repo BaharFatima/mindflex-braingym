@@ -174,8 +174,9 @@ header{
 
 </div>
 </div>
-<script src="logistics.js"> </script>
+<script src="logistics.js"></script>
 <script type="module">
+import { addXP } from "./xp.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -303,6 +304,7 @@ function startGame(){
 /* NEXT LEVEL */
 nextBtn.onclick=()=>{
   level++;
+addXP(db, currentUser, 10);
   if(level>maxLevel){
     alert("Completed all 150 levels.");
     level=1;
