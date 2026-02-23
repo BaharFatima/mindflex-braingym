@@ -1,3 +1,6 @@
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,305 +9,404 @@
 <title>Sudoku | MindFlex</title>
 
 <style>
-  body {
-    margin: 0;
-    font-family: Poppins, sans-serif;
-    background: linear-gradient(180deg, #E3F2FD, #FFFFFF);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: #1565C0;
-  }
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#E5E7EB;
+  font-family:'Poppins',sans-serif;
+}
 
-  header {
-    width: 100%;
-    padding: 20px;
-    text-align: center;
-    position: relative;
-  }
+/* APP CONTAINER */
+.app{
+  width:320px;
+  height:620px;
+  border-radius:30px;
+  background:linear-gradient(180deg,#BBDEFB 0%, #E3F2FD 100%);
+  box-shadow:0 25px 60px rgba(0,0,0,0.25);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  position:relative;
+  padding:18px;
+  box-sizing:border-box;
+}
 
-  .back-btn {
-    position: absolute;
-    left: 20px;
-    top: 20px;
-    font-size: 22px;
-    text-decoration: none;
-    color: #1565C0;
-  }
+/* Decorative transparent circles */
+.app::before{
+  content:"";
+  position:absolute;
+  width:200px;
+  height:200px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.25);
+  top:-70px;
+  right:-60px;
+  z-index:0;
+}
 
-  .title-box {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-  }
+.app::after{
+  content:"";
+  position:absolute;
+  width:170px;
+  height:170px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.18);
+  bottom:-60px;
+  left:-50px;
+  z-index:0;
+}
 
-  .game-icon {
-    width: 50px;
-  }
+/* HEADER */
+header{
+  height:60px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  z-index:2;
+  font-weight:600;
+  font-size:18px;
+  color:#0D47A1;
+}
 
-  #levelSelect {
-    margin-top: 10px;
-    padding: 6px;
-    font-size: 16px;
-  }
+/* Glass Back Button */
+.back-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      font-size: 1.6rem;
+      cursor: pointer;
+      color: #003366;
+      font-weight: bold;
+      text-decoration: none;
+    }
 
-  #sudoku-board {
-    display: grid;
-    grid-template-columns: repeat(9, 38px);
-    margin-top: 20px;
-  }
 
-  input {
-    width: 38px;
-    height: 38px;
-    text-align: center;
-    font-size: 16px;
-    border: 1px solid #90CAF9;
-    outline: none;
-  }
+.back-btn:hover{
+  transform:scale(1.05);
+  background:rgba(255,255,255,0.9);
+}
 
-  input.prefilled {
-    background: #BBDEFB;
-    font-weight: bold;
-  }
+/* GLASS MAIN CARD */
+.main-card{
+  flex:1;
+  background:rgba(255,255,255,0.65);
+  backdrop-filter:blur(14px);
+  border-radius:26px;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  position:relative;
+  z-index:1;
+  box-shadow:0 15px 35px rgba(0,0,0,0.15);
+}
 
-  input.invalid {
-    background: #FFCDD2;
-  }
+/* LEVEL SELECT */
+#levelSelect{
+  margin-bottom:12px;
+  padding:8px 10px;
+  border-radius:12px;
+  border:none;
+  background:rgba(187,222,251,0.9);
+  font-weight:600;
+  box-shadow:0 6px 14px rgba(0,0,0,0.1);
+}
 
-  /* GRID LINES */
-  input:nth-child(3n) {
-    border-right: 2px solid #1565C0;
-  }
+/* BOARD */
+#sudoku-board{
+  display:grid;
+  grid-template-columns:repeat(9, 1fr);
+  gap:2px;
+  width:100%;
+  max-width:260px;
+  margin-bottom:12px;
+}
 
-  input:nth-child(n+19):nth-child(-n+27),
-  input:nth-child(n+46):nth-child(-n+54) {
-    border-bottom: 2px solid #1565C0;
-  }
+#sudoku-board input{
+  width:100%;
+  aspect-ratio:1/1;
+  text-align:center;
+  font-size:14px;
+  border-radius:8px;
+  border:1px solid #90CAF9;
+  box-sizing:border-box;
+  background:rgba(255,255,255,0.9);
+  transition:.2s;
+}
 
-  .controls {
-    margin: 20px;
-    display: flex;
-    gap: 10px;
-  }
+#sudoku-board input:focus{
+  outline:none;
+  background:#E3F2FD;
+  transform:scale(1.05);
+}
 
-  button {
-    padding: 10px 16px;
-    border-radius: 12px;
-    border: none;
-    background: #1565C0;
-    color: white;
-    font-size: 15px;
-    cursor: pointer;
-  }
+input.prefilled{
+  background:#BBDEFB;
+  font-weight:bold;
+}
 
-  button:hover {
-    background: #0D47A1;
-  }
+input.invalid{
+  background:#FFCDD2;
+}
+
+/* CONTROLS */
+.controls{
+  margin-top:auto;
+  display:flex;
+  gap:8px;
+}
+
+.controls button{
+  background:#1565C0;
+  color:white;
+  border:none;
+  border-radius:18px;
+  padding:8px 14px;
+  font-size:13px;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(21,101,192,0.4);
+  transition:.2s;
+}
+
+.controls button:hover{
+  transform:scale(1.05);
+  background:#0D47A1;
+}
+
 </style>
 </head>
 
 <body>
+<div class="app">
 
 <header>
-  <a href="focuslab.html" class="back-btn">←</a>
-
-  <div class="title-box">
-    <img src="sudoku.png" class="game-icon" alt="Sudoku">
-    <h2>Sudoku</h2>
-  </div>
-
-  <select id="levelSelect" onchange="changeLevel()">
-    <option value="easy">Easy</option>
-    <option value="medium">Medium</option>
-    <option value="hard">Hard</option>
-  </select>
+  <a href="../focuslab.html" class="back-btn">←</a>
+  Sudoku
 </header>
+
+<div class="main-card">
+
+<select id="levelSelect">
+  <option value="easy">Easy</option>
+  <option value="medium">Medium</option>
+  <option value="hard">Hard</option>
+</select>
 
 <div id="sudoku-board"></div>
 
 <div class="controls">
-  <button onclick="giveHint()">Hint</button>
-  <button onclick="resetGame()">Reset</button>
+  <button id="hintBtn">Hint</button>
+  <button id="resetBtn">Reset</button>
+  <button id="nextBtn" style="display:none;">Next</button>
 </div>
-<script src="logistic.js"></script>
-<script>
-const levels = {
-  easy: [
-    {
-      puzzle: [
-        [5,3,"","",7,"","","",""],
-        [6,"","",1,9,5,"","",""],
-        ["",9,8,"","","","",6,""],
-        [8,"","","",6,"","","",3],
-        [4,"","",8,"",3,"","",1],
-        [7,"","","",2,"","","",6],
-        ["",6,"","","","",2,8,""],
-        ["","","",4,1,9,"","",5],
-        ["","","","",8,"","",7,9]
-      ],
-      solution: [
-        [5,3,4,6,7,8,9,1,2],
-        [6,7,2,1,9,5,3,4,8],
-        [1,9,8,3,4,2,5,6,7],
-        [8,5,9,7,6,1,4,2,3],
-        [4,2,6,8,5,3,7,9,1],
-        [7,1,3,9,2,4,8,5,6],
-        [9,6,1,5,3,7,2,8,4],
-        [2,8,7,4,1,9,6,3,5],
-        [3,4,5,2,8,6,1,7,9]
-      ]
-    }
-  ],
 
-  medium: [
-    {
-      puzzle: [
-        ["",3,"","",7,"","","",""],
-        [6,"","",1,"",5,"","",""],
-        ["",9,"","","","",5,"",""],
-        [8,"","","",6,"","","",3],
-        ["","","",8,"",3,"","",""],
-        [7,"","","",2,"","","",6],
-        ["",6,"","","","",2,"",""],
-        ["","","",4,"",9,"","",5],
-        ["","","","",8,"","",7,""]
-      ],
-      solution: [
-        [5,3,4,6,7,8,9,1,2],
-        [6,7,2,1,9,5,3,4,8],
-        [1,9,8,3,4,2,5,6,7],
-        [8,5,9,7,6,1,4,2,3],
-        [4,2,6,8,5,3,7,9,1],
-        [7,1,3,9,2,4,8,5,6],
-        [9,6,1,5,3,7,2,8,4],
-        [2,8,7,4,1,9,6,3,5],
-        [3,4,5,2,8,6,1,7,9]
-      ]
-    }
-  ],
+</div>
+</div>
+<script src="logistics.js"> </script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-  hard: [
-    {
-      puzzle: [
-        ["","","","","","","",1,""],
-        ["","",2,"","","","","",""],
-        ["",9,"","","","","","",""],
-        ["","","","",6,"","","",3],
-        ["","","","","","","","",""],
-        [7,"","","","","","","",6],
-        ["","","","","","","2","",""],
-        ["","","","",1,"","","",""],
-        ["","","","","","","","",""]
-      ],
-      solution: [
-        [5,3,4,6,7,8,9,1,2],
-        [6,7,2,1,9,5,3,4,8],
-        [1,9,8,3,4,2,5,6,7],
-        [8,5,9,7,6,1,4,2,3],
-        [4,2,6,8,5,3,7,9,1],
-        [7,1,3,9,2,4,8,5,6],
-        [9,6,1,5,3,7,2,8,4],
-        [2,8,7,4,1,9,6,3,5],
-        [3,4,5,2,8,6,1,7,9]
-      ]
-    }
-  ]
+/* 🔥 YOUR FIREBASE CONFIG */
+const firebaseConfig = {
+ apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
+  authDomain: "mindflex-b2a0c.firebaseapp.com",
+  projectId: "mindflex-b2a0c",
+  storageBucket: "mindflex-b2a0c.firebasestorage.app",
+  messagingSenderId: "148676867562",
+  appId: "1:148676867562:web:3365a72b6fa6b3751cee93",
+  measurementId: "G-Q2T6HD3S0E"
 };
 
-let currentLevel = "easy";
-let currentGame = null;
 
-const board = document.getElementById("sudoku-board");
 
-const nextBtn = document.createElement("button");
-nextBtn.textContent = "Next Puzzle";
-nextBtn.style.display = "none";
-nextBtn.onclick = loadRandomGame;
-document.querySelector(".controls").appendChild(nextBtn);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
-function loadRandomGame() {
-  const pool = levels[currentLevel];
-  currentGame = pool[Math.floor(Math.random() * pool.length)];
-  nextBtn.style.display = "none";
+let currentUser = null;
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    currentUser = user;
+    loadProgress();
+  } else {
+    loadGame();
+  }
+});
+
+
+/* PUZZLES */
+const baseSolution = [
+[5,3,4,6,7,8,9,1,2],
+[6,7,2,1,9,5,3,4,8],
+[1,9,8,3,4,2,5,6,7],
+[8,5,9,7,6,1,4,2,3],
+[4,2,6,8,5,3,7,9,1],
+[7,1,3,9,2,4,8,5,6],
+[9,6,1,5,3,7,2,8,4],
+[2,8,7,4,1,9,6,3,5],
+[3,4,5,2,8,6,1,7,9]
+];
+let puzzlesCompleted = 0;
+let hintsUsed = 0;
+let currentLevel="easy";
+let currentGame;
+const board=document.getElementById("sudoku-board");
+const nextBtn = document.getElementById("nextBtn");
+function loadGame(){
+  currentGame = generatePuzzle(currentLevel);
   createBoard();
+  nextBtn.style.display="none";
 }
 
-function createBoard() {
-  board.innerHTML = "";
+function generatePuzzle(level){
 
-  currentGame.puzzle.forEach((row, r) => {
-    row.forEach((cell, c) => {
-      const input = document.createElement("input");
-      input.maxLength = 1;
-      input.dataset.row = r;
-      input.dataset.col = c;
+  let solution = JSON.parse(JSON.stringify(baseSolution));
+  let puzzle = JSON.parse(JSON.stringify(baseSolution));
 
-      if (cell !== "") {
-        input.value = cell;
-        input.disabled = true;
+  // shuffle rows inside each 3-block
+  for(let block=0; block<3; block++){
+    let rows = [0,1,2].map(r => r + block*3);
+    rows.sort(()=>Math.random()-0.5);
+
+    let tempSolution = [...solution];
+    let tempPuzzle = [...puzzle];
+
+    for(let i=0;i<3;i++){
+      solution[block*3+i] = tempSolution[rows[i]];
+      puzzle[block*3+i] = tempPuzzle[rows[i]];
+    }
+  }
+
+  let cellsToRemove;
+  if(level==="easy") cellsToRemove = 35;
+  else if(level==="medium") cellsToRemove = 45;
+  else cellsToRemove = 55;
+
+  while(cellsToRemove > 0){
+    let r = Math.floor(Math.random()*9);
+    let c = Math.floor(Math.random()*9);
+    if(puzzle[r][c] !== ""){
+      puzzle[r][c] = "";
+      cellsToRemove--;
+    }
+  }
+
+  return { puzzle, solution };
+}
+
+
+function createBoard(){
+  board.innerHTML="";
+  currentGame.puzzle.forEach((row,r)=>{
+    row.forEach((cell,c)=>{
+      const input=document.createElement("input");
+      input.maxLength=1;
+      if(cell!==""){
+        input.value=cell;
+        input.disabled=true;
         input.classList.add("prefilled");
       }
-
-      input.oninput = () => validate(input);
+      input.addEventListener("input",()=>validate(input,r,c));
       board.appendChild(input);
     });
   });
 }
 
-function validate(input) {
-  const r = input.dataset.row;
-  const c = input.dataset.col;
-  const val = input.value;
-
-  input.classList.remove("invalid");
-
-  if (!/^[1-9]$/.test(val)) {
-    input.value = "";
+function validate(input,r,c){
+  if(!/^[1-9]$/.test(input.value)){
+    input.value="";
     return;
   }
-
-  if (parseInt(val) !== currentGame.solution[r][c]) {
+  if(parseInt(input.value)!==currentGame.solution[r][c]){
     input.classList.add("invalid");
+  }else{
+    input.classList.remove("invalid");
   }
-
   checkCompletion();
 }
+function checkCompletion(){
+  const inputs=document.querySelectorAll("#sudoku-board input");
 
-function giveHint() {
-  const inputs = document.querySelectorAll("#sudoku-board input");
+  for(let i=0;i<inputs.length;i++){
+    if(inputs[i].value===""||inputs[i].classList.contains("invalid")) return;
+  }
 
-  for (let input of inputs) {
-    if (!input.disabled && input.value === "") {
-      const r = input.dataset.row;
-      const c = input.dataset.col;
-      input.value = currentGame.solution[r][c];
-      input.disabled = true;
-      input.classList.add("prefilled");
+  puzzlesCompleted++;
+  document.getElementById("nextBtn").style.display="inline-block";
+  saveProgress();
+}
+
+function giveHint(){
+  const inputs=document.querySelectorAll("#sudoku-board input");
+  for(let i=0;i<inputs.length;i++){
+    if(!inputs[i].disabled && inputs[i].value===""){
+      const r=Math.floor(i/9);
+      const c=i%9;
+      inputs[i].value=currentGame.solution[r][c];
+      inputs[i].disabled=true;
+      inputs[i].classList.add("prefilled");
+	hintsUsed++;
       break;
     }
   }
 }
 
-function checkCompletion() {
-  const inputs = document.querySelectorAll("#sudoku-board input");
-  for (let input of inputs) {
-    if (input.value === "" || input.classList.contains("invalid")) return;
+function resetGame(){
+  loadGame();
+}
+async function loadProgress(){
+  if(!currentUser){
+    loadGame();
+    return;
   }
-  alert("🎉 Puzzle Completed!");
-  nextBtn.style.display = "inline-block";
+
+  try{
+    const snap = await getDoc(
+      doc(db,"users", currentUser.uid, "games", "sudoku")
+    );
+
+    if(snap.exists()){
+      const data = snap.data();
+      currentLevel = data.lastDifficulty || "easy";
+    }
+  }catch(e){
+    console.log(e);
+  }
+
+  loadGame();
 }
 
-function changeLevel() {
-  currentLevel = document.getElementById("levelSelect").value;
-  loadRandomGame();
-}
+async function saveProgress(){
+  if(!currentUser) return;
 
-loadRandomGame();
+  await setDoc(
+    doc(db,"users", currentUser.uid, "games", "sudoku"),
+    {
+      lastPlayed: new Date(),
+      totalCompleted: puzzlesCompleted,
+      totalHintsUsed: hintsUsed,
+      lastDifficulty: currentLevel
+    },
+    { merge:true }
+  );
+}
+/* EVENT LISTENERS */
+document.getElementById("levelSelect").addEventListener("change",e=>{
+  currentLevel=e.target.value;
+  loadGame();
+});
+document.getElementById("hintBtn").addEventListener("click",giveHint);
+document.getElementById("resetBtn").addEventListener("click",resetGame);
+document.getElementById("nextBtn").addEventListener("click",loadGame);
+
+loadGame();
 </script>
-
-
-
 </body>
 </html>
