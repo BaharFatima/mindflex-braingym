@@ -254,7 +254,9 @@ header{
 </div>
 </div>
 
+
 <script type="module">
+import { addXP } from "./xp.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, onAuthStateChanged }
@@ -428,6 +430,7 @@ function checkAnswer(selected,btn){
 /* NEXT */
 nextBtn.onclick = async () => {
   level++;
+addXP(db, currentUser, 10);
 
   if(level > maxLevel){
     alert("Completed all 50 levels.");
