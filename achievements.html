@@ -5,380 +5,888 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Achievements</title>
 
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+	import { getAuth, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+import { 
+  getFirestore, 
+  doc, 
+  getDoc, 
+  setDoc, 
+  updateDoc, 
+  onSnapshot 
+}
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  
+const firebaseConfig = {
+  apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
+  authDomain: "mindflex-b2a0c.firebaseapp.com",
+  projectId: "mindflex-b2a0c",
+  storageBucket: "mindflex-b2a0c.firebasestorage.app",
+  messagingSenderId: "148676867562",
+  appId: "1:148676867562:web:3365a72b6fa6b3751cee93",
+  measurementId: "G-Q2T6HD3S0E"
+};
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+const auth = getAuth(app);
+
+  const LEVELS = [
+    { name:"Bronze",   minPts:0,     maxPts:999,      color:"#b5651d", gradient:"linear-gradient(135deg,#cd7f32,#e8a96a)", gem:"🥉", ring:"#cd7f32", arcColor:"#e2b07a" },
+    { name:"Silver",   minPts:1000,  maxPts:4999,     color:"#7a8c9e", gradient:"linear-gradient(135deg,#a8a9ad,#d4d5d9)", gem:"🥈", ring:"#c0c0c0", arcColor:"#c0c0c0" },
+    { name:"Gold",     minPts:5000,  maxPts:14999,    color:"#b8860b", gradient:"linear-gradient(135deg,#d4a017,#ffd700)", gem:"🥇", ring:"#ffd700", arcColor:"#ffd700" },
+    { name:"Platinum", minPts:15000, maxPts:29999,    color:"#4a7fa5", gradient:"linear-gradient(135deg,#6a9fb5,#b0d4e8)", gem:"💠", ring:"#8fb4c8", arcColor:"#8fb4c8" },
+    { name:"Diamond",  minPts:30000, maxPts:Infinity, color:"#2d6a9f", gradient:"linear-gradient(135deg,#0ea5e9,#7dd3fc)", gem:"💎", ring:"#4fc3f7", arcColor:"#7db8dc" }
+  ];
+
+  const REWARDS = [
+    { id:"explore",   icon:"🧭", label:"Explore",   desc:"Unlock new brain challenges",     requiredLevel:0 },
+    { id:"invite",    icon:"👥", label:"Invite",    desc:"Invite a friend & earn bonus XP",  requiredLevel:1 },
+    { id:"milestone", icon:"🏅", label:"Milestone", desc:"Reached a level milestone",        requiredLevel:2 },
+    { id:"streak",    icon:"🔥", label:"Streak",    desc:"7-day activity streak",             requiredLevel:3 },
+    { id:"champion",  icon:"🏆", label:"Champion",  desc:"Top 10% leaderboard",               requiredLevel:4 }
+  ];
+
+  function getLevel(pts) {
+    for (let i = LEVELS.length - 1; i >= 0; i--)
+      if (pts >= LEVELS[i].minPts) return { index: i, ...LEVELS[i] };
+    return { index: 0, ...LEVELS[0] };
+  }
+
+  function ptsTillNextLevel(pts) {
+    const lvl = getLevel(pts);
+    if (lvl.index === LEVELS.length - 1) return null;
+    return LEVELS[lvl.index + 1].minPts - pts;
+  }
+
+  function drawArc(arcColor) {
+    const canvas = document.getElementById("arcCanvas");
+    if (!canvas) return;
+    const ctx    = canvas.getContext("2d");
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+    const cx = W / 2, cy = H - 8, r = W * 0.43;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, Math.PI, 0);
+    ctx.strokeStyle = arcColor;
+    ctx.lineWidth   = 16;
+    ctx.lineCap     = "round";
+    ctx.stroke();
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById("toast");
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 3000);
+  }
+
+  function render(data) {
+    const pts   = data.points  || 0;
+    const rew   = data.rewards || {};
+    const lvl   = getLevel(pts);
+    const diff  = ptsTillNextLevel(pts);
+    const nextLvl = lvl.index < LEVELS.length - 1 ? LEVELS[lvl.index + 1] : null;
+    const progress = nextLvl
+      ? ((pts - lvl.minPts) / (nextLvl.minPts - lvl.minPts)) * 100
+      : 100;
+
+    drawArc(lvl.arcColor);
+
+    document.getElementById("gem").textContent = lvl.gem;
+
+    const levelNameEl = document.getElementById("levelName");
+    levelNameEl.textContent = lvl.name + " Level";
+    levelNameEl.style.color = lvl.color;
+    levelNameEl.style.background = "none";
+    levelNameEl.style.webkitTextFillColor = lvl.color;
+
+    document.getElementById("subtitle").textContent = diff !== null
+      ? `${diff.toLocaleString()} pts to ${LEVELS[lvl.index+1].name} level`
+      : "✨ Maximum level reached!";
+
+    document.getElementById("totalPoints").textContent = pts.toLocaleString() + " pts";
+
+    const progressEl = document.getElementById("progressBar");
+    progressEl.style.width      = progress + "%";
+    progressEl.style.background = lvl.gradient;
+
+    const stepsEl = document.getElementById("levelSteps");
+    stepsEl.innerHTML = LEVELS.map((l, i) => {
+      const isActive = i === lvl.index;
+      const isDone   = i < lvl.index;
+      const isLocked = i > lvl.index;
+      return `
+        <div class="level-card ${isActive ? 'lc-active' : isDone ? 'lc-done' : 'lc-locked'}">
+          <div class="lc-gem">${l.gem}</div>
+          <div class="lc-info">
+            <span class="lc-name">${l.name}</span>
+            <span class="lc-pts">${l.minPts === 0 ? 'Starting level' : l.minPts.toLocaleString() + '+ pts'}</span>
+          </div>
+          <div class="lc-tag">
+            ${isActive ? '<span class="tag-active">● Current</span>'   : ''}
+            ${isDone   ? '<span class="tag-done">✓ Done</span>'        : ''}
+            ${isLocked ? '<span class="tag-locked">🔒 Locked</span>'   : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    const rewardGrid = document.getElementById("rewardGrid");
+    rewardGrid.innerHTML = REWARDS.map(r => {
+      const unlocked  = rew[r.id] || false;
+      const canUnlock = lvl.index >= r.requiredLevel && !unlocked;
+      return `
+        <div class="reward-card ${unlocked ? 'unlocked' : ''} ${canUnlock ? 'claimable' : ''}">
+          <div class="reward-icon">${r.icon}</div>
+          <div class="reward-label">${r.label}</div>
+          <div class="reward-desc">${r.desc}</div>
+          ${canUnlock ? `<button class="claim-btn" data-id="${r.id}">Claim</button>` : ''}
+          ${unlocked  ? `<span class="claimed-badge">✓ Claimed</span>` : ''}
+          ${!unlocked && !canUnlock ? `<span class="locked-badge">🔒 ${LEVELS[r.requiredLevel].name}+</span>` : ''}
+        </div>
+      `;
+    }).join('');
+
+    rewardGrid.querySelectorAll(".claim-btn").forEach(btn => {
+      btn.addEventListener("click", () => claimReward(btn.dataset.id, data));
+    });
+  }
+
+  async function claimReward(rewardId, data) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const ref = doc(db, "users", user.uid);
+    const updated = { ...data.rewards, [rewardId]: true };
+
+    await updateDoc(ref, { rewards: updated });
+    showToast("🎉 Reward claimed!");
+  }
+
+  async function boostLevel(data) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const ref = doc(db, "users", user.uid);
+    const added = Math.floor(Math.random() * 1000) + 500;
+
+    await updateDoc(ref, {
+      points: data.points + added
+    });
+
+    showToast(`+${added} XP earned! 🚀`);
+  }
+
+ window.addEventListener("DOMContentLoaded", () => {
+
+  let currentData = {};
+
+  document.getElementById("boostBtn")
+    .addEventListener("click", () => boostLevel(currentData));
+
+  onAuthStateChanged(auth, async (user) => {
+
+    if (!user) {
+      window.location.href = "loginmain.html";
+      return;
+    }
+
+    const userRef = doc(db, "users", user.uid);
+
+    const snap = await getDoc(userRef);
+
+    if (!snap.exists()) {
+      await setDoc(userRef, {
+        points: 0,
+        rewards: {
+          explore: false,
+          invite: false,
+          milestone: false,
+          streak: false,
+          champion: false
+        }
+      });
+    }
+
+    onSnapshot(userRef, snap => {
+      currentData = snap.data();
+      render(currentData);
+    });
+
+  });
+});
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-/* ===== GLOBAL ===== */
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family: 'Arial', sans-serif;
-}
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
-body{
-    display:flex;
-    justify-content:center;
-    background:#bfe6ff;
-    padding:20px 0;
-}
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(180deg, #B3E5FC 0%, #E1F5FE 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
 
-/* FIXED BACK BUTTON */
-.back-btn {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    font-size: 24px;
-    color: #063354;
-    cursor: pointer;
-    width: 40px;
-    height: 40px;
+  .container {
+    width: 320px;
+    height: 640px;
+    border-radius: 30px;
+    background: linear-gradient(180deg, #BBDEFB 0%, #E3F2FD 100%);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Scrollable content wrapper */
+  .scroll-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 80px;
+    scroll-behavior: smooth;
+  }
+
+  /* Header */
+  .header {
+    padding: 20px 20px 0;
+    color: #0D47A1;
+    position: relative;
+  }
+
+  .header h1 {
+    font-size: 22px;
+    font-weight: 900;
+    color: #1a1a2e;
+  }
+
+  .back-btn {
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #ffffffcc;
+    cursor: pointer;
+    font-size: 20px;
+    color: #2a3a5a;
+    text-decoration: none;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+
+  /* Hero section */
+  .hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 20px 0;
+    gap: 0;
+  }
+
+  .arc-wrap {
+    position: relative;
+    width: 240px;
+    height: 130px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  #arcCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  #gem {
+    font-size: 74px;
+    position: relative;
+    z-index: 1;
+    line-height: 1;
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.18));
+  }
+
+  #levelName {
+    font-size: 27px;
+    font-weight: 900;
+    margin-top: 16px;
+    letter-spacing: -0.5px;
+    transition: color 0.4s;
+  }
+
+  #subtitle {
+    font-size: 14px;
+    color: #6b8cba;
+    margin-top: 5px;
+    font-weight: 600;
+    text-align: center;
+    padding: 0 20px;
+  }
+
+  #totalPoints {
+    font-size: 13px;
+    color: #2d6a9f;
+    background: #d0e8f8;
+    border: none;
+    padding: 5px 16px;
+    border-radius: 20px;
+    margin-top: 10px;
+    font-weight: 800;
+  }
+
+  /* Progress bar */
+  .progress-wrap {
+    width: calc(100% - 48px);
+    height: 10px;
+    background: #d4e6f5;
+    border-radius: 100px;
+    overflow: hidden;
+    margin: 14px 24px 0;
+  }
+
+  #progressBar {
+    height: 100%;
+    border-radius: 100px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1), background 0.6s;
+    width: 0%;
+  }
+
+  /* Boost button */
+  .boost-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 18px 24px 0;
+    width: calc(100% - 48px);
+    padding: 15px;
+    background: #c5d9f0;
+    border: none;
+    border-radius: 50px;
+    color: #2d6a9f;
+    font-family: 'Nunito', sans-serif;
+    font-size: 17px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: inset 0 -3px 0 #a8c4e0;
+    transition: background 0.2s, transform 0.15s;
+  }
+
+  .boost-btn:hover {
+    background: #b5cde8;
+    transform: translateY(-1px);
+  }
+
+  .boost-btn:active {
+    transform: translateY(1px);
+    box-shadow: inset 0 -1px 0 #a8c4e0;
+  }
+
+  /* Sections */
+  .section {
+    padding: 26px 20px 0;
+  }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 900;
+    color: #1a2a4a;
+    margin-bottom: 14px;
+  }
+
+  #levelSteps {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .level-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: 18px;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+  }
+
+  .lc-active {
+    background: #fff;
+    border-color: #7db8dc;
+    box-shadow: 0 4px 16px rgba(125, 184, 220, 0.28);
+  }
+
+  .lc-done {
+    background: #d5f0e2;
+    border-color: #a8dfc0;
+  }
+
+  .lc-locked {
+    background: #e4eef9;
+    opacity: 0.65;
+  }
+
+  .lc-gem {
+    font-size: 30px;
+    width: 50px;
+    height: 50px;
+    background: #fff;
     border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    flex-shrink: 0;
+  }
+
+  .lc-locked .lc-gem {
+    background: #eaf0f8;
+    filter: grayscale(0.4);
+  }
+
+  .lc-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+  }
+
+  .lc-name {
+    font-size: 15px;
+    font-weight: 900;
+    color: #1a2a4a;
+  }
+
+  .lc-locked .lc-name {
+    color: #8899aa;
+  }
+
+  .lc-pts {
+    font-size: 12px;
+    color: #7a9ab8;
+    font-weight: 600;
+  }
+
+  .lc-tag {
+    flex-shrink: 0;
+  }
+
+  .tag-active {
+    font-size: 11px;
+    font-weight: 900;
+    color: #2d6a9f;
+    background: #c5d9f0;
+    padding: 5px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  .tag-done {
+    font-size: 11px;
+    font-weight: 800;
+    color: #1a7a40;
+    background: #b0e8c8;
+    padding: 5px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  .tag-locked {
+    font-size: 11px;
+    font-weight: 700;
+    color: #8899aa;
+    background: #d8e4f0;
+    padding: 5px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  #rewardGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .reward-card {
+    background: #fff;
+    border: 2px solid #dce8f5;
+    border-radius: 18px;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .reward-card.unlocked {
+    background: #edfaf3;
+    border-color: #a8dfc0;
+  }
+
+  .reward-card.claimable {
+    background: #fffbea;
+    border-color: #fbbf24;
+    animation: glow-claim 2s ease-in-out infinite;
+  }
+
+  @keyframes glow-claim {
+    0%,
+    100% {
+      box-shadow: none;
+    }
+    50% {
+      box-shadow: 0 0 16px #fbbf2444;
+    }
+  }
+
+  .reward-icon {
+    font-size: 32px;
+  }
+
+  .reward-label {
+    font-size: 13px;
+    font-weight: 800;
+    color: #1a2a4a;
+  }
+
+  .reward-desc {
+    font-size: 11px;
+    color: #7a9ab8;
+    line-height: 1.4;
+  }
+
+  .claim-btn {
+    margin-top: 4px;
+    padding: 6px 16px;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    border: none;
+    border-radius: 20px;
+    color: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+
+  .claim-btn:hover {
+    transform: scale(1.05);
+  }
+
+  .claim-btn:active {
+    transform: scale(0.97);
+  }
+
+  .claimed-badge {
+    font-size: 11px;
+    font-weight: 800;
+    color: #1a7a40;
+    background: #b0e8c8;
+    border-radius: 20px;
+    padding: 3px 10px;
+    margin-top: 2px;
+  }
+
+  .locked-badge {
+    font-size: 11px;
+    font-weight: 700;
+    color: #8899aa;
+    margin-top: 2px;
+  }
+
+  /* ========== STANDARD NAV BAR STYLES ========== */
+  .bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: #FFFFFF;
+    border-top: 1px solid #E3F2FD;
+    border-radius: 20px 20px 0 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.08);
+    padding: 8px 5px;
+    z-index: 50;
+  }
+
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 2px;
+    flex: 1;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .nav-icon {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+    color: #90CAF9;
+  }
+
+  .nav-icon i {
+    font-size: 18px;
+    transition: all 0.3s ease;
+  }
+
+  .nav-label {
+    font-size: 9px;
+    color: #5f6368;
+    text-align: center;
+    line-height: 1.2;
+    font-weight: 600;
+  }
+
+  .nav-item.selected .nav-icon i {
+    transform: translateY(-8px) scale(1.2);
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .nav-item[data-category="cv"].selected .nav-icon i {
+    color: #0D47A1;
+  }
+
+  .nav-item[data-category="achievements"].selected .nav-icon i {
+    color: #9c27b0;
+  }
+
+  .nav-item[data-category="home"].selected .nav-icon i {
+    color: #1565C0;
+  }
+
+  .nav-item[data-category="habit-tracker"].selected .nav-icon i {
+    color: #ff4081;
+  }
+
+  .nav-item[data-category="user-account"].selected .nav-icon i {
+    color: #00838F;
+  }
+
+  .nav-icon img {
+    width: 18px;
+    height: 18px;
+    transition: all 0.3s ease;
+    object-fit: contain;
+    filter: grayscale(100%) brightness(0.7);
+    border-radius: 6px;
+  }
+
+  .nav-item.selected .nav-icon img {
+    transform: translateY(-8px) scale(1.2);
+    filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+    border-radius: 8px;
+  }
+
+  .nav-icon .fallback-icon {
+    width: 18px;
+    height: 18px;
+    background-color: #90CAF9;
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    transition: all 0.3s ease;
+  }
+
+  .nav-item.selected .nav-icon .fallback-icon {
+    transform: translateY(-8px) scale(1.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+  }
+
+  .nav-item[data-category="habit-tracker"].selected .nav-icon .fallback-icon {
+    background-color: #ff4081;
+  }
+
+  .nav-item[data-category="cv"].selected .nav-icon .fallback-icon {
+    background-color: #0D47A1;
+  }
+
+  /* Toast */
+  #toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #fff;
+    border: 1px solid #dde8f5;
+    color: #1a2a4a;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 800;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
     z-index: 999;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-}
+  }
 
-/* ===== MOBILE FRAME ===== */
-.app-frame{
-    width:320px;
-    height:640px;
-    background:#e7f4ff;
-    border-radius:25px;
-    overflow:hidden;
-    box-shadow:0 0 15px rgba(0,0,0,0.15);
-    position:relative;
-    padding-bottom:60px; /* Adjusted to fit the 60px nav bar exactly */
-}
+  #toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 
-/* ===== HEADER ===== */
-.username{
-    font-size:22px;
-    font-weight:700;
-    text-align:center;
-    margin-top:60px; 
-}
+  /* Scrollbar styling */
+  .scroll-content::-webkit-scrollbar {
+    width: 4px;
+  }
 
-/* ===== ARC BADGE ===== */
-.progress-wrap{
-    width:100%;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    position:relative;
-    margin-top:15px;
-}
+  .scroll-content::-webkit-scrollbar-track {
+    background: transparent;
+  }
 
-.arc{
-    width:200px;
-    height:100px;
-    border-radius:200px 200px 0 0;
-    border:12px solid #8dbff9;
-    border-bottom:none;
-    background:linear-gradient(to bottom, #d7ecff, #c6e2ff);
-    position:relative;
-}
-
-.badge{
-    position:absolute;
-    top:35%;
-    left:50%;
-    transform:translate(-50%, -50%);
-    width:80px;
-    height:80px;
-}
-
-.badge img{
-    width:100%;
-}
-
-/* ===== LEVEL TEXT ===== */
-.level-title{
-    margin-top:40px;
-    text-align:center;
-    font-size:22px;
-    font-weight:700;
-    color:#2c4b73;
-}
-
-.level-sub{
-    text-align:center;
-    font-size:14px;
-    margin-top:4px;
-    color:#4b6f9b;
-}
-
-/* ===== Boost Button ===== */
-.boost-btn{
-    display:block;
-    margin:15px auto;
-    background:#a7ceff;
-    color:#003566;
-    border:none;
-    padding:10px 25px;
-    border-radius:50px;
-    font-size:15px;
-    font-weight:600;
-    cursor:pointer;
-    transition:0.3s;
-}
-
-.boost-btn:hover{
-    background:#77b7ff;
-}
-
-/* ===== Rewards ===== */
-.section-title{
-    margin-top:15px;
-    font-size:18px;
-    font-weight:700;
-    color:#003d66;
-    text-align:left;
-    padding-left:20px;
-}
-
-.rewards{
-    display:flex;
-    flex-wrap:wrap;
-    gap:20px;
-    padding:20px;
-    justify-content:center;
-}
-
-.reward-item{
-    text-align:center;
-    width: 80px;
-}
-
-.reward-item img{
-    width:55px;
-    height:55px;
-    border-radius:50%;
-    background:#dff0ff;
-    padding:10px;
-}
-
-.reward-label{
-    margin-top:5px;
-    font-size:13px;
-}
-
-/* ========== STANDARD NAV BAR STYLES MATCHING ALL PAGES ========== */
-.bottom-nav {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 60px;
-  background: #FFFFFF;
-  border-top: 1px solid #E3F2FD;
-  border-radius: 20px 20px 0 0;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  box-shadow: 0 -4px 10px rgba(0,0,0,0.08);
-  padding: 8px 5px;
-  z-index: 50;
-}
-
-.nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  padding: 2px;
-  flex: 1;
-  text-decoration: none;
-}
-
-.nav-icon {
-  width: 30px;
-  height: 30px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: all 0.3s ease;
-  color: #90CAF9;
-}
-
-.nav-icon i { 
-  font-size: 18px; 
-  transition: all 0.3s ease; 
-}
-
-.nav-label {
-  font-size: 9px;
-  color: #5f6368;
-  text-align: center;
-  line-height: 1.2;
-  font-weight: 600;
-}
-
-.nav-item.selected .nav-icon i {
-  transform: translateY(-8px) scale(1.2);
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.nav-item[data-category="cv"].selected .nav-icon i { color: #0D47A1; }
-.nav-item[data-category="achievements"].selected .menu-icon i { color: #9c27b0; }
-.nav-item[data-category="home"].selected .nav-icon i { color: #1565C0; }
-.nav-item[data-category="habit-tracker"].selected .nav-icon i { color: #ff4081; }
-.nav-item[data-category="user-account"].selected .nav-icon i { color: #00838F; }
-
-.nav-icon img {
-  width: 18px;
-  height: 18px;
-  transition: all 0.3s ease;
-  object-fit: contain;
-  filter: grayscale(100%) brightness(0.7);
-  border-radius: 6px;
-}
-
-.nav-item.selected .nav-icon img {
-  transform: translateY(-8px) scale(1.2);
-  filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
-  border-radius: 8px;
-}
-
-.nav-icon .fallback-icon {
-  width: 18px;
-  height: 18px;
-  background-color: #90CAF9;
-  border-radius: 6px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  font-weight: bold;
-  transition: all 0.3s ease;
-}
-
-.nav-item.selected .nav-icon .fallback-icon {
-  transform: translateY(-8px) scale(1.2);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  border-radius: 8px;
-}
-
-.nav-item[data-category="habit-tracker"].selected .nav-icon .fallback-icon {
-  background-color: #ff4081;
-}
-
-.nav-item[data-category="cv"].selected .nav-icon .fallback-icon {
-  background-color: #0D47A1;
-}
+  .scroll-content::-webkit-scrollbar-thumb {
+    background: #B3E5FC;
+    border-radius: 10px;
+  }
 </style>
 </head>
-
 <body>
 
-<div class="app-frame">
+<div class="container">
 
-    <!-- FIXED BACK BUTTON INSIDE FRAME -->
-    <div class="back-btn" onclick="window.location.href='main.html'">←</div>
+  <!-- Scrollable content -->
+  <div class="scroll-content">
 
-    <div class="username">Achievements</div>
+    <!-- Header -->
+    <div class="header">
+      <a href="#" class="back-btn" onclick="history.back(); return false;">←</a>
+      <h1>Achievements</h1>
+    </div>
 
+    <!-- Hero: arc + gem -->
+    <div class="hero">
+      <div class="arc-wrap">
+        <canvas id="arcCanvas" width="240" height="130"></canvas>
+        <span id="gem">💎</span>
+      </div>
+      <div id="levelName">Loading…</div>
+      <div id="subtitle">Fetching your data…</div>
+      <div id="totalPoints">— pts</div>
+    </div>
+
+    <!-- Progress bar -->
     <div class="progress-wrap">
-        <div class="arc"></div>
-        <div class="badge">
-            <img src="https://img.icons8.com/color/96/diamond.png" alt="Diamond Badge">
-        </div>
+      <div id="progressBar"></div>
     </div>
 
-    <div class="level-title">Diamond Level</div>
-    <div class="level-sub">12,350 points to Gold level</div>
+    <!-- Boost button -->
+    <button class="boost-btn" id="boostBtn">⚡ Boost Level</button>
 
-    <button class="boost-btn">⚡ Boost Level</button>
-
-    <div class="section-title">Rewards</div>
-
-    <div class="rewards">
-        <div class="reward-item">
-            <img src="https://img.icons8.com/color/96/user.png" alt="Badge">
-            <div class="reward-label">New member</div>
-        </div>
-        <div class="reward-item">
-            <img src="https://img.icons8.com/color/96/compass.png" alt="Badge">
-            <div class="reward-label">Explore</div>
-        </div>
-        <div class="reward-item">
-            <img src="https://img.icons8.com/color/96/add-user-male.png" alt="Badge">
-            <div class="reward-label">Invite</div>
-        </div>
-        <div class="reward-item">
-            <img src="https://img.icons8.com/color/96/medal.png" alt="Badge">
-            <div class="reward-label">Milestone</div>
-        </div>
-        <div class="reward-item">
-            <img src="https://img.icons8.com/color/96/like.png" alt="Badge">
-            <div class="reward-label">Supporter</div>
-        </div>
+    <!-- Level Roadmap -->
+    <div class="section">
+      <div class="section-title">Level Roadmap</div>
+      <div id="levelSteps"></div>
     </div>
 
-    <!-- ========== STANDARD NAV BAR - CONSISTENT ACROSS ALL PAGES ========== -->
-    <nav class="bottom-nav">
-        <a href="cv.html" class="nav-item" data-category="cv">
-            <div class="nav-icon">
-                <img src="cv.png" alt="CV" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                <div class="fallback-icon" style="display: none;">
-                    <i class="fas fa-file-alt"></i>
-                </div>
-            </div>
-            <div class="nav-label">CV</div>
-        </a>
+    <!-- Rewards -->
+    <div class="section">
+      <div class="section-title">Rewards</div>
+      <div id="rewardGrid"></div>
+    </div>
 
-        <a href="#" class="nav-item selected" data-category="achievements">
-            <div class="nav-icon"><i class="fas fa-trophy" style="color: #9c27b0;"></i></div>
-            <div class="nav-label">Achievements</div>
-        </a>
+    <div style="height: 20px;"></div>
 
-        <a href="main.html" class="nav-item" data-category="home">
-            <div class="nav-icon"><i class="fas fa-home"></i></div>
-            <div class="nav-label">Home</div>
-        </a>
+  </div> <!-- End scroll-content -->
 
-        <a href="habittracker.html" class="nav-item" data-category="habit-tracker">
-            <div class="nav-icon">
-                <img src="https://z-cdn-media.chatglm.cn/files/a1979dda-a3e4-4b38-b0cf-00e4ad455277_pasted_image_1762936027415.png?auth_key=1862936037-6cc8a5a356484e1cb70a8f599e1f2ce8-0-496c548f3f7ef2ea6a808a3cc812dc2c" alt="Habit Tracker" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                <div class="fallback-icon" style="display: none;"><i class="fas fa-check"></i></div>
-            </div>
-            <div class="nav-label">Habit Tracker</div>
-        </a>
+  <!-- FIXED NAV BAR -->
+  <nav class="bottom-nav">
+    <a href="cv.html" class="nav-item" data-category="cv">
+      <div class="nav-icon">
+        <img src="cv.png" alt="CV" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="fallback-icon" style="display: none;">
+          <i class="fas fa-file-alt"></i>
+        </div>
+      </div>
+      <div class="nav-label">CV</div>
+    </a>
 
-        <a href="profile.html" class="nav-item" data-category="user-account">
-            <div class="nav-icon"><i class="fas fa-user-circle"></i></div>
-            <div class="nav-label">Account</div>
-        </a>
-    </nav>
+    <a href="achievements.html" class="nav-item selected" data-category="achievements">
+      <div class="nav-icon"><i class="fas fa-trophy"></i></div>
+      <div class="nav-label">Achievements</div>
+    </a>
+
+    <a href="home.html" class="nav-item" data-category="home">
+      <div class="nav-icon"><i class="fas fa-home"></i></div>
+      <div class="nav-label">Home</div>
+    </a>
+
+    <a href="habittracker.html" class="nav-item" data-category="habit-tracker">
+      <div class="nav-icon">
+        <img src="https://z-cdn-media.chatglm.cn/files/a1979dda-a3e4-4b38-b0cf-00e4ad455277_pasted_image_1762936027415.png?auth_key=1862936037-6cc8a5a356484e1cb70a8f599e1f2ce8-0-496c548f3f7ef2ea6a808a3cc812dc2c" alt="Habit Tracker" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="fallback-icon" style="display: none;"><i class="fas fa-check"></i></div>
+      </div>
+      <div class="nav-label">Habit Tracker</div>
+    </a>
+
+    <a href="profile.html" class="nav-item" data-category="user-account">
+      <div class="nav-icon"><i class="fas fa-user-circle"></i></div>
+      <div class="nav-label">Account</div>
+    </a>
+  </nav>
 
 </div>
 
-<script>
-// Bottom Nav Interactions with Animation Delay
-document.addEventListener('DOMContentLoaded', function() {
+<!-- Toast notification -->
+<div id="toast"></div>
+
+<script type="module">
+  // Navigation handling
+  document.addEventListener('DOMContentLoaded', function() {
     const navItems = document.querySelectorAll('.nav-item');
     
     navItems.forEach(item => {
-        item.addEventListener('click', function(e) {
-            const targetUrl = this.getAttribute('href');
-            
-            if (targetUrl && targetUrl !== '#') {
-                e.preventDefault();
-                navItems.forEach(i => i.classList.remove('selected'));
-                this.classList.add('selected');
-                
-                setTimeout(() => {
-                    window.location.href = targetUrl;
-                }, 300);
-            }
-        });
+      item.addEventListener('click', function(e) {
+        const targetUrl = this.getAttribute('href');
+        
+        // Remove selected from all, add to clicked
+        navItems.forEach(i => i.classList.remove('selected'));
+        this.classList.add('selected');
+
+        // Navigation delay for effect
+        if (targetUrl && targetUrl !== '#') {
+          e.preventDefault();
+          setTimeout(() => window.location.href = targetUrl, 300);
+        }
+      });
     });
-});
+  });
 </script>
 
 </body>
