@@ -49,13 +49,13 @@
       align-items: center;
       gap: 4px;
       color: #1565C0;
-      font-Size: 13px;
+      font-size: 13px;
       font-weight: 600;
       font-family: 'Poppins', sans-serif;
       padding: 4px 0;
       margin-bottom: 6px;
     }
-    
+
     .header-title {
       text-align: center;
     }
@@ -621,16 +621,14 @@
   <!-- Header -->
   <div class="header">
     <button class="back-btn" id="backBtn">
-      <header>
-    <div class="back-btn" onclick="window.location.href='Studyzone.html'">←</div>
-  </header>
+      ← Back
     </button>
     <div class="header-title">
       <h2 id="headerTitle">📚 StudyLens</h2>
       <p id="headerSubtitle">Upload a doc to generate a study set</p>
     </div>
   </div>
-  
+
   <!-- Upload Screen -->
   <div class="content" id="uploadScreen">
     <div id="errorMsg" class="error hidden"></div>
@@ -828,7 +826,7 @@ async function extractFromImage(file, onProgress) {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-//  NLP ENGINE
+//  ENHANCED NLP ENGINE — Much smarter algorithm, no AI needed
 // ═════════════════════════════════════════════════════════════════════════════
 
 const STOP = new Set([
@@ -843,103 +841,419 @@ const STOP = new Set([
   'which','while','who','why','will','with','would','you','your','s','t','re','ll','ve','d'
 ]);
 
-const sentences = t =>
-  t.replace(/\s+/g,' ').split(/(?<=[.!?])\s+(?=[A-Z])/)
-   .map(s=>s.trim()).filter(s=>s.split(' ').length>5&&s.length>30);
+// Important phrase indicators
+const IMPORTANT_INDICATORS = [
+  'therefore','thus','hence','consequently','as a result','shows that','demonstrates',
+  'found that','evidence','indicates','suggests','proves','confirms','reveals','discovered',
+  'concluded','determined','established','observed','noted','reported','identified',
+  'significant','important','critical','key','essential','fundamental','primary','major',
+  'however','although','despite','nevertheless','in contrast','on the other hand',
+  'because','since','due to','caused by','leads to','results in','affects','influences'
+];
 
-const words = t => (t.toLowerCase().match(/\b[a-z]{3,}\b/g)||[]);
+const CONCLUSION_INDICATORS = [
+  'in summary','in conclusion','to summarize','overall','finally','in short',
+  'to conclude','in brief','ultimately','all in all','on the whole'
+];
 
-function keywords(text, n=20) {
-  const ws = words(text).filter(w=>!STOP.has(w));
-  const freq={}; for(const w of ws) freq[w]=(freq[w]||0)+1;
-  const cap=new Set((text.match(/\b[A-Z][a-z]{2,}\b/g)||[]).map(w=>w.toLowerCase()));
-  return Object.entries(freq).filter(([,c])=>c>=2)
-    .map(([w,c])=>({w,s:c*(1+Math.log(1+w.length/5))*(cap.has(w)?1.8:1)}))
-    .sort((a,b)=>b.s-a.s).slice(0,n).map(x=>x.w);
+const DEFINITION_PATTERNS = [
+  ' is ','are ','refers to','defined as','means ','known as','called ','termed ',
+  'describes','represents','denotes','signifies'
+];
+
+// Better sentence splitting — handles more edge cases
+function extractSentences(text) {
+  // Split into paragraphs first
+  const paragraphs = text.split(/\n\n+/).filter(p => p.trim().length > 0);
+  const allSentences = [];
+  
+  paragraphs.forEach((para, pIdx) => {
+    const sents = para
+      .replace(/\s+/g, ' ')
+      .split(/(?<=[.!?])\s+(?=[A-Z])/)
+      .map(s => s.trim())
+      .filter(s => {
+        const wordCount = s.split(/\s+/).length;
+        return wordCount >= 5 && wordCount <= 60 && s.length >= 20;
+      });
+    
+    sents.forEach((sent, sIdx) => {
+      allSentences.push({
+        text: sent,
+        paraIndex: pIdx,
+        sentIndex: sIdx,
+        isFirstInPara: sIdx === 0,
+        isLastInPara: sIdx === sents.length - 1,
+        paraTotal: paragraphs.length
+      });
+    });
+  });
+  
+  return allSentences;
 }
 
-function ngrams(text, n=12) {
-  const grams={};
-  for(const s of sentences(text)){
-    const ws=s.toLowerCase().match(/\b[a-z]{3,}\b/g)||[];
-    for(let i=0;i<ws.length-1;i++){
-      if(STOP.has(ws[i])||STOP.has(ws[i+1]))continue;
-      const bi=`${ws[i]} ${ws[i+1]}`; grams[bi]=(grams[bi]||0)+1;
-      if(i<ws.length-2&&!STOP.has(ws[i+2])){
-        const tri=`${ws[i]} ${ws[i+1]} ${ws[i+2]}`; grams[tri]=(grams[tri]||0)+1;
+function extractWords(text) {
+  return text.toLowerCase().match(/\b[a-z]{3,}\b/g) || [];
+}
+
+// Extract nouns (capitalized words + common noun patterns)
+function extractNouns(text) {
+  const words = text.match(/\b[A-Z][a-z]+\b/g) || [];
+  const candidates = text.match(/\b[a-z]{4,}\b/g) || [];
+  
+  // Common noun endings
+  const nounEndings = ['tion','sion','ment','ness','ity','ence','ance','ism','ship','dom'];
+  const nouns = new Set(words.map(w => w.toLowerCase()));
+  
+  candidates.forEach(w => {
+    if (nounEndings.some(end => w.endsWith(end))) {
+      nouns.add(w);
+    }
+  });
+  
+  return Array.from(nouns);
+}
+
+// Enhanced keyword extraction with better scoring
+function extractKeywords(text, n = 25) {
+  const allWords = extractWords(text).filter(w => !STOP.has(w));
+  const freq = {};
+  allWords.forEach(w => freq[w] = (freq[w] || 0) + 1);
+  
+  // Find capitalized terms (proper nouns)
+  const capitals = new Set((text.match(/\b[A-Z][a-z]{2,}\b/g) || []).map(w => w.toLowerCase()));
+  
+  // Find nouns
+  const nouns = new Set(extractNouns(text));
+  
+  return Object.entries(freq)
+    .filter(([word, count]) => count >= 2)
+    .map(([word, count]) => {
+      let score = count;
+      
+      // Boost capitalized words (likely key terms)
+      if (capitals.has(word)) score *= 2.0;
+      
+      // Boost nouns
+      if (nouns.has(word)) score *= 1.5;
+      
+      // Boost longer words (more specific)
+      score *= (1 + Math.log(1 + word.length / 5));
+      
+      // Slight boost for mid-frequency (not too common, not too rare)
+      const docFreq = count / allWords.length;
+      if (docFreq > 0.005 && docFreq < 0.05) score *= 1.3;
+      
+      return { word, score };
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, n)
+    .map(x => x.word);
+}
+
+// Extract important phrases (bigrams/trigrams)
+function extractPhrases(text, n = 15) {
+  const sentences = extractSentences(text);
+  const phrases = {};
+  
+  sentences.forEach(({ text: sent }) => {
+    const words = sent.toLowerCase().match(/\b[a-z]{3,}\b/g) || [];
+    
+    for (let i = 0; i < words.length - 1; i++) {
+      if (STOP.has(words[i]) || STOP.has(words[i + 1])) continue;
+      
+      const bigram = `${words[i]} ${words[i + 1]}`;
+      phrases[bigram] = (phrases[bigram] || 0) + 1;
+      
+      if (i < words.length - 2 && !STOP.has(words[i + 2])) {
+        const trigram = `${words[i]} ${words[i + 1]} ${words[i + 2]}`;
+        phrases[trigram] = (phrases[trigram] || 0) + 1;
       }
     }
-  }
-  return Object.entries(grams).filter(([,c])=>c>=2)
-    .sort((a,b)=>b[1]-a[1]).slice(0,n)
-    .map(([t])=>t.replace(/\b\w/g,c=>c.toUpperCase()));
+  });
+  
+  return Object.entries(phrases)
+    .filter(([phrase, count]) => count >= 2)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, n)
+    .map(([phrase]) => phrase.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
 }
 
-function rankSentences(text, kws) {
-  const ss=sentences(text), kwSet=new Set(kws);
-  const ws=words(text).filter(w=>!STOP.has(w));
-  const freq={}; for(const w of ws) freq[w]=(freq[w]||0)+1;
-  return ss.map((sent,idx)=>{
-    const ws2=words(sent).filter(w=>!STOP.has(w));
-    if(!ws2.length)return{sent,score:0,idx};
-    const kh=ws2.filter(w=>kwSet.has(w)).length;
-    const tf=ws2.reduce((s,w)=>s+(1/(freq[w]||1)),0)/ws2.length;
-    const pb=idx<3?1.5:idx>ss.length-3?1.2:1;
-    const lp=(ws2.length<8||ws2.length>50)?0.6:1;
-    return{sent,score:(kh*2+tf*100)*pb*lp,idx};
+// Advanced sentence ranking with multiple signals
+function rankSentences(text, keywords) {
+  const sentences = extractSentences(text);
+  const kwSet = new Set(keywords);
+  const allWords = extractWords(text).filter(w => !STOP.has(w));
+  const wordFreq = {};
+  allWords.forEach(w => wordFreq[w] = (wordFreq[w] || 0) + 1);
+  
+  return sentences.map((sentObj, globalIdx) => {
+    const { text: sent, paraIndex, isFirstInPara, paraTotal } = sentObj;
+    const sentLower = sent.toLowerCase();
+    const words = extractWords(sent).filter(w => !STOP.has(w));
+    
+    if (words.length === 0) return { ...sentObj, score: 0, globalIdx };
+    
+    let score = 0;
+    
+    // 1. Keyword density (main signal)
+    const keywordHits = words.filter(w => kwSet.has(w)).length;
+    score += keywordHits * 3;
+    
+    // 2. TF-IDF score
+    const tfidf = words.reduce((sum, w) => sum + (1 / (wordFreq[w] || 1)), 0) / words.length;
+    score += tfidf * 50;
+    
+    // 3. Position bonuses
+    if (isFirstInPara) score *= 1.4; // Topic sentences
+    if (paraIndex === 0) score *= 1.3; // Introduction
+    if (paraIndex === paraTotal - 1) score *= 1.2; // Conclusion
+    
+    // 4. Important phrase indicators
+    const hasImportantPhrase = IMPORTANT_INDICATORS.some(ind => sentLower.includes(ind));
+    if (hasImportantPhrase) score *= 1.6;
+    
+    // 5. Conclusion indicators
+    const hasConclusion = CONCLUSION_INDICATORS.some(ind => sentLower.includes(ind));
+    if (hasConclusion) score *= 1.4;
+    
+    // 6. Contains numbers/statistics (concrete info)
+    if (/\d+(\.\d+)?%?/.test(sent)) score *= 1.3;
+    
+    // 7. Causal/explanatory language
+    if (sentLower.includes('because') || sentLower.includes('therefore') || 
+        sentLower.includes('causes') || sentLower.includes('results in')) {
+      score *= 1.3;
+    }
+    
+    // 8. Length penalty (too short or too long)
+    if (words.length < 8 || words.length > 40) score *= 0.7;
+    
+    // 9. Question penalty (not good for summaries)
+    if (sent.includes('?')) score *= 0.5;
+    
+    // 10. Transitional sentence penalty
+    const transitions = ['however','moreover','furthermore','additionally','meanwhile'];
+    if (transitions.some(t => sentLower.startsWith(t))) score *= 0.8;
+    
+    return { ...sentObj, score, globalIdx };
   });
 }
 
-function glossary(text, terms) {
-  const ss=sentences(text);
-  return terms.map(term=>{
-    const tl=term.toLowerCase();
-    const def=ss.find(s=>{const sl=s.toLowerCase();return sl.includes(tl)&&(
-      sl.includes(' is ')||sl.includes(' are ')||sl.includes(' refers to')||
-      sl.includes(' defined as')||sl.includes(' means ')||sl.includes(' involves ')
-    )})||ss.find(s=>s.toLowerCase().includes(tl));
-    return def?{term,definition:def.trim().replace(/^[\s.]+|[\s.]+$/g,'')+'.' }:null;
-  }).filter(Boolean).slice(0,12);
+// Smarter glossary with better definition detection
+function buildGlossary(text, keywords, phrases) {
+  const sentences = extractSentences(text);
+  const terms = [...new Set([...phrases, ...keywords.slice(0, 10).map(w => w.charAt(0).toUpperCase() + w.slice(1))])];
+  const glossary = [];
+  
+  terms.forEach(term => {
+    const termLower = term.toLowerCase();
+    const termWords = termLower.split(' ');
+    
+    // Find defining sentences
+    const definitions = sentences.filter(({ text: sent }) => {
+      const sentLower = sent.toLowerCase();
+      
+      // Must contain the term
+      if (!sentLower.includes(termLower)) return false;
+      
+      // Check for definition patterns
+      return DEFINITION_PATTERNS.some(pattern => {
+        const idx = sentLower.indexOf(termLower);
+        const afterTerm = sentLower.slice(idx + termLower.length, idx + termLower.length + 30);
+        return afterTerm.includes(pattern);
+      });
+    });
+    
+    // Also check for parenthetical definitions: "RNA (ribonucleic acid)"
+    const parenthetical = sentences.find(({ text: sent }) => {
+      const regex = new RegExp(`${termLower}\\s*\\([^)]+\\)`, 'i');
+      return regex.test(sent);
+    });
+    
+    // Also check for appositive phrases: "mitosis, the process of..."
+    const appositive = sentences.find(({ text: sent }) => {
+      const regex = new RegExp(`${termLower},\\s+(the|a|an)\\s+[a-z]+`, 'i');
+      return regex.test(sent);
+    });
+    
+    let bestDef = definitions[0] || parenthetical || appositive;
+    
+    // Fallback: sentence with term + important indicator
+    if (!bestDef) {
+      bestDef = sentences.find(({ text: sent }) => {
+        const sentLower = sent.toLowerCase();
+        return sentLower.includes(termLower) && 
+               IMPORTANT_INDICATORS.some(ind => sentLower.includes(ind));
+      });
+    }
+    
+    if (bestDef) {
+      glossary.push({
+        term,
+        definition: bestDef.text.trim().replace(/^[\s.]+|[\s.]+$/g, '') + '.'
+      });
+    }
+  });
+  
+  return glossary.slice(0, 12);
 }
 
-function flashcards(text, kws) {
-  const ranked=rankSentences(text,kws).filter(s=>s.score>0).sort((a,b)=>b.score-a.score);
-  const cards=[], used=new Set();
-  for(const{sent}of ranked){
-    if(cards.length>=12)break;
-    const ws=words(sent).filter(w=>!STOP.has(w)&&w.length>4);
-    const top=ws.find(w=>!used.has(w)); if(!top)continue;
-    used.add(top);
-    const term=top.charAt(0).toUpperCase()+top.slice(1);
-    const masked=sent.replace(new RegExp(`\\b${top}\\b`,'gi'),'______');
-    cards.push({front:masked.length<200?masked:`What does "${term}" refer to in this context?`,back:sent.trim(),term});
+// Smarter flashcard generation
+function buildFlashcards(text, keywords, rankedSents) {
+  const cards = [];
+  const usedTerms = new Set();
+  const nouns = new Set(extractNouns(text));
+  
+  // Type 1: Fill-in-the-blank with key nouns
+  const topSentences = rankedSents
+    .filter(s => s.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 20);
+  
+  for (const { text: sent } of topSentences) {
+    if (cards.length >= 8) break;
+    
+    const words = extractWords(sent).filter(w => !STOP.has(w) && w.length > 4);
+    
+    // Find best noun to blank out
+    const candidateNouns = words.filter(w => nouns.has(w) && !usedTerms.has(w));
+    const bestNoun = candidateNouns.find(n => keywords.includes(n)) || candidateNouns[0];
+    
+    if (!bestNoun) continue;
+    
+    usedTerms.add(bestNoun);
+    const term = bestNoun.charAt(0).toUpperCase() + bestNoun.slice(1);
+    const masked = sent.replace(new RegExp(`\\b${bestNoun}\\b`, 'gi'), '______');
+    
+    // Only add if the masked sentence makes sense as a question
+    if (masked.includes('______') && masked.length < 200) {
+      cards.push({
+        front: masked,
+        back: sent.trim(),
+        term
+      });
+    }
   }
-  return cards.slice(0,12);
+  
+  // Type 2: "What is X?" definition-style cards
+  const defSentences = extractSentences(text).filter(({ text: sent }) => {
+    const sentLower = sent.toLowerCase();
+    return DEFINITION_PATTERNS.some(pattern => sentLower.includes(pattern));
+  });
+  
+  for (const { text: sent } of defSentences) {
+    if (cards.length >= 12) break;
+    
+    const words = extractWords(sent).filter(w => !STOP.has(w) && w.length > 4);
+    const keyNoun = words.find(w => nouns.has(w) && !usedTerms.has(w));
+    
+    if (keyNoun) {
+      usedTerms.add(keyNoun);
+      const term = keyNoun.charAt(0).toUpperCase() + keyNoun.slice(1);
+      cards.push({
+        front: `What is ${term}?`,
+        back: sent.trim(),
+        term
+      });
+    }
+  }
+  
+  return cards.slice(0, 12);
 }
 
-function summary(text, kws) {
-  const ranked=rankSentences(text,kws).filter(s=>s.score>0)
-    .sort((a,b)=>b.score-a.score).slice(0,8).sort((a,b)=>a.idx-b.idx);
-  if(!ranked.length)return 'Could not extract a meaningful summary.';
-  const h=Math.ceil(ranked.length/2);
-  const p1=ranked.slice(0,h).map(s=>s.sent).join(' ');
-  const p2=ranked.slice(h).map(s=>s.sent).join(' ');
-  return p2.trim()?`${p1.trim()}\n\n${p2.trim()}`:p1.trim();
+// Smarter summary with better sentence selection
+function buildSummary(text, rankedSents) {
+  if (rankedSents.length === 0) return 'Could not extract a meaningful summary.';
+  
+  const topSents = rankedSents
+    .filter(s => s.score > 0)
+    .sort((a, b) => b.score - a.score);
+  
+  const selected = [];
+  const usedParas = new Set();
+  
+  // Always include first sentence from intro (if high scoring enough)
+  const firstSent = topSents.find(s => s.paraIndex === 0 && s.isFirstInPara);
+  if (firstSent && firstSent.score > topSents[0].score * 0.3) {
+    selected.push(firstSent);
+    usedParas.add(0);
+  }
+  
+  // Get diverse sentences from different paragraphs
+  for (const sent of topSents) {
+    if (selected.length >= 8) break;
+    
+    // Skip if already selected or from overused paragraph
+    if (selected.includes(sent)) continue;
+    
+    // Prefer diversity — limit sentences per paragraph
+    const paraCount = selected.filter(s => s.paraIndex === sent.paraIndex).length;
+    if (paraCount >= 2) continue;
+    
+    selected.push(sent);
+  }
+  
+  // Sort back into reading order
+  selected.sort((a, b) => a.globalIdx - b.globalIdx);
+  
+  // Split into 2 paragraphs
+  const half = Math.ceil(selected.length / 2);
+  const p1 = selected.slice(0, half).map(s => s.text).join(' ');
+  const p2 = selected.slice(half).map(s => s.text).join(' ');
+  
+  return p2.trim() ? `${p1.trim()}\n\n${p2.trim()}` : p1.trim();
 }
 
-function keypoints(text, kws) {
-  return rankSentences(text,kws).filter(s=>s.score>0)
-    .sort((a,b)=>b.score-a.score).slice(0,8).map(s=>s.sent.trim());
+// Smarter key points with diversity
+function buildKeyPoints(rankedSents) {
+  const points = [];
+  const usedParas = new Set();
+  
+  const topSents = rankedSents
+    .filter(s => s.score > 0)
+    .sort((a, b) => b.score - a.score);
+  
+  for (const sent of topSents) {
+    if (points.length >= 8) break;
+    
+    // Check similarity with existing points (avoid near-duplicates)
+    const isSimilar = points.some(existing => {
+      const existingWords = new Set(extractWords(existing));
+      const sentWords = new Set(extractWords(sent.text));
+      const intersection = [...existingWords].filter(w => sentWords.has(w)).length;
+      const union = new Set([...existingWords, ...sentWords]).size;
+      const similarity = intersection / union;
+      return similarity > 0.5; // 50% word overlap = too similar
+    });
+    
+    if (isSimilar) continue;
+    
+    // Prefer diversity across paragraphs
+    const paraCount = points.filter(p => {
+      const pSent = rankedSents.find(s => s.text === p);
+      return pSent && pSent.paraIndex === sent.paraIndex;
+    }).length;
+    
+    if (paraCount >= 3) continue; // Max 3 points per paragraph
+    
+    points.push(sent.text.trim());
+  }
+  
+  return points;
 }
 
+// Main processing pipeline
 function processText(text) {
-  const kws = keywords(text, 25);
-  const terms = [...new Set([...ngrams(text,12),...kws.slice(0,8).map(w=>w.charAt(0).toUpperCase()+w.slice(1))])];
+  const keywords = extractKeywords(text, 30);
+  const phrases = extractPhrases(text, 15);
+  const rankedSents = rankSentences(text, keywords);
+  
   return {
-    summary: summary(text, kws),
-    keyPoints: keypoints(text, kws),
-    glossary: glossary(text, terms),
-    flashcards: flashcards(text, kws),
+    summary: buildSummary(text, rankedSents),
+    keyPoints: buildKeyPoints(rankedSents),
+    glossary: buildGlossary(text, keywords, phrases),
+    flashcards: buildFlashcards(text, keywords, rankedSents),
     wordCount: text.split(/\s+/).length
   };
 }
