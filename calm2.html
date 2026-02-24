@@ -59,21 +59,15 @@ p.subtitle {
 
 /* ========== BACK BUTTON ========== */
 .back-btn {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  background-color: #e7f4ff;
-  border: none;
-  border-radius: 50px;
-  width: 35px;
-  height: 35px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: 0.3s;
-  z-index: 10;
-}
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      font-size: 1.6rem;
+      cursor: pointer;
+      color: #003366;
+      font-weight: bold;
+      text-decoration: none;
+    }
 
 
 /* ========== SOUND LIST ========== */
@@ -277,7 +271,9 @@ iframe {
   
   <!-- Content Wrapper allows scrolling independently of the fixed Nav Bar -->
   <div class="content-scroll">
-    <button class="back-btn" onclick="window.location.href='main.html'">←</button>
+    <div class="left-header">
+        <a href="main.html" class="back-btn">←</a>
+        </div>
       
     </button>
 
