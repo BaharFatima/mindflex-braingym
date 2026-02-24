@@ -2,192 +2,137 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>Focus Lab</title>
-<!-- Added only for navbar icons, no other changes to your head -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MindFlex - Home</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: "Poppins", sans-serif;
-    background: linear-gradient(180deg, #eceff1, #FFFFFF);
-    color: #0D47A1;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(180deg, #B3E5FC 0%, #E1F5FE 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* Changed to min-height to allow body scroll if needed */
+}
 .container {
   width: 320px;
-  height: 640px;
+  /* Removed fixed height to allow growth, or keep fixed and scroll content inside */
+  height: 640px; 
   border-radius: 30px;
   background: linear-gradient(180deg, #BBDEFB 0%, #E3F2FD 100%);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  overflow: hidden; /* Keep container overflow hidden for rounded corners */
+  position: relative;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  /* added position relative for navbar positioning, no other changes */
-  position: relative;
+  /* Removed justify-content: space-between to allow natural scrolling */
 }
-  /* Header */
-  header {
-    position: relative;
-    background: linear-gradient(180deg, #90CAF9, #E3F2FD);
-    padding: 50px 15px 100px;
-    border-radius: 0 0 60px 60px;
-    overflow: hidden;
-    text-align: left;
-  }
 
-  header h1 {
-    font-size: 22px;
-    font-weight: 600;
-    color: #0D47A1;
-    margin-top: 70px;
-  }
+/* Scrollable content wrapper */
+.scroll-content {
+  flex: 1;
+  overflow-y: auto; /* Enables scrolling */
+  overflow-x: hidden;
+  padding-bottom: 80px; /* Space for fixed bottom nav */
+  scroll-behavior: smooth;
+}
 
-  header p {
-    color: #1565C0;
-    font-size: 13px;
-    margin-top: 6px;
-  }
+/* Header */
+.header {
+  padding: 25px 20px 10px;
+  color: #0D47A1;
+  position: relative;
+  /* Sticky header optional - currently static to scroll away */
+  /* position: sticky; top: 0; background: #E3F2FD; z-index: 10; */
+}
+.header h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+.header span {
+  font-weight: 700;
+  font-size: 20px;
+}
+.weather {
+  position: absolute;
+  top: 25px;
+  right: 20px;
+  text-align: right;
+  font-size: 13px;
+  color: #0D47A1;
+  opacity: 0.85;
+}
+.weather span {
+  display: block;
+  font-size: 11px;
+}
 
-  /* Baymax */
-  .baymax {
-    position: absolute;
-    top: 15px;
-    right: 10px;
-    width: 130px;
-    animation: float 3s ease-in-out infinite;
-  }
+/* Baymax */
+.baymax-section {
+  text-align: center;
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
+.baymax-img {
+  width: 120px;
+  height: auto;
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
 
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
-  }
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  padding: 0 20px 20px;
+}
+.card {
+  background: #ffffff;
+  border-radius: 20px;
+  height: 100px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #1565C0;
+  font-weight: 600;
+  font-size: 13px;
+  transition: 0.25s;
+  border: 2px solid #E3F2FD;
+  cursor: pointer;
+  /* Reset button styles */
+  font-family: inherit;
+  text-align: center;
+  line-height: 1.2;
+}
+.card:hover {
+  transform: translateY(-2px);
+  background: #F0F9FF;
+  border-color: #90CAF9;
+}
+.card:active {
+  transform: scale(0.98);
+}
+.card span {
+  font-size: 25px;
+  margin-bottom: 6px;
+  display: block;
+}
 
-  /* Back button */
-.back-btn {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      font-size: 1.6rem;
-      cursor: pointer;
-      color: #003366;
-      font-weight: bold;
-      text-decoration: none;
-    }back-btn:hover { background: #0D47A1; }
-
-  /* Tabs */
-  .tabs {
-    display: flex;
-    justify-content: space-around;
-    background: #fff;
-    border-radius: 20px;
-    width: 90%;
-    margin: -40px auto 20px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-    position: relative;
-    z-index: 2;
-  }
-
-  .tab {
-    flex: 1;
-    text-align: center;
-    padding: 10px 0;
-    color: #1565C0;
-    font-weight: 500;
-    cursor: pointer;
-    font-size: 13px;
-    transition: all 0.3s ease;
-  }
-
-  .tab.active {
-    background: #1565C0;
-    color: #fff;
-    border-radius: 20px;
-  }
-
-  /* Content */
-  .content {
-    display: none;
-    padding: 20px 15px 80px;
-    min-height: calc(100vh - 200px);
-    animation: fadeIn 0.4s ease forwards;
-  }
-
-  .content.active { display: block; }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  h3 {
-    text-align: center;
-    font-size: 15px;
-    color: #0D47A1;
-    margin-bottom: 18px;
-  }
-
-  /* Game Grid */
-  .game-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-
-  .card {
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    padding: 12px 8px;
-    text-align: center;
-    transition: transform 0.3s ease;
-  }
-  .card:hover { transform: scale(1.03); }
-
-  .card img {
-    width: 55px;
-    height: 55px;
-    object-fit: contain;
-    margin-bottom: 6px;
-  }
-
-  .card p {
-    font-size: 13px;
-    font-weight: 500;
-    color: #1565C0;
-    margin-bottom: 6px;
-  }
-
-  .card button {
-    background: #1565C0;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 5px 10px;
-    font-size: 12px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: 0.3s;
-  }
-  .card button:hover { background: #0D47A1; }
-
-  /* Tighter layout for 320px width */
-  @media (max-width: 340px) {
-    header { padding: 40px 12px 90px; }
-    header h1 { font-size: 20px; }
-    header p { font-size: 12px; }
-    .baymax { width: 110px; }
-    .tab { font-size: 12px; }
-    .card img { width: 50px; height: 50px; }
-    .card p { font-size: 12px; }
-  }
-
-/* -------------------------- ADDED BOTTOM NAVBAR STYLES (NO CHANGES TO YOUR EXISTING CSS ABOVE) -------------------------- */
-  .menu-container {
+/* ========== STANDARD NAV BAR STYLES ========== */
+.bottom-nav {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -203,221 +148,254 @@
   padding: 8px 5px;
   z-index: 50;
 }
-@keyframes slideUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 2px;
+  flex: 1;
+  text-decoration: none;
 }
-.menu-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    padding: 5px;
-    position: relative;
-    flex: 1;
+
+.nav-icon {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  color: #90CAF9;
 }
-.menu-icon {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.3s ease;
-    color: #5f6368;
+
+.nav-icon i { 
+  font-size: 18px; 
+  transition: all 0.3s ease; 
 }
-.menu-icon i {
-    font-size: 24px;
-    transition: all 0.3s ease;
+
+.nav-label {
+  font-size: 9px;
+  color: #5f6368;
+  text-align: center;
+  line-height: 1.2;
+  font-weight: 600;
 }
-.menu-label {
-    font-size: 10px;
-    color: #5f6368;
-    text-align: center;
-    line-height: 1.2;
-    font-weight: 600;
+
+.nav-item.selected .nav-icon i {
+  transform: translateY(-8px) scale(1.2);
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
-/* Pop-up effect when selected */
-.menu-item.selected .menu-icon i {
-    transform: translateY(-8px) scale(1.2);
-    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+
+.nav-item[data-category="cv"].selected .nav-icon i { color: #0D47A1; }
+.nav-item[data-category="achievements"].selected .nav-icon i { color: #9c27b0; }
+.nav-item[data-category="home"].selected .nav-icon i { color: #1565C0; }
+.nav-item[data-category="habit-tracker"].selected .nav-icon i { color: #ff4081; }
+.nav-item[data-category="user-account"].selected .nav-icon i { color: #00838F; }
+
+.nav-icon img {
+  width: 18px;
+  height: 18px;
+  transition: all 0.3s ease;
+  object-fit: contain;
+  filter: grayscale(100%) brightness(0.7);
+  border-radius: 6px;
 }
-/* Specific colors for each menu item */
-.menu-item[data-category="cv"].selected .menu-icon i { color: #0D47A1; }
-.menu-item[data-category="achievements"].selected .menu-icon i { color: #9c27b0; }
-.menu-item[data-category="home"].selected .menu-icon i { color: #1565C0; }
-.menu-item[data-category="habit-tracker"].selected .menu-icon i { color: #ff4081; }
-.menu-item[data-category="user-account"].selected .menu-icon i { color: #00838F; }
-/* Custom image icon styling */
-.menu-icon img {
-    width: 24px;
-    height: 24px;
-    transition: all 0.3s ease;
-    object-fit: contain;
-    filter: grayscale(100%) brightness(0.7);
-    border-radius: 8px;
+
+.nav-item.selected .nav-icon img {
+  transform: translateY(-8px) scale(1.2);
+  filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+  border-radius: 8px;
 }
-.menu-item.selected .menu-icon img {
-    transform: translateY(-8px) scale(1.2);
-    filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
-    border-radius: 10px;
+
+.nav-icon .fallback-icon {
+  width: 18px;
+  height: 18px;
+  background-color: #90CAF9;
+  border-radius: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: bold;
+  transition: all 0.3s ease;
 }
-.menu-item[data-category="cv"].selected .menu-icon img {
-    filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(13, 71, 161, 0.4));
+
+.nav-item.selected .nav-icon .fallback-icon {
+  transform: translateY(-8px) scale(1.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
 }
-/* Fallback icon styling */
-.menu-icon .fallback-icon {
-    width: 24px;
-    height: 24px;
-    background-color: #5f6368;
-    border-radius: 8px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-weight: bold;
-    transition: all 0.3s ease;
+
+.nav-item[data-category="habit-tracker"].selected .nav-icon .fallback-icon {
+  background-color: #ff4081;
 }
-.menu-item.selected .menu-icon .fallback-icon {
-    background-color: #ff4081;
-    transform: translateY(-8px) scale(1.2);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    border-radius: 10px;
+
+.nav-item[data-category="cv"].selected .nav-icon .fallback-icon {
+  background-color: #0D47A1;
 }
-.menu-item[data-category="cv"].selected .menu-icon .fallback-icon {
-    background-color: #0D47A1;
+
+/* Scrollbar styling for webkit browsers */
+.scroll-content::-webkit-scrollbar {
+  width: 4px;
 }
-/* Navbar responsive adjustments */
-@media (max-width: 340px) {
-    .menu-container { padding: 10px 2px; }
-    .menu-icon { width: 36px; height: 36px; }
-    .menu-icon i { font-size: 20px; }
-    .menu-icon img { width: 20px; height: 20px; }
-    .menu-label { font-size: 9px; }
+.scroll-content::-webkit-scrollbar-track {
+  background: transparent;
 }
-  
+.scroll-content::-webkit-scrollbar-thumb {
+  background: #B3E5FC;
+  border-radius: 10px;
+}
 </style>
 </head>
 <body>
-<div class = "container">
-<header>
-  <div class="left-header">
-        <a href="main.html" class="back-btn">←</a>
+
+<div class="container">
+  
+  <!-- Wrapper for scrolling content -->
+  <div class="scroll-content">
+    
+    <!-- Header -->
+    <div class="header">
+    <h2 id="greeting">Welcome back,<br><span id="username">User</span></h2>
+      <div class="weather">
+        ☁️ 76°<br><span>Tuesday, April 23</span>
+      </div>
+    </div>
+
+    <!-- Baymax -->
+    <div class="baymax-section">
+      <!-- Using a placeholder if baymax.png is missing, ensure your file exists -->
+      <img src="baymax.png" onerror="this.src='https://img.icons8.com/clouds/100/baymax.png'" alt="Baymax" class="baymax-img" />
+    </div>
+
+    <!-- Feature Cards -->
+    <div class="grid">
+      <button class="card" onclick="window.navigateTo('focuslab.html')">
+        <span>🧠</span>Focus Lab
+      </button>
+      <button class="card" onclick="window.navigateTo('calm2.html')">
+        <span>🧘</span>Calm Space
+      </button>
+      <button class="card" onclick="window.navigateTo('journal.html')">
+        <span>📘</span>Journal
+      </button>
+      <button class="card" onclick="window.navigateTo('routine.html')">
+        <span>🗓️</span>Routine & Tasks
+      </button>
+      <button class="card" onclick="window.navigateTo('Studyzone.html')">
+        <span>💡</span>Study Zone 
+      </button>
+      <button class="card" onclick="window.navigateTo('progress.tracker.html')">
+        <span>📈</span>Progress Tracker
+      </button>
+      
+  
+    </div>
+  </div> <!-- End scroll-content -->
+
+  <!-- NAV BAR -->
+  <nav class="bottom-nav">
+    <a href="cv.html" class="nav-item" data-category="cv">
+      <div class="nav-icon">
+        <img src="cv.png" alt="CV" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="fallback-icon" style="display: none;">
+          <i class="fas fa-file-alt"></i>
         </div>
-  <img src="baymax.png" alt="Baymax" class="baymax" />
-  <h1>Focus Lab</h1>
-  <p>Train your attention in small steps</p>
-</header>
-
-<div class="tabs">
-  <div class="tab active" data-target="tier1">Tier 1</div>
-  <div class="tab" data-target="tier2">Tier 2</div>
-  <div class="tab" data-target="tier3">Tier 3</div>
-</div>
-
-<div id="tier1" class="content active">
-  <h3>Micro Attention</h3>
-  <div class="game-grid">
-    <div class="card"><img src="https://i.pinimg.com/1200x/9d/f0/f3/9df0f3e94f01fba50006b1f65a9fb8ae.jpg"><p>Match Shapes</p><button onclick="go('matchshapes.html')">Play</button></div>
-    <div class="card"><img src="https://i.pinimg.com/736x/70/bc/68/70bc6886d0c6c70931868a7d4b01ba88.jpg"><p>Color Catch</p><button onclick="go('colorcatch.html')">Play</button></div>
-    <div class="card"><img src="patterntapicon.png"><p>Pattern Logic</p><button onclick="go('patternlogic.html')">Play</button></div>
-    <div class="card"><img src="https://i.pinimg.com/736x/bc/fb/a4/bcfba4fcef9bd1227b036d3851168fff.jpg"><p>Count It</p><button onclick="go('countit.html')">Play</button></div>
-  </div>
-</div>
-
-<div id="tier2" class="content">
-  <h3>Sustained Focus</h3>
-  <div class="game-grid">
-    <div class="card"><img src="https://i.pinimg.com/736x/20/5d/2b/205d2bbb0b71e679c06577393d8034ed.jpg"><p>Reaction Rush</p><button onclick="go('reactionrush.html')">Play</button></div>
-    <div class="card"><img src="emotionaltrack.png"><p>Emotional Track</p><button onclick="go('emotionaltrack.html')">Play</button></div>
-    <div class="card"><img src="memorychain.jpeg"><p>Memory Chain</p><button onclick="go('memorychain.html')">Play</button></div>
-    <div class="card"><img src="sudoku.png"><p>Sudoku</p><button onclick="go('sudoku.html')">Play</button></div>
-  </div>
-</div>
-
-<div id="tier3" class="content">
-  <h3>Deep Work</h3>
-  <div class="game-grid">
-    <div class="card"><img src="focusflip.jpeg"><p>Focus Flip</p><button onclick="go('focusflip.html')">Play</button></div>
-    <div class="card"><img src="symmerty.jpeg"><p>Symmetry</p><button onclick="go('mirror.html')">Play</button></div>
-    <div class="card"><img src="guessobject.jpeg"><p>Guess Object</p><button onclick="go('object.html')">Play</button></div>
-    <div class="card"><img src="juggling.jpeg"><p>Juggling</p><button onclick="go('juggling.html')">Play</button></div>
-  </div>
-</div>
-
-<!-- ADDED NAVBAR, NO CHANGES TO YOUR CONTENT ABOVE -->
-<div class="menu-container">
-  <div class="menu-item" data-category="cv" data-link="cv.html">
-      <div class="menu-icon">
-          <img src="cv.png" alt="CV" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-          <div class="fallback-icon" style="display: none;">
-              <i class="fas fa-file-alt"></i>
-          </div>
       </div>
-      <div class="menu-label">CV</div>
-  </div>
-  
-  <div class="menu-item" data-category="achievements" data-link="achievements.html">
-      <div class="menu-icon">
-          <i class="fas fa-trophy"></i>
+      <div class="nav-label">CV</div>
+    </a>
+
+    <a href="achievements.html" class="nav-item" data-category="achievements">
+      <div class="nav-icon"><i class="fas fa-trophy"></i></div>
+      <div class="nav-label">Achievements</div>
+    </a>
+
+    <a href="#" class="nav-item selected" data-category="home">
+      <div class="nav-icon"><i class="fas fa-home"></i></div>
+      <div class="nav-label">Home</div>
+    </a>
+
+    <a href="habittracker.html" class="nav-item" data-category="habit-tracker">
+      <div class="nav-icon">
+        <img src="https://z-cdn-media.chatglm.cn/files/a1979dda-a3e4-4b38-b0cf-00e4ad455277_pasted_image_1762936027415.png?auth_key=1862936037-6cc8a5a356484e1cb70a8f599e1f2ce8-0-496c548f3f7ef2ea6a808a3cc812dc2c" alt="Habit Tracker" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="fallback-icon" style="display: none;"><i class="fas fa-check"></i></div>
       </div>
-      <div class="menu-label">Achievements</div>
-  </div>
-  
-  <div class="menu-item " data-category="home" data-link="main.html">
-      <div class="menu-icon">
-          <i class="fas fa-home"></i>
-      </div>
-      <div class="menu-label">Home</div>
-  </div>
-  
-  <div class="menu-item" data-category="habit-tracker" data-link="habittracker.html">
-      <div class="menu-icon">
-          <img src="https://z-cdn-media.chatglm.cn/files/a1979dda-a3e4-4b38-b0cf-00e4ad455277_pasted_image_1762936027415.png?auth_key=1862936037-6cc8a5a356484e1cb70a8f599e1f2ce8-0-496c548f3f7ef2ea6a808a3cc812dc2c" alt="Habit Tracker" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-          <div class="fallback-icon" style="display: none;">
-              <i class="fas fa-check"></i>
-          </div>
-      </div>
-      <div class="menu-label">Habit Tracker</div>
-  </div>
-  
-  <div class="menu-item" data-category="user-account" data-link="profile.html">
-      <div class="menu-icon">
-          <i class="fas fa-user-circle"></i>
-      </div>
-      <div class="menu-label">Account</div>
-  </div>
-</div>
+      <div class="nav-label">Habit Tracker</div>
+    </a>
+
+    <a href="profile.html" class="nav-item" data-category="user-account">
+      <div class="nav-icon"><i class="fas fa-user-circle"></i></div>
+      <div class="nav-label">Account</div>
+    </a>
+  </nav>
 
 </div>
-<script>
-const tabs = document.querySelectorAll(".tab");
-const contents = document.querySelectorAll(".content");
 
-tabs.forEach(tab => {
-  tab.addEventListener("click", () => {
-    tabs.forEach(t => t.classList.remove("active"));
-    contents.forEach(c => c.classList.remove("active"));
-    tab.classList.add("active");
-    document.getElementById(tab.dataset.target).classList.add("active");
-  });
+<!-- Added type="module" for imports to work -->
+<script type="module">
+  // Import Firebase
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
+    authDomain: "mindflex-b2a0c.firebaseapp.com",
+    projectId: "mindflex-b2a0c",
+    storageBucket: "mindflex-b2a0c.firebasestorage.app",
+    messagingSenderId: "148676867562",
+    appId: "1:148676867562:web:3365a72b6fa6b3751cee93",
+    measurementId: "G-Q2T6HD3S0E"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.replace("loginmain.html");
+    return;
+  }
+
+  const nameSpan = document.getElementById("username");
+
+  // Priority order
+  let name =
+    user.displayName ||
+    user.email?.split("@")[0] ||
+    "User";
+
+  nameSpan.textContent = name + " 👋";
 });
 
-function go(link) {
-  window.location.href = link;
-}
+  // FIX: Attach navigateTo to window so HTML onclick can see it
+  window.navigateTo = function(page) {
+    window.location.href = page;
+  }
 
-// ADDED NAVBAR FUNCTIONALITY, NO CHANGES TO YOUR EXISTING JS ABOVE
-const menuItems = document.querySelectorAll('.menu-item');
-menuItems.forEach(item => {
-  item.addEventListener('click', () => {
-    menuItems.forEach(i => i.classList.remove('selected'));
-    item.classList.add('selected');
-    // Redirect to page
-    if(item.dataset.link) window.location.href = item.dataset.link;
-  })
-})
+  // Bottom nav interaction
+  document.addEventListener('DOMContentLoaded', function() {
+    const navItems = document.querySelectorAll('.nav-item');
+    
+    navItems.forEach(item => {
+      item.addEventListener('click', function(e) {
+        const targetUrl = this.getAttribute('href');
+        
+        // Remove selected from all, add to clicked
+        navItems.forEach(i => i.classList.remove('selected'));
+        this.classList.add('selected');
+
+        // Navigation delay for effect
+        if (targetUrl && targetUrl !== '#') {
+          e.preventDefault();
+          setTimeout(() => window.location.href = targetUrl, 300);
+        }
+      });
+    });
+  });
 </script>
+
 </body>
 </html>
