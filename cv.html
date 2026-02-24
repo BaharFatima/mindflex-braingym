@@ -192,6 +192,17 @@ textarea {
     transition: all 0.3s ease;
 }
 
+.camera-note {
+  font-size: 10px;
+  color: #353639;
+  background: #E3F2FD;
+  padding: 6px 8px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  text-align: center;
+  border: 1px solid #BBDEFB;
+}
+
 .menu-label {
     font-size: 9px;
     color: #5f6368;
@@ -281,7 +292,9 @@ textarea {
 <!-- Scrollable Content Wrapper -->
 <div class="app-content">
   <video id="video" autoplay playsinline></video>
-
+  <p class="camera-note">
+  Note: Keep the text you are scanning at least 10 cm near the camera for best results.
+  </p>
   <div class="controls">
     <button class="flip" onclick="flipCamera()">🔄 Flip</button>
     <button class="scan" onclick="scanText()">Scan</button>
