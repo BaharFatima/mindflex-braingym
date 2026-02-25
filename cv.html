@@ -31,8 +31,8 @@ body {
   box-shadow: 0 10px 25px rgba(0,0,0,.15);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   position: relative;
+  overflow: hidden;
 }
 
 /* --- Header with Back Button --- */
@@ -143,12 +143,13 @@ textarea {
   font-family: Poppins, sans-serif;
   font-size: 12px;
   color: #0D47A1;
+
+  flex-shrink: 0;   /* 🔥 IMPORTANT */
 }
 
 /* --- Navigation Bar Styles --- */
 .menu-container {
-    position: absolute;
-    bottom: 0;
+    position: relative;
     left: 0;
     width: 100%;
     background-color: white;
@@ -291,7 +292,7 @@ textarea {
 
 <!-- Scrollable Content Wrapper -->
 <div class="app-content">
-  <video id="video" autoplay playsinline></video>
+ <video id="video" autoplay playsinline muted></video>
   <p class="camera-note">
   Note: Keep the text you are scanning at least 10 cm near the camera for best results.
   </p>
@@ -310,7 +311,7 @@ textarea {
   <textarea id="outputText" placeholder="Recognized text will appear here"></textarea>
 </div>
 
-<  <!-- Navigation Bar (Fixed at bottom via Flexbox) -->
+ <!-- Navigation Bar (Fixed at bottom via Flexbox) -->
   <div class="menu-container">
     <div class="menu-item" data-category="cv" onclick="window.location.href='cv.html'">
         <div class="menu-icon">
@@ -354,106 +355,66 @@ textarea {
     </div>
   </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-
 <script>
-/* --- Camera & OCR Logic --- */
-let extractedText = "";
-let speechRate = 1.0;
-let facingMode = "environment";
 let stream = null;
 
 const video = document.getElementById("video");
 const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d");
 
-async function startCamera() {
-  if (stream) stream.getTracks().forEach(t => t.stop());
+/* ---------- START CAMERA ---------- */
+window.addEventListener("load", startCamera);
 
+async function startCamera() {
   try {
     stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: facingMode } },
+      video: { facingMode: "environment" },
       audio: false
     });
+
     video.srcObject = stream;
-    console.log("Camera started:", facingMode);
-  } catch (e) {
-    alert("Camera error: " + e.message);
+    await video.play();
+
+    console.log("Camera started");
+
+  } catch (err) {
+    console.error(err);
+    alert("Camera error: " + err.message);
   }
 }
 
-function flipCamera() {
-  facingMode = facingMode === "environment" ? "user" : "environment";
-  startCamera();
-}
-
-// Start camera on load
-startCamera();
-
-function scanText() {
+/* ---------- SCAN TEXT ---------- */
+async function scanText() {
   if (!video.videoWidth) {
     alert("Camera not ready");
     return;
   }
 
+  document.getElementById("outputText").value = "Scanning...";
+
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   ctx.drawImage(video, 0, 0);
 
-  document.getElementById("outputText").value = "Scanning...";
+  const imageData = canvas.toDataURL("image/jpeg", 0.9);
 
-  Tesseract.recognize(canvas, "eng")
-    .then(res => {
-      extractedText = res.data.text.trim();
-      document.getElementById("outputText").value = extractedText || "No text detected";
-    })
-    .catch(() => alert("OCR failed"));
-}
-
-function speakText() {
-  if (!extractedText) {
-    alert("No text to read");
-    return;
-  }
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(extractedText);
-  u.rate = speechRate;
-  speechSynthesis.speak(u);
-}
-
-function increaseSpeed() {
-  speechRate = Math.min(1.5, +(speechRate + 0.1).toFixed(1));
-  document.getElementById("speedDisplay").innerText = "Speed: " + speechRate;
-}
-
-function decreaseSpeed() {
-  speechRate = Math.max(0.5, +(speechRate - 0.1).toFixed(1));
-  document.getElementById("speedDisplay").innerText = "Speed: " + speechRate;
-}
-
-/* --- Navigation & Back Button Logic --- */
-
-function goBack() {
-    window.history.back();
-}
-
-function navigateTo(url) {
-    // console.log("Navigating to: " + url);
-    // window.location.href = url; 
-}
-
-// Navigation Bar Selection Animation
-document.addEventListener('DOMContentLoaded', function() {
-    const menuItems = document.querySelectorAll('.menu-item');
-    
-    menuItems.forEach(item => {
-        item.addEventListener('click', function() {
-            menuItems.forEach(i => i.classList.remove('selected'));
-            this.classList.add('selected');
-        });
+  try {
+    const response = await fetch("/api/ocr", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image: imageData })
     });
-});
+
+    const data = await response.json();
+
+    document.getElementById("outputText").value =
+      data.text || "No text detected";
+
+  } catch (err) {
+    console.error(err);
+    alert("OCR failed");
+  }
+}
 </script>
 </body>
 </html>
