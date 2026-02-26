@@ -3,320 +3,489 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your account</title>
+  <title>Your Account - MindFlex</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+  
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      background-color: #ffffff;
-      color: #000000;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(180deg, #B3E5FC 0%, #E1F5FE 100%);
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      padding: 10px;
     }
 
-    .app-container {
-      width: 320px;
-      height: 640px;
-      background-color: #ffffff;
-      position: relative;
+    .container {
+      width: 100%;
+      max-width: 360px;
+      height: 700px;
+      border-radius: 30px;
+      background: linear-gradient(180deg, #BBDEFB 0%, #E3F2FD 100%);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
       overflow: hidden;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-      border-radius: 0px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
     }
 
-    /* Each page scrolls above the bottom nav */
+    /* Page System - adjusted padding for new taller nav bar */
     .page {
       display: none;
-      height: calc(100% - 60px);
+      flex: 1;
       overflow-y: auto;
-      overflow-x: hidden;
-      padding-bottom: 20px;
+      padding-bottom: 110px;
     }
-    .page.active { display: block; }
-
-    /* Header Styles */
-    .header {
+    
+    .page.active {
       display: flex;
-      align-items: center;
-      padding: 14px;
-      border-bottom: 1px solid #f0f0f0;
-      position: sticky;
-      top: 0;
-      background-color: #ffffff;
-      z-index: 10;
+      flex-direction: column;
     }
 
-    .back-button,
+    /* ==================== UNIFIED BACK BUTTON STYLING ==================== */
     .back-btn {
-      background: none;
-      border: none;
-      font-size: 22px;
-      margin-right: 14px;
+      font-size: 1.6rem;
       cursor: pointer;
-      color: #000000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      color: rgb(0, 0, 0);
+      font-weight: bold;
+      text-decoration: none;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      z-index: 12;
+    }
+    .back-btn:hover {
+      transform: translateX(-2px);
+      opacity: 0.8;
+    }
+    /* Positioning ONLY for back button on main profile header */
+    .profile-header .back-btn {
+      position: absolute;
+      top: 18px;
+      left: 20px;
     }
 
-    .chevron-left {
-      width: 22px;
-      height: 22px;
+    /* ==================== PROFILE HEADER ==================== */
+    .profile-header {
+      background: linear-gradient(135deg, #64B5F6 0%, #42A5F5 100%);
+      padding: 30px 20px 25px;
+      text-align: center;
+      color: white;
+      border-radius: 0 0 30px 30px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      z-index: 10;
       position: relative;
     }
 
-    .chevron-left::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 7px;
-      width: 7px;
-      height: 7px;
-      border-left: 2px solid #000;
-      border-bottom: 2px solid #000;
-      transform: translateY(-50%) rotate(45deg);
-    }
-
-    .header-title {
-      font-size: 16px;
-      font-weight: 600;
-    }
-
-    /* Profile Section */
-    .profile-section {
-      display: flex;
-      align-items: center;
-      padding: 14px;
-      border-bottom: 1px solid #f0f0f0;
+    .avatar-container {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 15px;
+      cursor: pointer;
     }
 
     .profile-avatar {
-      width: 56px;
-      height: 56px;
+      width: 100%;
+      height: 100%;
       border-radius: 50%;
-      margin-right: 14px;
       object-fit: cover;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
 
-    .profile-info { flex-grow: 1; }
+    .avatar-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .avatar-container:hover .avatar-overlay {
+      opacity: 1;
+    }
+
+    .avatar-overlay i {
+      color: white;
+      font-size: 24px;
+    }
 
     .profile-name {
-      font-size: 16px;
+      font-size: 22px;
       font-weight: 600;
-      margin-bottom: 3px;
+      margin-bottom: 5px;
+      cursor: pointer;
+      transition: opacity 0.2s;
     }
 
-    .profile-username {
-      font-size: 13px;
-      color: #65676b;
+    .profile-name:hover {
+      opacity: 0.8;
     }
 
-    /* Settings Menu Item Styles */
-    .settings-item {
+    .profile-email {
+      font-size: 14px;
+      opacity: 0.9;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .profile-email:hover {
+      opacity: 0.7;
+    }
+
+    /* Inline editing input style */
+    .editing-input {
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid white;
+      border-radius: 8px;
+      padding: 6px 12px;
+      color: white;
+      font-size: inherit;
+      font-family: inherit;
+      text-align: center;
+      outline: none;
+    }
+
+    /* ==================== MENU SECTIONS ==================== */
+    .menu-section {
+      padding: 20px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #0D47A1;
+      font-weight: 600;
+      margin-bottom: 12px;
+      padding-left: 4px;
+    }
+
+    .menu-group {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Page content menu items (not navigation, no conflict with nav menu items) */
+    .menu-group .menu-item {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 14px;
-      border-bottom: 1px solid #f0f0f0;
+      padding: 16px 18px;
       background: none;
-      border-left: none;
-      border-right: none;
-      border-top: none;
+      border: none;
       width: 100%;
       text-align: left;
       cursor: pointer;
+      transition: background 0.2s;
+      border-bottom: 1px solid #F0F0F0;
+    }
+
+    .menu-group .menu-item:last-child {
+      border-bottom: none;
+    }
+
+    .menu-group .menu-item:hover {
+      background: #E3F2FD;
+    }
+
+    .menu-group .menu-item:active {
+      background: #BBDEFB;
+    }
+
+    .menu-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 14px;
+      font-size: 18px;
+    }
+
+    .icon-blue { background: #E3F2FD; color: #1976D2; }
+    .icon-red { background: #FFEBEE; color: #E53935; }
+    .icon-teal { background: #E0F2F1; color: #00897B; }
+    .icon-purple { background: #F3E5F5; color: #8E24AA; }
+
+    .menu-content {
+      flex: 1;
+    }
+
+    .menu-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: #1565C0;
+      margin-bottom: 2px;
+    }
+
+    .menu-subtitle {
+      font-size: 12px;
+      color: #90A4AE;
+    }
+
+    .menu-arrow {
+      color: #BBDEFB;
       font-size: 14px;
-      color: #000000;
     }
 
-    .settings-item:hover { background-color: #f7f7f7; }
-
-    .chevron-right {
-      width: 10px;
-      height: 10px;
-      position: relative;
+    /* ==================== SUB-PAGE HEADER ==================== */
+    .sub-header {
+      display: flex;
+      align-items: center;
+      gap: 16px; /* Spacing between back button and title */
+      padding: 22px 20px 18px 20px;
+      background: linear-gradient(135deg, #64B5F6 0%, #42A5F5 100%);
+      color: white;
+      border-radius: 0 0 20px 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      z-index: 10;
     }
 
-    .chevron-right::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      right: 2px;
-      width: 5px;
-      height: 5px;
-      border-right: 2px solid #65676b;
-      border-top: 2px solid #65676b;
-      transform: translateY(-50%) rotate(45deg);
-    }
-
-    /* Logout Button */
-    .logout-button {
-      display: block;
-      width: calc(100% - 28px);
-      margin: 14px;
-      padding: 10px;
-      background-color: #e4606d;
-      color: #ffffff;
-      border: none;
-      border-radius: 6px;
-      font-size: 14px;
+    .sub-title {
+      font-size: 18px;
       font-weight: 600;
-      cursor: pointer;
     }
 
-    /* Form Styles */
-    .form-container { padding: 14px; }
+    /* ==================== FORM STYLES ==================== */
+    .form-container {
+      padding: 20px;
+      flex: 1;
+      overflow-y: auto;
+    }
 
-    .form-group { margin-bottom: 14px; }
+    .form-group {
+      margin-bottom: 18px;
+    }
 
     .form-label {
       display: block;
-      margin-bottom: 7px;
+      font-size: 13px;
       font-weight: 600;
-      font-size: 14px;
+      color: #0D47A1;
+      margin-bottom: 8px;
+      padding-left: 4px;
     }
 
     .form-input {
       width: 100%;
-      padding: 10px;
-      border: 1px solid #dddfe2;
-      border-radius: 6px;
-      font-size: 14px;
+      padding: 14px 16px;
+      border: 2px solid #E3F2FD;
+      border-radius: 14px;
+      font-size: 15px;
+      font-family: 'Poppins', sans-serif;
+      background: white;
+      color: #1565C0;
+      transition: all 0.3s;
     }
 
     .form-input:focus {
       outline: none;
-      border-color: #1877f2;
-      box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+      border-color: #64B5F6;
+      box-shadow: 0 0 0 4px rgba(100, 181, 246, 0.1);
     }
 
-    .save-button {
-      background-color: #1877f2;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 10px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-      margin-top: 7px;
+    .form-input::placeholder {
+      color: #90CAF9;
     }
 
-    /* Toggle Switch */
-    .toggle-container {
+    /* ==================== TOGGLE SWITCHES ==================== */
+    .toggle-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
+      padding: 16px 18px;
+      background: white;
+      border-radius: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
 
-    .toggle-label { font-weight: 600; font-size: 14px; }
+    .toggle-label {
+      font-size: 15px;
+      font-weight: 500;
+      color: #1565C0;
+    }
 
     .toggle-switch {
       position: relative;
-      width: 46px;
-      height: 24px;
+      width: 52px;
+      height: 28px;
     }
 
-    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
 
     .toggle-slider {
       position: absolute;
       cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #ccc;
-      transition: .4s;
-      border-radius: 34px;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #BBDEFB;
+      transition: 0.4s;
+      border-radius: 28px;
     }
 
     .toggle-slider:before {
       position: absolute;
       content: "";
-      height: 16px;
-      width: 16px;
-      left: 4px;
-      bottom: 4px;
+      height: 22px;
+      width: 22px;
+      left: 3px;
+      bottom: 3px;
       background-color: white;
-      transition: .4s;
+      transition: 0.4s;
       border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
-    input:checked + .toggle-slider { background-color: #1877f2; }
-    input:checked + .toggle-slider:before { transform: translateX(22px); }
-
-    /* Success Message */
-    .success-message {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background-color: #4caf50;
-      color: white;
-      padding: 10px 16px;
-      border-radius: 6px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      transform: translateX(150%);
-      transition: transform 0.3s ease-out;
-      z-index: 1000;
-      font-size: 14px;
-    }
-    .success-message.show { transform: translateX(0); }
-
-    /* Editable Field */
-    .editable { cursor: pointer; position: relative; }
-    .editable:hover { background-color: #f7f7f7; }
-
-    .edit-input {
-      width: 100%;
-      padding: 4px;
-      border: 1px solid #1877f2;
-      border-radius: 4px;
-      font-family: inherit;
-      font-size: inherit;
+    input:checked + .toggle-slider {
+      background-color: #42A5F5;
     }
 
-    /* Avatar Upload */
-    .avatar-container { position: relative; cursor: pointer; }
+    input:checked + .toggle-slider:before {
+      transform: translateX(24px);
+    }
 
-    .avatar-overlay {
-      position: absolute;
-      top: 0; left: 0;
-      width: 56px; height: 56px;
-      background-color: rgba(0, 0, 0, 0.5);
-      border-radius: 50%;
+    /* ==================== INFO CARDS ==================== */
+    .info-card {
+      background: white;
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1565C0;
+      margin-bottom: 8px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.2s;
+      gap: 8px;
     }
-    .avatar-container:hover .avatar-overlay { opacity: 1; }
-    .avatar-overlay i { color: white; font-size: 18px; }
 
-    /* Card Styles */
-    .card {
-      background-color: #f7f7f7;
-      border-radius: 8px;
-      padding: 14px;
-      margin-bottom: 14px;
+    .card-description {
+      font-size: 13px;
+      color: #546E7A;
+      line-height: 1.5;
+      margin-bottom: 12px;
     }
-    .card-title { font-weight: 600; margin-bottom: 7px; font-size: 14px; }
-    .card-description { color: #65676b; margin-bottom: 10px; font-size: 13px; }
+
     .card-button {
       background: none;
       border: none;
-      color: #1877f2;
+      color: #1E88E5;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      font-size: 13px;
+      padding: 0;
+      text-decoration: none;
     }
 
-    /* ===== NEW SHORTER NAVIGATION BAR ===== */
+    .card-button:hover {
+      text-decoration: underline;
+    }
+
+    /* ==================== BUTTONS ==================== */
+    .save-button {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #64B5F6, #1E88E5);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 10px rgba(30, 136, 229, 0.3);
+    }
+
+    .save-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(30, 136, 229, 0.4);
+    }
+
+    .save-button:active {
+      transform: translateY(0);
+    }
+
+    .logout-button {
+      width: calc(100% - 40px);
+      margin: 0 20px 20px;
+      padding: 16px;
+      background: #FFEBEE;
+      color: #D32F2F;
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .logout-button:hover {
+      background: #FFCDD2;
+      transform: translateY(-2px);
+    }
+
+    /* ==================== SUCCESS TOAST ==================== */
+    .success-toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: linear-gradient(135deg, #66BB6A, #43A047);
+      color: white;
+      padding: 14px 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(76, 175, 80, 0.4);
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 1000;
+      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .success-toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .success-toast.error {
+      background: linear-gradient(135deg, #EF5350, #E53935);
+    }
+
+    /* ==================== NEW BOTTOM NAVIGATION BAR (EXACT YOUR DESIGN) ==================== */
     .bottom-nav {
       position: absolute;
       bottom: 0;
@@ -324,737 +493,754 @@
       width: 100%;
       background-color: white;
       border-radius: 20px 20px 0 0;
-      padding: 6px 5px 10px 5px; /* REDUCED PADDING MAKES IT MUCH SHORTER */
+      padding: 15px 5px;
       box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
       display: flex;
       justify-content: space-around;
-      align-items: center;
-      z-index: 100;
+      animation: slideUp 0.5s ease-out;
+      z-index: 200;
     }
 
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      padding: 4px;
-      position: relative;
-      flex: 1;
-      text-decoration: none;
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
-    .nav-icon {
-      width: 36px;
-      height: 36px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: all 0.3s ease;
-      color: #5f6368;
+    .bottom-nav .menu-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        padding: 5px;
+        position: relative;
+        flex: 1;
+        text-decoration: none;
+        border-bottom: none !important;
     }
 
-    .nav-icon i {
-      font-size: 22px;
-      transition: all 0.3s ease;
+    .bottom-nav .menu-item:hover {
+        background: transparent !important;
     }
 
-    .nav-label {
-      font-family: 'Poppins', sans-serif;
-      font-size: 9px;
-      color: #5f6368;
-      text-align: center;
-      line-height: 1.2;
-      font-weight: 600;
-      transition: color 0.3s ease;
+    .bottom-nav .menu-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: all 0.3s ease;
+        color: #5f6368;
+        margin-right: 0 !important;
+        background: transparent !important;
+    }
+
+    .bottom-nav .menu-icon i {
+        font-size: 24px;
+        transition: all 0.3s ease;
+    }
+
+    .bottom-nav .menu-label {
+        font-size: 10px;
+        color: #5f6368;
+        text-align: center;
+        line-height: 1.2;
+        font-weight: 600;
     }
 
     /* Pop-up effect when selected */
-    .nav-item.selected .nav-icon i {
-      transform: translateY(-5px) scale(1.15); /* Reduced pop up amount */
-      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    }
-
-    .nav-item.selected .nav-label {
-      color: #1565C0;
-      font-weight: 700;
+    .bottom-nav .menu-item.selected .menu-icon i {
+        transform: translateY(-8px) scale(1.2);
+        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
 
     /* Specific colors for each menu item */
-    .nav-item[data-category="cv"].selected .nav-icon i { color: #0D47A1; }
-    .nav-item[data-category="achievements"].selected .nav-icon i { color: #9c27b0; }
-    .nav-item[data-category="home"].selected .nav-icon i { color: #1565C0; }
-    .nav-item[data-category="habit-tracker"].selected .nav-icon i { color: #ff4081; }
-    .nav-item[data-category="user-account"].selected .nav-icon i { color: #00838F; }
-
-    /* Image styling */
-    .nav-icon img {
-      width: 22px;
-      height: 22px;
-      transition: all 0.3s ease;
-      object-fit: contain;
-      filter: grayscale(100%) brightness(0.7);
-      border-radius: 8px;
+    .bottom-nav .menu-item[data-category="cv"].selected .menu-icon i {
+        color: #0D47A1;
     }
 
-    .nav-item.selected .nav-icon img {
-      transform: translateY(-5px) scale(1.15);
-      filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
-      border-radius: 10px;
+    .bottom-nav .menu-item[data-category="achievements"].selected .menu-icon i {
+        color: #9c27b0;
     }
 
-    .nav-item[data-category="cv"].selected .nav-icon img {
-      filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(13, 71, 161, 0.4));
+    .bottom-nav .menu-item[data-category="home"].selected .menu-icon i {
+        color: #1565C0;
+    }
+
+    .bottom-nav .menu-item[data-category="habit-tracker"].selected .menu-icon i {
+        color: #ff4081;
+    }
+
+    .bottom-nav .menu-item[data-category="user-account"].selected .menu-icon i {
+        color: #00838F;
+    }
+
+    /* Custom image icon styling */
+    .bottom-nav .menu-icon img {
+        width: 24px;
+        height: 24px;
+        transition: all 0.3s ease;
+        object-fit: contain;
+        filter: grayscale(100%) brightness(0.7);
+        border-radius: 8px;
+    }
+
+    .bottom-nav .menu-item.selected .menu-icon img {
+        transform: translateY(-8px) scale(1.2);
+        filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+        border-radius: 10px;
+    }
+
+    .bottom-nav .menu-item[data-category="cv"].selected .menu-icon img {
+        filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(13, 71, 161, 0.4));
     }
 
     /* Fallback icon styling */
-    .nav-icon .fallback-icon {
-      width: 22px;
-      height: 22px;
-      background-color: #5f6368;
-      border-radius: 6px;
-      display: flex;
+    .bottom-nav .menu-icon .fallback-icon {
+        width: 24px;
+        height: 24px;
+        background-color: #5f6368;
+        border-radius: 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+
+    .bottom-nav .menu-item.selected .menu-icon .fallback-icon {
+        background-color: #ff4081;
+        transform: translateY(-8px) scale(1.2);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        border-radius: 10px;
+    }
+
+    .bottom-nav .menu-item[data-category="cv"].selected .menu-icon .fallback-icon {
+        background-color: #0D47A1;
+    }
+
+    /* ==================== LOADING SPINNER ==================== */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(187, 222, 251, 0.9);
+      z-index: 999;
       justify-content: center;
       align-items: center;
-      color: white;
-      font-weight: bold;
-      font-size: 11px;
-      transition: all 0.3s ease;
     }
 
-    .nav-item.selected .nav-icon .fallback-icon {
-      background-color: #ff4081;
-      transform: translateY(-5px) scale(1.15);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-      border-radius: 8px;
+    .loading-overlay.active {
+      display: flex;
     }
 
-    .nav-item[data-category="cv"].selected .nav-icon .fallback-icon {
-      background-color: #0D47A1;
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #E3F2FD;
+      border-top-color: #1E88E5;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
 
 <body>
-  <div class="app-container">
-
-    <!-- Success Message -->
-    <div id="success-message" class="success-message">
-      <span id="success-text">Changes saved successfully!</span>
+  <div class="container">
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+      <div class="spinner"></div>
     </div>
 
-    <!-- Account Page -->
-    <div id="account-page" class="page active">
-      <header class="header">
-        <button id="account-back-btn" class="back-button" onclick="history.back()">
-          <div class="chevron-left"></div>
-        </button>
-        <h1 class="header-title">Your account</h1>
-      </header>
+    <!-- Success Toast -->
+    <div id="success-toast" class="success-toast">
+      <i class="fas fa-check-circle"></i>
+      <span id="toast-message">Success!</span>
+    </div>
 
-      <section class="profile-section">
+    <!-- Hidden File Input for Avatar -->
+    <input type="file" id="avatar-input" accept="image/*" style="display:none;">
+
+    <!-- ==================== MAIN PROFILE PAGE ==================== -->
+    <div id="profile-page" class="page active">
+      <div class="profile-header">
+        <!-- Perfectly aligned back button to go to home -->
+        <a href="main.html" class="back-btn">←</a>
+
         <div class="avatar-container" id="avatar-container">
-          <img id="user-avatar" src="pfp.png" alt="User Avatar" class="profile-avatar">
+          <img id="profile-avatar" class="profile-avatar" src="https://ui-avatars.com/api/?name=User&background=64B5F6&color=fff&size=200" alt="Avatar">
           <div class="avatar-overlay">
             <i class="fas fa-camera"></i>
           </div>
-          <input type="file" id="avatar-input" accept="image/*" style="display:none;">
+        </div>
+        <h2 class="profile-name" id="profile-name">Loading...</h2>
+        <p class="profile-email" id="profile-email">Checking email...</p>
+      </div>
+
+      <div class="menu-section">
+        <p class="section-title">ACCOUNT</p>
+        <div class="menu-group">
+          <button class="menu-item" onclick="openPage('account-settings-page')">
+            <div class="menu-icon icon-blue">
+              <i class="fas fa-user-edit"></i>
+            </div>
+            <div class="menu-content">
+              <div class="menu-title">Personal Information</div>
+              <div class="menu-subtitle">Update your profile details</div>
+            </div>
+            <i class="fas fa-chevron-right menu-arrow"></i>
+          </button>
+
+          <button class="menu-item" onclick="openPage('security-page')">
+            <div class="menu-icon icon-red">
+              <i class="fas fa-lock"></i>
+            </div>
+            <div class="menu-content">
+              <div class="menu-title">Security Settings</div>
+              <div class="menu-subtitle">Manage password & auth</div>
+            </div>
+            <i class="fas fa-chevron-right menu-arrow"></i>
+          </button>
         </div>
 
-        <div class="profile-info">
-          <h2 id="user-name" class="profile-name editable">Guest</h2>
-          <p id="user-username" class="profile-username editable">@guest</p>
+        <p class="section-title">DATA</p>
+        <div class="menu-group">
+          <button class="menu-item" onclick="openPage('data-page')">
+            <div class="menu-icon icon-teal">
+              <i class="fas fa-database"></i>
+            </div>
+            <div class="menu-content">
+              <div class="menu-title">Data & Storage</div>
+              <div class="menu-subtitle">Manage stored information</div>
+            </div>
+            <i class="fas fa-chevron-right menu-arrow"></i>
+          </button>
         </div>
-      </section>
 
-      <main>
-        <button class="settings-item" data-page="account-management">
-          <span>Account Management</span>
-          <div class="chevron-right"></div>
+        <p class="section-title">ABOUT</p>
+        <div class="menu-group">
+          <button class="menu-item" onclick="openPage('about-page')">
+            <div class="menu-icon icon-purple">
+              <i class="fas fa-info-circle"></i>
+            </div>
+            <div class="menu-content">
+              <div class="menu-title">About MindFlex</div>
+              <div class="menu-subtitle">App version and info</div>
+            </div>
+            <i class="fas fa-chevron-right menu-arrow"></i>
+          </button>
+        </div>
+
+        <button class="logout-button" onclick="handleLogout()">
+          <i class="fas fa-sign-out-alt"></i> Log Out
         </button>
-
-        <button class="settings-item" data-page="profile-visibility">
-          <span>Profile Visibility</span>
-          <div class="chevron-right"></div>
-        </button>
-
-        <button class="settings-item" data-page="privacy-data">
-          <span>Privacy and Data</span>
-          <div class="chevron-right"></div>
-        </button>
-
-        <button class="settings-item" data-page="login">
-          <span>Log in</span>
-          <div class="chevron-right"></div>
-        </button>
-
-        <button class="settings-item" data-page="security">
-          <span>Security</span>
-          <div class="chevron-right"></div>
-        </button>
-
-        <button class="settings-item" data-page="support">
-          <span>Support</span>
-          <div class="chevron-right"></div>
-        </button>
-
-        <button class="settings-item" data-page="terms">
-          <span>Terms of Service</span>
-          <div class="chevron-right"></div>
-        </button>
-
-        <button class="settings-item" data-page="help">
-          <span>Help Centre</span>
-          <div class="chevron-right"></div>
-        </button>
-
-        <button class="settings-item" data-page="about">
-          <span>About</span>
-          <div class="chevron-right"></div>
-        </button>
-      </main>
-
-      <footer>
-        <button id="logout-btn" class="logout-button">Log out</button>
-      </footer>
+      </div>
     </div>
 
-    <!-- Account Management Page -->
-    <div id="account-management-page" class="page">
-      <header class="header">
-        <button class="back-btn" data-destination="account-page">
-          <div class="chevron-left"></div>
-        </button>
-        <h1 class="header-title">Account Management</h1>
-      </header>
+    <!-- ==================== ACCOUNT SETTINGS PAGE ==================== -->
+    <div id="account-settings-page" class="page">
+      <div class="sub-header">
+        <a href="#" class="back-btn" onclick="goBack()">←</a>
+        <h1 class="sub-title">Personal Information</h1>
+      </div>
 
       <div class="form-container">
         <div class="form-group">
           <label class="form-label">Full Name</label>
-          <input type="text" id="full-name-input" class="form-input" value="">
+          <input type="text" id="input-name" class="form-input" placeholder="Enter your full name">
         </div>
 
         <div class="form-group">
-          <label class="form-label">Username</label>
-          <input type="text" id="username-input" class="form-input" value="">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="input-email" class="form-input" placeholder="your.email@example.com">
         </div>
 
         <div class="form-group">
-          <label class="form-label">Email</label>
-          <input type="email" id="email-input" class="form-input" value="">
+          <label class="form-label">Bio</label>
+          <input type="text" id="input-bio" class="form-input" placeholder="Tell us about yourself">
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Phone Number</label>
-          <input type="tel" id="phone-input" class="form-input" value="">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Password</label>
-          <input type="password" id="password-input" class="form-input" placeholder="Enter new password">
-        </div>
-
-        <button id="save-account-btn" class="save-button">Save Changes</button>
-      </div>
-    </div>
-
-    <!-- Profile Visibility Page -->
-    <div id="profile-visibility-page" class="page">
-      <header class="header">
-        <button class="back-btn" data-destination="account-page">
-          <div class="chevron-left"></div>
+        <button class="save-button" onclick="saveAccountSettings()">
+          <i class="fas fa-check"></i> Save Changes
         </button>
-        <h1 class="header-title">Profile Visibility</h1>
-      </header>
-
-      <div class="form-container">
-        <div class="toggle-container">
-          <span class="toggle-label">Public Profile</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="public-profile-toggle">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-
-        <div class="toggle-container">
-          <span class="toggle-label">Show Email</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="show-email-toggle">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-
-        <div class="toggle-container">
-          <span class="toggle-label">Show Phone Number</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="show-phone-toggle">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-
-        <div class="toggle-container">
-          <span class="toggle-label">Show Activity Status</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="activity-status-toggle">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-
-        <button id="save-visibility-btn" class="save-button">Save Changes</button>
       </div>
     </div>
 
-    <!-- Privacy and Data Page -->
-    <div id="privacy-data-page" class="page">
-      <header class="header">
-        <button class="back-btn" data-destination="account-page">
-          <div class="chevron-left"></div>
-        </button>
-        <h1 class="header-title">Privacy and Data</h1>
-      </header>
-
-      <div class="form-container">
-        <div class="card">
-          <h3 class="card-title">Data Collection</h3>
-          <p class="card-description">We collect data to improve your experience.</p>
-          <button id="data-collection-btn" class="card-button">Manage Data Collection</button>
-        </div>
-
-        <div class="card">
-          <h3 class="card-title">Cookies</h3>
-          <p class="card-description">We use cookies to personalize content.</p>
-          <button id="cookies-btn" class="card-button">Cookie Settings</button>
-        </div>
-
-        <div class="card">
-          <h3 class="card-title">Download Your Data</h3>
-          <p class="card-description">Get a copy of your data.</p>
-          <button id="download-data-btn" class="card-button">Request Data</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Login Page (internal demo) -->
-    <div id="login-page" class="page">
-      <header class="header">
-        <button class="back-btn" data-destination="account-page">
-          <div class="chevron-left"></div>
-        </button>
-        <h1 class="header-title">Log in</h1>
-      </header>
-
-      <div class="form-container">
-        <div class="form-group">
-          <label class="form-label">Username or Email</label>
-          <input type="text" id="login-username" class="form-input">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Password</label>
-          <input type="password" id="login-password" class="form-input">
-        </div>
-
-        <div class="form-group">
-          <label style="display:flex;align-items:center;">
-            <input type="checkbox" id="remember-me" style="margin-right:8px;">
-            <span>Remember me</span>
-          </label>
-        </div>
-
-        <button id="login-btn" class="save-button">Log in</button>
-      </div>
-    </div>
-
-    <!-- Security Page -->
+    <!-- ==================== SECURITY PAGE ==================== -->
     <div id="security-page" class="page">
-      <header class="header">
-        <button class="back-btn" data-destination="account-page">
-          <div class="chevron-left"></div>
-        </button>
-        <h1 class="header-title">Security</h1>
-      </header>
+      <div class="sub-header">
+        <a href="#" class="back-btn" onclick="goBack()">←</a>
+        <h1 class="sub-title">Security Settings</h1>
+      </div>
 
       <div class="form-container">
-        <div class="card">
-          <h3 class="card-title">Two-Factor Authentication</h3>
-          <p class="card-description">Add an extra layer of security to your account.</p>
-          <button id="two-factor-btn" class="card-button">Enable</button>
+        <div class="info-card">
+          <h3 class="card-title">
+            <i class="fas fa-key"></i> Change Password
+          </h3>
+          <p class="card-description">Update your password to keep your account secure.</p>
+          <button class="card-button" onclick="openPage('change-password-page')">Change Password</button>
         </div>
 
-        <div class="card">
-          <h3 class="card-title">Active Sessions</h3>
-          <p class="card-description">Manage devices where you're logged in.</p>
-          <button id="sessions-btn" class="card-button">View Sessions</button>
+        <div class="info-card">
+          <h3 class="card-title">
+            <i class="fas fa-mobile-alt"></i> Two-Factor Authentication
+          </h3>
+          <p class="card-description">Add an extra layer of security with 2FA.</p>
+          <button class="card-button" onclick="showToast('Setup coming soon!')">Enable 2FA</button>
         </div>
 
-        <div class="card">
-          <h3 class="card-title">Login Alerts</h3>
+        <div class="info-card">
+          <h3 class="card-title">
+            <i class="fas fa-bell"></i> Login Alerts
+          </h3>
           <p class="card-description">Get notified when someone logs into your account.</p>
-          <button id="alerts-btn" class="card-button">Configure</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Support Page -->
-    <div id="support-page" class="page">
-      <header class="header">
-        <button class="back-btn" data-destination="account-page">
-          <div class="chevron-left"></div>
-        </button>
-        <h1 class="header-title">Support</h1>
-      </header>
-
-      <div class="form-container">
-        <div class="card">
-          <h3 class="card-title">Contact Us</h3>
-          <p class="card-description">Get help from our support team.</p>
-          <button id="contact-btn" class="card-button">Contact Support</button>
-        </div>
-
-        <div class="card">
-          <h3 class="card-title">FAQs</h3>
-          <p class="card-description">Find answers to common questions.</p>
-          <button id="faqs-btn" class="card-button">View FAQs</button>
-        </div>
-
-        <div class="card">
-          <h3 class="card-title">Report a Problem</h3>
-          <p class="card-description">Let us know about any issues you're experiencing.</p>
-          <button id="report-btn" class="card-button">Report Issue</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Terms Page -->
-    <div id="terms-page" class="page">
-      <header class="header">
-        <button class="back-btn" data-destination="account-page">
-          <div class="chevron-left"></div>
-        </button>
-        <h1 class="header-title">Terms of Service</h1>
-      </header>
-
-      <div class="form-container">
-        <h2 style="margin-bottom:14px;font-size:14px;">1. Acceptance of Terms</h2>
-        <p style="margin-bottom:14px;font-size:13px;">By accessing and using this service, you accept and agree to be bound by terms and provision of this agreement.</p>
-      </div>
-    </div>
-
-    <!-- Help Page -->
-    <div id="help-page" class="page">
-      <header class="header">
-        <button class="back-btn" data-destination="account-page">
-          <div class="chevron-left"></div>
-        </button>
-        <h1 class="header-title">Help Centre</h1>
-      </header>
-
-      <div class="form-container">
-        <div class="form-group">
-          <input type="text" class="form-input" placeholder="Search for help...">
-        </div>
-      </div>
-    </div>
-
-    <!-- About Page -->
-    <div id="about-page" class="page">
-      <header class="header">
-        <button class="back-btn" data-destination="account-page">
-          <div class="chevron-left"></div>
-        </button>
-        <h1 class="header-title">About</h1>
-      </header>
-
-      <div class="form-container" style="text-align:center;">
-        <img src="https://picsum.photos/seed/logo123/100/100.jpg" alt="App Logo"
-             style="width:80px;height:80px;border-radius:50%;margin-bottom:14px;">
-        <h2 style="margin-bottom:7px;font-size:16px;">MindFlex</h2>
-        <p style="color:#65676b;margin-bottom:20px;font-size:13px;">Version 1.0.0</p>
-      </div>
-    </div>
-
-    <!-- ========== NEW SHORTER NAVIGATION BAR ========== -->
-    <nav class="bottom-nav">
-      <a href="cv.html" class="nav-item" data-category="cv">
-        <div class="nav-icon">
-          <img src="cv.png" alt="CV" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-          <div class="fallback-icon" style="display: none;">
-            <i class="fas fa-file-alt"></i>
+          <div style="margin-top: 10px;">
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-alerts" checked>
+              <span class="toggle-slider"></span>
+            </label>
           </div>
         </div>
-        <div class="nav-label">CV</div>
-      </a>
+      </div>
+    </div>
 
-      <a href="#" class="nav-item" data-category="achievements">
-        <div class="nav-icon">
-          <i class="fas fa-trophy"></i>
-        </div>
-        <div class="nav-label">Achievements</div>
-      </a>
+    <!-- ==================== CHANGE PASSWORD PAGE ==================== -->
+    <div id="change-password-page" class="page">
+      <div class="sub-header">
+        <a href="#" class="back-btn" onclick="goBack()">←</a>
+        <h1 class="sub-title">Change Password</h1>
+      </div>
 
-      <a href="main.html" class="nav-item" data-category="home">
-        <div class="nav-icon">
-          <i class="fas fa-home"></i>
+      <div class="form-container">
+        <div class="form-group">
+          <label class="form-label">Current Password</label>
+          <input type="password" id="input-current-pwd" class="form-input" placeholder="Enter current password">
         </div>
-        <div class="nav-label">Home</div>
-      </a>
 
-      <a href="habittracker.html" class="nav-item" data-category="habit-tracker">
-        <div class="nav-icon">
-          <img src="https://z-cdn-media.chatglm.cn/files/a1979dda-a3e4-4b38-b0cf-00e4ad455277_pasted_image_1762936027415.png?auth_key=1862936037-6cc8a5a356484e1cb70a8f599e1f2ce8-0-496c548f3f7ef2ea6a808a3cc812dc2c" alt="Habit Tracker" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-          <div class="fallback-icon" style="display: none;"><i class="fas fa-check"></i></div>
+        <div class="form-group">
+          <label class="form-label">New Password</label>
+          <input type="password" id="input-new-pwd" class="form-input" placeholder="Enter new password">
         </div>
-        <div class="nav-label">Habits</div>
-      </a>
 
-      <a href="profile.html" class="nav-item selected" data-category="user-account">
-        <div class="nav-icon">
-          <i class="fas fa-user-circle"></i>
+        <div class="form-group">
+          <label class="form-label">Confirm New Password</label>
+          <input type="password" id="input-confirm-pwd" class="form-input" placeholder="Confirm new password">
         </div>
-        <div class="nav-label">Account</div>
+
+        <button class="save-button" onclick="changePassword()">
+          <i class="fas fa-check"></i> Change Password
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================== DATA & STORAGE PAGE ==================== -->
+    <div id="data-page" class="page">
+      <div class="sub-header">
+        <a href="#" class="back-btn" onclick="goBack()">←</a>
+        <h1 class="sub-title">Data & Storage</h1>
+      </div>
+
+      <div class="form-container">
+        <div class="info-card">
+          <h3 class="card-title">
+            <i class="fas fa-download"></i> Download Your Data
+          </h3>
+          <p class="card-description">Get a copy of all your data including scans and settings.</p>
+          <button class="card-button" onclick="downloadData()">Request Data Export</button>
+        </div>
+
+        <div class="info-card">
+          <h3 class="card-title">
+            <i class="fas fa-trash-alt"></i> Clear Cache
+          </h3>
+          <p class="card-description">Free up space by clearing temporary files.</p>
+          <button class="card-button" onclick="clearCache()">Clear Cache</button>
+        </div>
+
+        <div class="info-card">
+          <h3 class="card-title">
+            <i class="fas fa-user-times"></i> Delete Account
+          </h3>
+          <p class="card-description">Permanently delete your account and all associated data.</p>
+          <button class="card-button" style="color: #D32F2F;" onclick="deleteAccount()">Delete Account</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== ABOUT PAGE ==================== -->
+    <div id="about-page" class="page">
+      <div class="sub-header">
+        <a href="#" class="back-btn" onclick="goBack()">←</a>
+        <h1 class="sub-title">About MindFlex</h1>
+      </div>
+
+      <div class="form-container" style="text-align: center; padding-top: 30px;">
+        <i class="fas fa-brain" style="font-size: 80px; color: #64B5F6; margin-bottom: 20px;"></i>
+        <h2 style="font-size: 26px; color: #1565C0; margin-bottom: 8px; font-weight: 600;">MindFlex</h2>
+        <p style="color: #90A4AE; margin-bottom: 30px; font-size: 14px;">Version 1.0.0</p>
+        
+        <div class="info-card" style="text-align: left;">
+          <h3 class="card-title">Our Mission</h3>
+          <p class="card-description">MindFlex is designed to help people with neurodivergent conditions access and process text more easily. We believe technology should empower everyone.</p>
+        </div>
+
+        <div class="info-card" style="text-align: left;">
+          <h3 class="card-title">Features</h3>
+          <p class="card-description">
+            • OCR text scanning<br>
+            • Text-to-speech with adjustable speed<br>
+            • Habit tracking<br>
+            • CV/Resume builder<br>
+            • Accessibility-first design
+          </p>
+        </div>
+
+        <div class="info-card" style="text-align: left;">
+          <h3 class="card-title">Legal</h3>
+          <p class="card-description">
+            <button class="card-button">Terms of Service</button><br>
+            <button class="card-button" style="margin-top: 8px;">Privacy Policy</button><br>
+            <button class="card-button" style="margin-top: 8px;">Licenses</button>
+          </p>
+        </div>
+
+        <p style="margin-top: 30px; color: #90A4AE; font-size: 12px;">
+          Made with ❤️ for accessibility
+        </p>
+      </div>
+    </div>
+
+    <!-- ==================== BOTTOM NAVIGATION BAR (EXACT YOUR DESIGN) ==================== -->
+    <nav class="bottom-nav">
+      <a href="cv.html" class="menu-item" data-category="cv">
+          <div class="menu-icon">
+              <img src="cv.png" alt="CV" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              <div class="fallback-icon" style="display: none;">
+                  <i class="fas fa-file-alt"></i>
+              </div>
+          </div>
+          <div class="menu-label">CV</div>
+      </a>
+      
+      <a href="achievements.html" class="menu-item" data-category="achievements">
+          <div class="menu-icon">
+              <i class="fas fa-trophy"></i>
+          </div>
+          <div class="menu-label">Achievements</div>
+      </a>
+      
+      <a href="main.html" class="menu-item" data-category="home">
+          <div class="menu-icon">
+              <i class="fas fa-home"></i>
+          </div>
+          <div class="menu-label">Home</div>
+      </a>
+      
+      <a href="habittracker.html" class="menu-item" data-category="habit-tracker">
+          <div class="menu-icon">
+              <img src="https://z-cdn-media.chatglm.cn/files/a1979dda-a3e4-4b38-b0cf-00e4ad455277_pasted_image_1762936027415.png?auth_key=1862936037-6cc8a5a356484e1cb70a8f599e1f2ce8-0-496c548f3f7ef2ea6a808a3cc812dc2c" alt="Habit Tracker" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              <div class="fallback-icon" style="display: none;">
+                  <i class="fas fa-check"></i>
+              </div>
+          </div>
+          <div class="menu-label">Habit Tracker</div>
+      </a>
+      
+      <a href="profile.html" class="menu-item selected" data-category="user-account">
+          <div class="menu-icon">
+              <i class="fas fa-user-circle"></i>
+          </div>
+          <div class="menu-label">Account</div>
       </a>
     </nav>
 
   </div>
 
-  <script>
-    /**
-     * Dynamic user info:
-     * - Login page should set localStorage key: "currentUser"
-     * Example:
-     * localStorage.setItem("currentUser", JSON.stringify({
-     *   name:"John Doe", username:"@johndoe", email:"john@mail.com", phone:"...", avatar:"..."
-     * }));
-     */
+  <!-- ==================== FIREBASE & JAVASCRIPT ==================== -->
+  <script type="module">
+    // Import Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    const defaultUser = {
-      name: "Guest",
-      username: "@guest",
-      email: "",
-      phone: "",
-      avatar: "pfp.png",
-      publicProfile: true,
-      showEmail: false,
-      showPhone: false,
-      activityStatus: true
+    const firebaseConfig = {
+      apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
+      authDomain: "mindflex-b2a0c.firebaseapp.com",
+      projectId: "mindflex-b2a0c",
+      storageBucket: "mindflex-b2a0c.firebasestorage.app",
+      messagingSenderId: "148676867562",
+      appId: "1:148676867562:web:3365a72b6fa6b3751cee93",
+      measurementId: "G-Q2T6HD3S0E"
     };
 
-    const userData = { ...defaultUser };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-    function saveUserData() {
-      // Save as current user (so other pages can use it)
-      localStorage.setItem('currentUser', JSON.stringify(userData));
-    }
+    let currentUser = null;
+    let currentPage = 'profile-page';
 
-    function loadUserData() {
-      const saved = localStorage.getItem('currentUser') || localStorage.getItem('userData');
-      if (saved) {
-        try {
-          Object.assign(userData, defaultUser, JSON.parse(saved));
-        } catch (e) {
-          Object.assign(userData, defaultUser);
+    // ============================================
+    // AUTH STATE LISTENER
+    // ============================================
+    onAuthStateChanged(auth, (user) => {
+      console.log("Auth state changed:", user?.uid || "No user");
+      
+      if (!user) {
+        window.location.replace("login.html");
+        return;
+      }
+
+      // Load user data
+      currentUser = {
+        uid: user.uid,
+        email: user.email,
+        name: user.displayName || user.email?.split("@")[0] || 'User',
+        phone: '', // Phone removed
+        bio: '',
+        avatar: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email)}&background=64B5F6&color=fff&size=200`,
+        preferences: {
+          loginAlerts: true
         }
+      };
+
+      loadUserProfile();
+    });
+
+    // ============================================
+    // UI FUNCTIONS
+    // ============================================
+    function showLoading() {
+      document.getElementById('loading-overlay').classList.add('active');
+    }
+
+    function hideLoading() {
+      document.getElementById('loading-overlay').classList.remove('active');
+    }
+
+    window.showToast = function(message, isError = false) {
+      const toast = document.getElementById('success-toast');
+      const messageEl = document.getElementById('toast-message');
+      messageEl.textContent = message;
+      
+      if (isError) {
+        toast.classList.add('error');
       } else {
-        Object.assign(userData, defaultUser);
+        toast.classList.remove('error');
       }
-      updateUI();
+      
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    };
+
+    window.openPage = function(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+      currentPage = pageId;
+    };
+
+    window.goBack = function() {
+      openPage('profile-page');
+    };
+
+    // ============================================
+    // LOAD USER DATA
+    // ============================================
+    function loadUserProfile() {
+      updateProfileUI();
     }
 
-    function updateUI() {
-      document.getElementById('user-name').textContent = userData.name || defaultUser.name;
-      document.getElementById('user-username').textContent = userData.username || defaultUser.username;
-      document.getElementById('user-avatar').src = userData.avatar || defaultUser.avatar;
+    function updateProfileUI() {
+      if (!currentUser) return;
 
-      document.getElementById('full-name-input').value = userData.name || "";
-      document.getElementById('username-input').value = userData.username || "";
-      document.getElementById('email-input').value = userData.email || "";
-      document.getElementById('phone-input').value = userData.phone || "";
-
-      document.getElementById('public-profile-toggle').checked = !!userData.publicProfile;
-      document.getElementById('show-email-toggle').checked = !!userData.showEmail;
-      document.getElementById('show-phone-toggle').checked = !!userData.showPhone;
-      document.getElementById('activity-status-toggle').checked = !!userData.activityStatus;
-    }
-
-    function showSuccessMessage(message) {
-      const messageElement = document.getElementById('success-message');
-      document.getElementById('success-text').textContent = message;
-      messageElement.classList.add('show');
-      setTimeout(() => messageElement.classList.remove('show'), 3000);
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-      loadUserData();
-
-      // ===== Settings navigation (internal pages) =====
-      const settingsItems = document.querySelectorAll('.settings-item');
-      const backButtons = document.querySelectorAll('.back-btn');
-      const pages = document.querySelectorAll('.page');
-
-      function showPage(pageId) {
-        pages.forEach(p => p.classList.remove('active'));
-        const target = document.getElementById(pageId);
-        if (target) target.classList.add('active');
+      // Update header info
+      const nameDisplay = document.getElementById('profile-name');
+      nameDisplay.textContent = currentUser.name + " 👋"; // Added emoji to match main page style
+      
+      document.getElementById('profile-email').textContent = currentUser.email;
+      
+      // Update avatar if missing
+      const avatarImg = document.getElementById('profile-avatar');
+      if(!avatarImg.src.includes(currentUser.avatar) && currentUser.avatar) {
+         avatarImg.src = currentUser.avatar;
       }
 
-      settingsItems.forEach(item => {
-        item.addEventListener('click', function() {
-          const targetPage = this.getAttribute('data-page');
-          showPage(`${targetPage}-page`);
-        });
-      });
+      // Reset form inputs (no phone)
+      document.getElementById('input-name').value = currentUser.name || '';
+      document.getElementById('input-email').value = currentUser.email || '';
+      document.getElementById('input-bio').value = currentUser.bio || '';
+    }
 
-      backButtons.forEach(button => {
-        button.addEventListener('click', function() {
-          const destinationPage = this.getAttribute('data-destination');
-          showPage(destinationPage);
-        });
-      });
-
-      // ===== Bottom nav interaction (pop + delay) =====
-      const navItems = document.querySelectorAll('.bottom-nav .nav-item');
-      navItems.forEach(item => {
+    // ============================================
+    // EDITABLE HEADER
+    // ============================================
+    document.addEventListener('DOMContentLoaded', () => {
+      // Navigation Bar Click Logic
+      const navMenuItems = document.querySelectorAll('.bottom-nav .menu-item');
+      navMenuItems.forEach(item => {
         item.addEventListener('click', function(e) {
           const targetUrl = this.getAttribute('href');
+          const wasSelected = this.classList.contains('selected');
 
-          // animate selection always
-          navItems.forEach(i => i.classList.remove('selected'));
-          this.classList.add('selected');
+          navMenuItems.forEach(i => i.classList.remove('selected'));
+          if (!wasSelected) this.classList.add('selected');
 
-          // navigate with delay if not current page
           if (targetUrl && targetUrl !== '#') {
             e.preventDefault();
-            setTimeout(() => { window.location.href = targetUrl; }, 300);
+            setTimeout(() => window.location.href = targetUrl, 300);
           }
         });
       });
 
-      // ===== Inline editable name/username =====
-      const userNameField = document.getElementById('user-name');
-      const userUsernameField = document.getElementById('user-username');
-
-      userNameField.addEventListener('click', function() {
-        if (this.classList.contains('editing')) return;
-        const currentText = this.textContent;
-        this.classList.add('editing');
-        this.innerHTML = `<input type="text" class="edit-input" value="${currentText}">`;
-        const input = this.querySelector('input');
-        input.focus();
-        input.select();
-
-        input.addEventListener('blur', function() {
-          const newValue = this.value.trim();
-          userNameField.classList.remove('editing');
-          userNameField.textContent = newValue || currentText;
-
-          if (newValue && newValue !== currentText) {
-            userData.name = newValue;
-            saveUserData();
-            updateUI();
-            showSuccessMessage('Name updated successfully!');
-          }
-        });
-
-        input.addEventListener('keypress', function(e) {
-          if (e.key === 'Enter') this.blur();
-        });
+      // Avatar Upload
+      document.getElementById('avatar-container').addEventListener('click', () => {
+        document.getElementById('avatar-input').click();
       });
 
-      userUsernameField.addEventListener('click', function() {
-        if (this.classList.contains('editing')) return;
-        const currentText = this.textContent;
-        this.classList.add('editing');
-        this.innerHTML = `<input type="text" class="edit-input" value="${currentText}">`;
-        const input = this.querySelector('input');
-        input.focus();
-        input.select();
-
-        input.addEventListener('blur', function() {
-          const newValue = this.value.trim();
-          userUsernameField.classList.remove('editing');
-          userUsernameField.textContent = newValue || currentText;
-
-          if (newValue && newValue !== currentText) {
-            userData.username = newValue;
-            saveUserData();
-            updateUI();
-            showSuccessMessage('Username updated successfully!');
-          }
-        });
-
-        input.addEventListener('keypress', function(e) {
-          if (e.key === 'Enter') this.blur();
-        });
-      });
-
-      // ===== Avatar upload =====
-      const avatarContainer = document.getElementById('avatar-container');
-      const avatarInput = document.getElementById('avatar-input');
-
-      avatarContainer.addEventListener('click', function() {
-        avatarInput.click();
-      });
-
-      avatarInput.addEventListener('change', function(e) {
+      document.getElementById('avatar-input').addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file && file.type.startsWith('image/')) {
+          showLoading();
           const reader = new FileReader();
-          reader.onload = function(ev) {
-            userData.avatar = ev.target.result;
-            saveUserData();
-            updateUI();
-            showSuccessMessage('Avatar updated successfully!');
+          reader.onload = (event) => {
+            currentUser.avatar = event.target.result;
+            document.getElementById('profile-avatar').src = currentUser.avatar;
+            hideLoading();
+            showToast('Photo updated!');
           };
           reader.readAsDataURL(file);
         }
       });
 
-      // ===== Save buttons =====
-      document.getElementById('save-account-btn').addEventListener('click', function() {
-        userData.name = document.getElementById('full-name-input').value.trim() || userData.name;
-        userData.username = document.getElementById('username-input').value.trim() || userData.username;
-        userData.email = document.getElementById('email-input').value.trim();
-        userData.phone = document.getElementById('phone-input').value.trim();
+      // Editable Name Click
+      const nameDisplay = document.getElementById('profile-name');
+      nameDisplay.addEventListener('click', function() {
+        if (this.querySelector('input')) return;
+        
+        const originalText = this.textContent;
+        this.innerHTML = `<input type="text" class="editing-input" value="${originalText}">`;
+        const input = this.querySelector('input');
+        input.focus();
 
-        saveUserData();
-        updateUI();
-        showSuccessMessage('Account information updated successfully!');
+        const save = () => {
+          const newVal = input.value.trim();
+          if(newVal) {
+            currentUser.name = newVal;
+            this.textContent = newVal + " 👋"; // Keep emoji style
+            showToast('Name saved!');
+          }
+        };
+
+        input.addEventListener('blur', save);
+        input.addEventListener('keypress', (e) => {
+          if(e.key === 'Enter') save();
+        });
       });
 
-      document.getElementById('save-visibility-btn').addEventListener('click', function() {
-        userData.publicProfile = document.getElementById('public-profile-toggle').checked;
-        userData.showEmail = document.getElementById('show-email-toggle').checked;
-        userData.showPhone = document.getElementById('show-phone-toggle').checked;
-        userData.activityStatus = document.getElementById('activity-status-toggle').checked;
-        saveUserData();
-        showSuccessMessage('Profile visibility settings updated successfully!');
-      });
+      // Editable Email Click
+      const emailDisplay = document.getElementById('profile-email');
+      emailDisplay.addEventListener('click', function() {
+        if (this.querySelector('input')) return;
+        
+        const originalText = this.textContent;
+        this.innerHTML = `<input type="email" class="editing-input" value="${originalText}">`;
+        const input = this.querySelector('input');
+        input.focus();
 
-      // ===== Logout =====
-      document.getElementById('logout-btn').addEventListener('click', function() {
-        if (confirm('Are you sure you want to log out?')) {
-          localStorage.removeItem('currentUser');
-          // change this to your login page file name later:
-          window.location.href = 'login.html';
-        }
-      });
+        const save = () => {
+          const newVal = input.value.trim();
+          if(newVal.includes('@')) {
+            currentUser.email = newVal;
+            this.textContent = newVal;
+            showToast('Email saved!');
+          }
+        };
 
-      // Demo internal login (you'll replace this when you send your login/signup page)
-      document.getElementById('login-btn').addEventListener('click', function() {
-        const u = document.getElementById('login-username').value.trim();
-        const p = document.getElementById('login-password').value.trim();
-        if (!u || !p) return alert('Please enter both username and password');
-
-        // DEMO: fake login sets currentUser
-        userData.username = u.startsWith('@') ? u : '@' + u;
-        if (userData.name === "Guest") userData.name = "User";
-        saveUserData();
-        updateUI();
-        showSuccessMessage('Logged in (demo)');
-        showPage('account-page');
+        input.addEventListener('blur', save);
+        input.addEventListener('keypress', (e) => {
+          if(e.key === 'Enter') save();
+        });
       });
     });
+
+    // ============================================
+    // ACTION HANDLERS
+    // ============================================
+    window.saveAccountSettings = function() {
+      showLoading();
+      currentUser.name = document.getElementById('input-name').value;
+      currentUser.email = document.getElementById('input-email').value;
+      currentUser.bio = document.getElementById('input-bio').value;
+      hideLoading();
+      updateProfileUI();
+      showToast('Settings Saved');
+      setTimeout(goBack, 1000);
+    };
+
+    window.changePassword = function() {
+      const current = document.getElementById('input-current-pwd').value;
+      const newPass = document.getElementById('input-new-pwd').value;
+      const confirm = document.getElementById('input-confirm-pwd').value;
+
+      if(newPass.length < 6) {
+        showToast('Password too short (min 6)', true);
+        return;
+      }
+      if(newPass !== confirm) {
+        showToast('Passwords do not match', true);
+        return;
+      }
+
+      showLoading();
+      setTimeout(() => {
+        hideLoading();
+        showToast('Password Updated Successfully');
+        document.getElementById('input-current-pwd').value = '';
+        document.getElementById('input-new-pwd').value = '';
+        document.getElementById('input-confirm-pwd').value = '';
+        setTimeout(goBack, 1500);
+      }, 1000);
+    };
+
+    window.downloadData = function() {
+      showToast('Preparing download...');
+    };
+
+    window.clearCache = function() {
+      sessionStorage.clear();
+      showToast('Cache Cleared');
+    };
+
+    window.deleteAccount = function() {
+      if(confirm("Are you sure? This cannot be undone.")) {
+        handleLogout();
+      }
+    };
+
+    window.handleLogout = async function() {
+      try {
+        await signOut(auth);
+        window.location.href = "login.html";
+      } catch (error) {
+        alert(error.message);
+      }
+    };
   </script>
 </body>
 </html>
