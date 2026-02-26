@@ -357,38 +357,48 @@ textarea {
 </div>
 <script>
 let stream = null;
+let facingMode = "environment";
 
 const video = document.getElementById("video");
 const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d");
 
-/* ---------- START CAMERA ---------- */
+/* ---------- INIT ---------- */
 window.addEventListener("load", startCamera);
 
+
+
+/* ---------- START CAMERA ---------- */
 async function startCamera() {
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+  }
+
   try {
     stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "environment" },
+      video: { facingMode: facingMode },
       audio: false
     });
 
     video.srcObject = stream;
     await video.play();
 
-    console.log("Camera started");
-
   } catch (err) {
-    console.error(err);
-    alert("Camera error: " + err.message);
+    console.error("Camera error:", err);
   }
 }
 
-/* ---------- SCAN TEXT ---------- */
+/* ---------- FLIP CAMERA ---------- */
+function flipCamera() {
+  facingMode =
+    facingMode === "environment" ? "user" : "environment";
+
+  startCamera();
+}
+
+/* ---------- OCR SCAN ---------- */
 async function scanText() {
-  if (!video.videoWidth) {
-    alert("Camera not ready");
-    return;
-  }
+  if (!video.videoWidth) return;
 
   document.getElementById("outputText").value = "Scanning...";
 
@@ -405,15 +415,57 @@ async function scanText() {
       body: JSON.stringify({ image: imageData })
     });
 
-    const data = await response.json();
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(text);
+    }
 
+    const data = await response.json();
     document.getElementById("outputText").value =
       data.text || "No text detected";
 
   } catch (err) {
     console.error(err);
-    alert("OCR failed");
+    document.getElementById("outputText").value = "OCR failed";
   }
+}
+/* ---------- SPEECH ---------- */
+/* ---------- SPEECH ---------- */
+let speechRate = 1.0;
+let currentUtterance = null;
+
+function speakText() {
+  const text = document.getElementById("outputText").value;
+
+  if (!text) {
+    alert("No text to read");
+    return;
+  }
+
+  // Stop any ongoing speech
+  window.speechSynthesis.cancel();
+
+  currentUtterance = new SpeechSynthesisUtterance(text);
+  currentUtterance.rate = speechRate;
+
+  window.speechSynthesis.speak(currentUtterance);
+}
+
+/* ---------- SPEED CONTROL ---------- */
+
+function increaseSpeed() {
+  speechRate = Math.min(2.0, speechRate + 0.1);
+  updateSpeedDisplay();
+}
+
+function decreaseSpeed() {
+  speechRate = Math.max(0.5, speechRate - 0.1);
+  updateSpeedDisplay();
+}
+
+function updateSpeedDisplay() {
+  document.getElementById("speedDisplay").innerText =
+    "Speed: " + speechRate.toFixed(1);
 }
 </script>
 </body>
