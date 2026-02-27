@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -81,9 +80,6 @@ header{
       font-weight: bold;
       text-decoration: none;
     }
-
-
-
 /* GLASS CARD */
 .main{
   flex:1;
@@ -186,9 +182,7 @@ header{
 <div class="app">
 
 <header>
-  <div class="left-header">
-        <a href="focuslab.html" class="back-btn">←</a>
-        </div>
+  <a href="../focuslab.html" class="back-btn">←</a>
   Emotion Trainer
 </header>
 
@@ -207,31 +201,44 @@ header{
 </div>
 </div>
 
-<script type="module">
+<script type="module"> 
+
+
+import { addXP } from "../xp.js"; // adjust path
+import { getAuth, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getDoc } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 
 /* 🔥 YOUR FIREBASE CONFIG */
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID"
+  apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
+  authDomain: "mindflex-b2a0c.firebaseapp.com",
+  projectId: "mindflex-b2a0c",
+  storageBucket: "mindflex-b2a0c.firebasestorage.app",
+  messagingSenderId: "148676867562",
+  appId: "1:148676867562:web:3365a72b6fa6b3751cee93",
+  measurementId: "G-Q2T6HD3S0E"
 };
+
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* DEVICE ID */
-function getDeviceId(){
-  let id = localStorage.getItem("mindflex_device");
-  if(!id){
-    id = crypto.randomUUID();
-    localStorage.setItem("mindflex_device", id);
+const auth = getAuth(app);
+let currentUser = null;
+onAuthStateChanged(auth, async (user) => {
+  if(user){
+    currentUser = user;
+    await loadProgress();   // 🔥 start game here
+  } else {
+    alert("Please login first.");
+    window.location.href = "/login.html";
   }
-  return id;
-}
-const deviceId = getDeviceId();
-
+});
 /* SAMPLE LEVELS */
 const levels = [
 
@@ -994,21 +1001,23 @@ function loadLevel(){
   });
 }
 
-function handleAnswer(selected, clickedButton){
+async function handleAnswer(selected, clickedButton){
   const data = levels[level-1];
 
-  if(selected === data.correctIndex){
+ if(selected === data.correctIndex){
 
-    clickedButton.classList.add("correct");
-    correctCount++;
-    explanationBox.textContent="Correct. Good emotional reasoning.";
-    nextBtn.style.display="block";
+  clickedButton.classList.add("correct");
+  correctCount++;
 
-    // disable all buttons after correct
-    document.querySelectorAll(".option-btn")
-      .forEach(btn=>btn.disabled=true);
+  await addXP(db, currentUser, 5);   // 🔥 GIVE 5 XP
 
-  } else {
+  explanationBox.textContent="Correct. Good emotional reasoning.";
+  nextBtn.style.display="block";
+
+  document.querySelectorAll(".option-btn")
+    .forEach(btn=>btn.disabled=true);
+}
+  else {
 
     wrongAttempts++;
     clickedButton.classList.add("wrong");
@@ -1021,35 +1030,80 @@ function handleAnswer(selected, clickedButton){
     },800);
   }
 }
-
 nextBtn.onclick = async ()=>{
   level++;
 
+  await saveProgress();   // 🔥 important
+
   if(level > levels.length){
-    await saveProgress();
+
+    await addXP(db, currentUser, 50);
+
+    if(wrongAttempts === 0){
+      await addXP(db, currentUser, 25);
+    }
+
     alert("Training Complete");
+
     level = 1;
+    correctCount = 0;
+    wrongAttempts = 0;
+
+    await saveProgress();  // reset saved progress
   }
 
   loadLevel();
 };
 
 async function saveProgress(){
-  const accuracy = (
-    (correctCount/(correctCount+wrongAttempts))*100
-  ).toFixed(2);
 
-  await setDoc(doc(db,"progress",deviceId),{
-    emotionTrainer:{
-      level,
-      correct:correctCount,
-      wrongAttempts,
-      accuracy
-    }
-  },{merge:true});
+  if(!currentUser) return;
+
+  const totalAnswered = correctCount + wrongAttempts;
+
+  const accuracy = totalAnswered > 0 
+    ? ((correctCount / totalAnswered) * 100).toFixed(2)
+    : 0;
+
+  await setDoc(
+    doc(db, "users", currentUser.uid, 
+        "games", "emotiontracker"),
+    {
+      currentLevel: level,
+      totalCorrect: correctCount,
+      totalWrong: wrongAttempts,
+      totalAnswered,
+      accuracy,
+	completed: level > levels.length,
+      lastPlayed: new Date()
+    },
+    { merge: true }
+  );
 }
 
-loadLevel();
+async function loadProgress(){
+
+  if(!currentUser) return;
+
+  const docRef = doc(
+    db,
+    "users",
+    currentUser.uid,
+    "games",
+    "emotiontracker"
+  );
+
+  const snapshot = await getDoc(docRef);
+
+  if(snapshot.exists()){
+    const data = snapshot.data();
+
+    level = data.currentLevel || 1;
+    correctCount = data.totalCorrect || 0;
+    wrongAttempts = data.totalWrong || 0;
+  }
+	loadLevel();  
+}
 </script>
 
 </body>
