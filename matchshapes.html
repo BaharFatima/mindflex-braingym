@@ -1,233 +1,349 @@
+
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Match the Shapes - Tier 1</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<title>MindFlex - Match Shapes</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+
 <style>
-body {
-  font-family: 'Poppins', sans-serif;
-  background: linear-gradient(180deg, #E3F2FD, #FFFFFF);
-  text-align: center;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  max-width: 320px;
-  height: 640px;
-  margin: auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#E5E7EB;
+  font-family:'Poppins',sans-serif;
 }
 
-/* HEADER */
-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  padding: 18px 0 10px 0;
-  font-size: 20px;
-}
-.page-title {
-  font-weight: 600;
-  color: #1565C0;
-}
-.back-btn {
-  color: #1565C0;
-  text-decoration: none;
-  font-size: 20px;
-  position: absolute;
-  left: 16px;
-  top: 16px;
+.app{
+  width:320px;
+  height:640px;
+  background:linear-gradient(180deg,#a0c9ec,#AFC4D6);
+  border-radius:32px;
+  box-shadow:0 30px 60px rgba(0,0,0,0.25);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  position:relative;
 }
 
-/* TARGET */
-#target {
-  font-size: 18px;
-  color: #1565C0;
-  margin: 0;
+/* Decorative soft circles */
+.app::before{
+  content:"";
+  position:absolute;
+  width:180px;
+  height:180px;
+  background:rgba(255,255,255,0.2);
+  border-radius:50%;
+  top:-60px;
+  right:-60px;
 }
 
-/* GAME SECTIONS */
-#gameContainer {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
-  padding: 5px 0;
-}
-.shape-row {
-  display: flex;
-  justify-content: center;
-  gap: 25px;
-  margin: 10px 0;
-}
-.shape {
-  width: 75px;
-  height: 75px;
-  cursor: pointer;
-  transition: transform 0.25s ease, border 0.25s ease;
-  border: 3px solid transparent;
-  border-radius: 12px;
-}
-.shape:hover {
-  transform: scale(1.1);
+.app::after{
+  content:"";
+  position:absolute;
+  width:140px;
+  height:140px;
+  background:rgba(255,255,255,0.15);
+  border-radius:50%;
+  bottom:-50px;
+  left:-40px;
 }
 
-/* FEEDBACK EFFECTS */
-.correct {
-  border-color: #43A047;
-  animation: pulse 0.4s ease;
-}
-.wrong {
-  border-color: #E53935;
-  animation: shake 0.3s ease;
-}
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-  100% { transform: scale(1); }
-}
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  50% { transform: translateX(5px); }
-  75% { transform: translateX(-5px); }
+/* HEADER BAR */
+.header-bar{
+  height:70px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  color:#3e61b2;
+  font-weight:600;
+  font-size:18px;
 }
 
-/* BUTTON */
-#nextLevel {
-  background: #1E88E5;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  padding: 10px 28px;
-  font-size: 16px;
-  cursor: pointer;
-  display: none;
-  margin: 10px auto;
-  transition: background 0.3s ease;
-}
-#nextLevel:hover {
-  background: #1565C0;
+.back-btn{
+  position:absolute;
+  top:20px;
+  left:20px;
+  width:36px;
+  height:36px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  cursor:pointer;
 }
 
-/* LEVEL INDICATOR */
-#level {
-  text-align: center;
-  font-weight: 600;
-  font-size: 15px;
-  color: #0D47A1;
-  margin-bottom: 12px;
+/* LEVEL */
+.level{
+  text-align:center;
+  font-size:24px;
+  font-weight:700;
+  color:#3e61b2;
+  margin-top:5px;
 }
+
+/* QUESTION */
+.question{
+  text-align:center;
+  font-size:16px;
+  font-weight:500;
+  color:#3e61b2;
+  margin-top:5px;
+}
+
+/* GAME CARD */
+.game{
+  flex:1;
+  margin:20px;
+  background:rgba(255,255,255,0.6);
+  backdrop-filter:blur(10px);
+  border-radius:24px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  box-shadow:0 15px 30px rgba(0,0,0,0.15);
+}
+
+.row{
+  display:flex;
+  gap:20px;
+  margin:18px 0;
+}
+
+.shape{
+  width:90px;
+  height:90px;
+  border-radius:28px;
+  cursor:pointer;
+  box-shadow:
+    0 8px 18px rgba(0,0,0,0.25),
+    inset 0 2px 6px rgba(255,255,255,0.4);
+  transition:.2s ease;
+}
+
+.shape:hover{
+  transform:translateY(-4px) scale(1.05);
+}
+
+.correct{
+  outline:4px solid #22C55E;
+}
+
+.wrong{
+  animation:shake .3s;
+}
+
+@keyframes shake{
+  0%,100%{transform:translateX(0);}
+  25%{transform:translateX(-8px);}
+  50%{transform:translateX(8px);}
+  75%{transform:translateX(-8px);}
+}
+
+/* NEXT BUTTON */
+#next{
+  margin:15px auto 20px;
+  background:#3e61b2;
+  color:white;
+  border:none;
+  border-radius:22px;
+  padding:12px 28px;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  display:none;
+  box-shadow:0 8px 20px rgba(62,97,178,0.4);
+}
+
+
 </style>
 </head>
 <body>
+<div class="app"> 
+    <div class = "header-bar">  </div>
+<div class="back-btn" onclick="window.location.href='../focuslab.html'">←</div>
 
-<header>
-  <a href="../focuslab.html" class="back-btn">←</a>
-  <span class="page-title">Match the Shapes</span>
-</header>
+<div class="level" id="levelText">LEVEL 1</div>
+<div class="question" id="questionText"></div>
 
-<p id="target">Find the 🔵 BLUE CIRCLE</p>
-
-<div id="gameContainer">
-  <div class="shape-row" id="rowTop"></div>
-  <div class="shape-row" id="rowBottom"></div>
+<div class="game">
+  <div class="row" id="rowTop"></div>
+  <div class="row" id="rowBottom"></div>
 </div>
 
-<button id="nextLevel">Next Level ➜</button>
-<div id="level">Level 1 / 50</div>
-<script src="logistic.js"></script>
-<script>
-const shapes = ['circle', 'square', 'triangle', 'star', 'diamond'];
-const colors = ['#2196F3', '#4CAF50', '#E91E63', '#FF9800', '#9C27B0', '#00BCD4'];
+<button id="next">Next Level</button>
+
+</div>
+
+<script type="module">
+import { addXP } from "../xp.js";
+import { getAuth, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* 🔥 PUT YOUR FIREBASE CONFIG */
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+ apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
+  authDomain: "mindflex-b2a0c.firebaseapp.com",
+  projectId: "mindflex-b2a0c",
+  storageBucket: "mindflex-b2a0c.firebasestorage.app",
+  messagingSenderId: "148676867562",
+  appId: "1:148676867562:web:3365a72b6fa6b3751cee93",
+  measurementId: "G-Q2T6HD3S0E"
+};
+
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+let currentUser = null;
+
+
+
+
+/* GAME STATE */
 let level = 1;
-const maxLevel = 50;
+let correctClicks = 0;
+let wrongClicks = 0;
+let totalAttempts = 0;
 
-const topRow = document.getElementById('rowTop');
-const bottomRow = document.getElementById('rowBottom');
-const targetText = document.getElementById('target');
-const nextButton = document.getElementById('nextLevel');
-const levelDisplay = document.getElementById('level');
+const shapes = ['circle','square','triangle','diamond'];
+const colors = ['#2196F3','#E91E63','#4CAF50','#FF9800'];
 
-function randomItem(list) {
-  return list[Math.floor(Math.random() * list.length)];
+const rowTop=document.getElementById('rowTop');
+const rowBottom=document.getElementById('rowBottom');
+const levelText=document.getElementById('levelText');
+const questionText=document.getElementById('questionText');
+const nextBtn=document.getElementById('next');
+
+function randomItem(arr){
+  return arr[Math.floor(Math.random()*arr.length)];
 }
 
-function getShapeClip(shape) {
-  switch(shape) {
+function clip(shape){
+  switch(shape){
     case 'circle': return 'circle(50%)';
-    case 'square': return 'none';
-    case 'triangle': return 'polygon(50% 0%, 0% 100%, 100% 100%)';
-    case 'star': return 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)';
-    case 'diamond': return 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)';
+    case 'triangle': return 'polygon(50% 0%,0% 100%,100% 100%)';
+    case 'diamond': return 'polygon(50% 0%,100% 50%,50% 100%,0% 50%)';
     default: return 'none';
   }
 }
 
-function generateLevel() {
-  nextButton.style.display = 'none';
-  topRow.innerHTML = '';
-  bottomRow.innerHTML = '';
-
-  const allDivs = [];
-  for (let i = 0; i < 4; i++) {
-    const div = document.createElement('div');
-    div.classList.add('shape');
-    allDivs.push(div);
+async function loadProgress(){
+  const ref = doc(db,"users",currentUser.uid,"games","matchShapes");
+  const snap = await getDoc(ref);
+  if(snap.exists()){
+   const data = snap.data();
+    if(data){
+      level = data.level || 1;
+      correctClicks = data.correctClicks || 0;
+      wrongClicks = data.wrongClicks || 0;
+      totalAttempts = data.totalAttempts || 0;
+    }
   }
+  levelText.textContent = "LEVEL " + level;
+  generateLevel();
+}
 
-  const targetShape = randomItem(shapes);
-  const targetColor = randomItem(colors);
-  targetText.innerHTML = `Find the <b style="color:${targetColor}">${targetShape.toUpperCase()}</b>`;
-  levelDisplay.textContent = `Level ${level} / ${maxLevel}`;
+async function saveProgress(){
+  const accuracy = totalAttempts === 0 ? 0 :
+      ((correctClicks/totalAttempts)*100).toFixed(2);
 
-  const correctIndex = Math.floor(Math.random() * 4);
-  for (let i = 0; i < 4; i++) {
-    let shapeType, colorType;
-    if (i === correctIndex) {
-      shapeType = targetShape;
-      colorType = targetColor;
-    } else {
-      do {
-        shapeType = randomItem(shapes);
-        colorType = randomItem(colors);
-      } while (shapeType === targetShape && colorType === targetColor);
+  await setDoc(
+  doc(db,"users",currentUser.uid,"games","matchShapes"),
+ {
+  level,
+  correctClicks,
+wrongClicks,
+  totalAttempts,
+  accuracy,
+  lastPlayed: new Date()
+  },{merge:true});
+}
+function generateLevel(){
+  nextBtn.style.display="none";
+  rowTop.innerHTML="";
+  rowBottom.innerHTML="";
+
+  const targetShape=randomItem(shapes);
+  const targetColor=randomItem(colors);
+
+  questionText.innerHTML =
+    `Find the <span style="color:${targetColor}">${targetShape.toUpperCase()}</span>`;
+
+  const correctIndex=Math.floor(Math.random()*4);
+
+  for(let i=0;i<4;i++){
+    let s,c;
+
+    if(i===correctIndex){
+      s=targetShape; 
+      c=targetColor;
+    }else{
+      do{
+        s=randomItem(shapes);
+        c=randomItem(colors);
+      }while(s===targetShape && c===targetColor);
     }
 
-    const div = allDivs[i];
-    div.style.background = colorType;
-    div.style.clipPath = getShapeClip(shapeType);
+    const div=document.createElement("div");
+    div.className="shape";
+    div.style.background=c;
+    div.style.clipPath=clip(s);
 
-    div.onclick = () => {
-      if (shapeType === targetShape && colorType === targetColor) {
-        div.classList.add('correct');
-        nextButton.style.display = 'inline-block';
+    div.onclick = async () => {
+      totalAttempts++;
+
+      if(s===targetShape && c===targetColor){
+        correctClicks++;
+        div.classList.add("correct");
+
+        await addXP(db, currentUser, 3);
+        nextBtn.style.display="block";
       } else {
-        div.classList.add('wrong');
-        setTimeout(() => div.classList.remove('wrong'), 400);
+        wrongClicks++;
+        div.classList.add("wrong");
+        setTimeout(()=>div.classList.remove("wrong"),300);
       }
     };
 
-    if (i < 2) topRow.appendChild(div);
-    else bottomRow.appendChild(div);
+    // ✅ ADD SHAPE TO ROW
+    if(i < 2){
+      rowTop.appendChild(div);
+    } else {
+      rowBottom.appendChild(div);
+    }
   }
 }
-
-nextButton.onclick = () => {
+nextBtn.onclick=async()=>{
+ await addXP(db, currentUser, 5);
   level++;
-  if (level > maxLevel) {
-    alert("🎉 You completed all 50 levels! Baymax is proud of you 🤖");
-    level = 1;
-  }
+  levelText.textContent="LEVEL "+level;
+  await saveProgress();
   generateLevel();
 };
 
-generateLevel();
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    currentUser = user;
+    loadProgress();
+  } else {
+    alert("User not logged in");
+  }
+});
+
 </script>
 
 </body>
