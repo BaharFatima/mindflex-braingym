@@ -36,24 +36,21 @@
     
     /* Header */
     .header {
+      position: relative;
       padding: 14px 16px 10px;
       color: #0D47A1;
       flex-shrink: 0;
     }
-    
+
     .back-btn {
-      background: none;
-      border: none;
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      font-size: 1.6rem;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      color: #1565C0;
-      font-size: 13px;
-      font-weight: 600;
-      font-family: 'Poppins', sans-serif;
-      padding: 4px 0;
-      margin-bottom: 6px;
+      color: #003366;
+      font-weight: bold;
+      text-decoration: none;
     }
 
     .header-title {
@@ -620,9 +617,7 @@
 <div class="container">
   <!-- Header -->
   <div class="header">
-    <button class="back-btn" id="backBtn">
-      ← Back
-    </button>
+    <a href="Studyzone.html" class="back-btn">←</a>
     <div class="header-title">
       <h2 id="headerTitle">📚 StudyLens</h2>
       <p id="headerSubtitle">Upload a doc to generate a study set</p>
@@ -841,7 +836,6 @@ const STOP = new Set([
   'which','while','who','why','will','with','would','you','your','s','t','re','ll','ve','d'
 ]);
 
-// Important phrase indicators
 const IMPORTANT_INDICATORS = [
   'therefore','thus','hence','consequently','as a result','shows that','demonstrates',
   'found that','evidence','indicates','suggests','proves','confirms','reveals','discovered',
@@ -861,9 +855,7 @@ const DEFINITION_PATTERNS = [
   'describes','represents','denotes','signifies'
 ];
 
-// Better sentence splitting — handles more edge cases
 function extractSentences(text) {
-  // Split into paragraphs first
   const paragraphs = text.split(/\n\n+/).filter(p => p.trim().length > 0);
   const allSentences = [];
   
@@ -896,54 +888,32 @@ function extractWords(text) {
   return text.toLowerCase().match(/\b[a-z]{3,}\b/g) || [];
 }
 
-// Extract nouns (capitalized words + common noun patterns)
 function extractNouns(text) {
   const words = text.match(/\b[A-Z][a-z]+\b/g) || [];
   const candidates = text.match(/\b[a-z]{4,}\b/g) || [];
-  
-  // Common noun endings
   const nounEndings = ['tion','sion','ment','ness','ity','ence','ance','ism','ship','dom'];
   const nouns = new Set(words.map(w => w.toLowerCase()));
-  
   candidates.forEach(w => {
-    if (nounEndings.some(end => w.endsWith(end))) {
-      nouns.add(w);
-    }
+    if (nounEndings.some(end => w.endsWith(end))) nouns.add(w);
   });
-  
   return Array.from(nouns);
 }
 
-// Enhanced keyword extraction with better scoring
 function extractKeywords(text, n = 25) {
   const allWords = extractWords(text).filter(w => !STOP.has(w));
   const freq = {};
   allWords.forEach(w => freq[w] = (freq[w] || 0) + 1);
-  
-  // Find capitalized terms (proper nouns)
   const capitals = new Set((text.match(/\b[A-Z][a-z]{2,}\b/g) || []).map(w => w.toLowerCase()));
-  
-  // Find nouns
   const nouns = new Set(extractNouns(text));
-  
   return Object.entries(freq)
     .filter(([word, count]) => count >= 2)
     .map(([word, count]) => {
       let score = count;
-      
-      // Boost capitalized words (likely key terms)
       if (capitals.has(word)) score *= 2.0;
-      
-      // Boost nouns
       if (nouns.has(word)) score *= 1.5;
-      
-      // Boost longer words (more specific)
       score *= (1 + Math.log(1 + word.length / 5));
-      
-      // Slight boost for mid-frequency (not too common, not too rare)
       const docFreq = count / allWords.length;
       if (docFreq > 0.005 && docFreq < 0.05) score *= 1.3;
-      
       return { word, score };
     })
     .sort((a, b) => b.score - a.score)
@@ -951,27 +921,21 @@ function extractKeywords(text, n = 25) {
     .map(x => x.word);
 }
 
-// Extract important phrases (bigrams/trigrams)
 function extractPhrases(text, n = 15) {
   const sentences = extractSentences(text);
   const phrases = {};
-  
   sentences.forEach(({ text: sent }) => {
     const words = sent.toLowerCase().match(/\b[a-z]{3,}\b/g) || [];
-    
     for (let i = 0; i < words.length - 1; i++) {
       if (STOP.has(words[i]) || STOP.has(words[i + 1])) continue;
-      
       const bigram = `${words[i]} ${words[i + 1]}`;
       phrases[bigram] = (phrases[bigram] || 0) + 1;
-      
       if (i < words.length - 2 && !STOP.has(words[i + 2])) {
         const trigram = `${words[i]} ${words[i + 1]} ${words[i + 2]}`;
         phrases[trigram] = (phrases[trigram] || 0) + 1;
       }
     }
   });
-  
   return Object.entries(phrases)
     .filter(([phrase, count]) => count >= 2)
     .sort((a, b) => b[1] - a[1])
@@ -979,107 +943,64 @@ function extractPhrases(text, n = 15) {
     .map(([phrase]) => phrase.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
 }
 
-// Advanced sentence ranking with multiple signals
 function rankSentences(text, keywords) {
   const sentences = extractSentences(text);
   const kwSet = new Set(keywords);
   const allWords = extractWords(text).filter(w => !STOP.has(w));
   const wordFreq = {};
   allWords.forEach(w => wordFreq[w] = (wordFreq[w] || 0) + 1);
-  
   return sentences.map((sentObj, globalIdx) => {
     const { text: sent, paraIndex, isFirstInPara, paraTotal } = sentObj;
     const sentLower = sent.toLowerCase();
     const words = extractWords(sent).filter(w => !STOP.has(w));
-    
     if (words.length === 0) return { ...sentObj, score: 0, globalIdx };
-    
     let score = 0;
-    
-    // 1. Keyword density (main signal)
     const keywordHits = words.filter(w => kwSet.has(w)).length;
     score += keywordHits * 3;
-    
-    // 2. TF-IDF score
     const tfidf = words.reduce((sum, w) => sum + (1 / (wordFreq[w] || 1)), 0) / words.length;
     score += tfidf * 50;
-    
-    // 3. Position bonuses
-    if (isFirstInPara) score *= 1.4; // Topic sentences
-    if (paraIndex === 0) score *= 1.3; // Introduction
-    if (paraIndex === paraTotal - 1) score *= 1.2; // Conclusion
-    
-    // 4. Important phrase indicators
+    if (isFirstInPara) score *= 1.4;
+    if (paraIndex === 0) score *= 1.3;
+    if (paraIndex === paraTotal - 1) score *= 1.2;
     const hasImportantPhrase = IMPORTANT_INDICATORS.some(ind => sentLower.includes(ind));
     if (hasImportantPhrase) score *= 1.6;
-    
-    // 5. Conclusion indicators
     const hasConclusion = CONCLUSION_INDICATORS.some(ind => sentLower.includes(ind));
     if (hasConclusion) score *= 1.4;
-    
-    // 6. Contains numbers/statistics (concrete info)
     if (/\d+(\.\d+)?%?/.test(sent)) score *= 1.3;
-    
-    // 7. Causal/explanatory language
     if (sentLower.includes('because') || sentLower.includes('therefore') || 
-        sentLower.includes('causes') || sentLower.includes('results in')) {
-      score *= 1.3;
-    }
-    
-    // 8. Length penalty (too short or too long)
+        sentLower.includes('causes') || sentLower.includes('results in')) score *= 1.3;
     if (words.length < 8 || words.length > 40) score *= 0.7;
-    
-    // 9. Question penalty (not good for summaries)
     if (sent.includes('?')) score *= 0.5;
-    
-    // 10. Transitional sentence penalty
     const transitions = ['however','moreover','furthermore','additionally','meanwhile'];
     if (transitions.some(t => sentLower.startsWith(t))) score *= 0.8;
-    
     return { ...sentObj, score, globalIdx };
   });
 }
 
-// Smarter glossary with better definition detection
 function buildGlossary(text, keywords, phrases) {
   const sentences = extractSentences(text);
   const terms = [...new Set([...phrases, ...keywords.slice(0, 10).map(w => w.charAt(0).toUpperCase() + w.slice(1))])];
   const glossary = [];
-  
   terms.forEach(term => {
     const termLower = term.toLowerCase();
-    const termWords = termLower.split(' ');
-    
-    // Find defining sentences
     const definitions = sentences.filter(({ text: sent }) => {
       const sentLower = sent.toLowerCase();
-      
-      // Must contain the term
       if (!sentLower.includes(termLower)) return false;
-      
-      // Check for definition patterns
       return DEFINITION_PATTERNS.some(pattern => {
         const idx = sentLower.indexOf(termLower);
         const afterTerm = sentLower.slice(idx + termLower.length, idx + termLower.length + 30);
         return afterTerm.includes(pattern);
       });
     });
-    
-    // Also check for parenthetical definitions: "RNA (ribonucleic acid)"
     const parenthetical = sentences.find(({ text: sent }) => {
       const regex = new RegExp(`${termLower}\\s*\\([^)]+\\)`, 'i');
       return regex.test(sent);
     });
-    
-    // Also check for appositive phrases: "mitosis, the process of..."
     const appositive = sentences.find(({ text: sent }) => {
       const regex = new RegExp(`${termLower},\\s+(the|a|an)\\s+[a-z]+`, 'i');
       return regex.test(sent);
     });
-    
     let bestDef = definitions[0] || parenthetical || appositive;
-    
-    // Fallback: sentence with term + important indicator
     if (!bestDef) {
       bestDef = sentences.find(({ text: sent }) => {
         const sentLower = sent.toLowerCase();
@@ -1087,7 +1008,6 @@ function buildGlossary(text, keywords, phrases) {
                IMPORTANT_INDICATORS.some(ind => sentLower.includes(ind));
       });
     }
-    
     if (bestDef) {
       glossary.push({
         term,
@@ -1095,160 +1015,96 @@ function buildGlossary(text, keywords, phrases) {
       });
     }
   });
-  
   return glossary.slice(0, 12);
 }
 
-// Smarter flashcard generation
 function buildFlashcards(text, keywords, rankedSents) {
   const cards = [];
   const usedTerms = new Set();
   const nouns = new Set(extractNouns(text));
-  
-  // Type 1: Fill-in-the-blank with key nouns
   const topSentences = rankedSents
     .filter(s => s.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, 20);
-  
   for (const { text: sent } of topSentences) {
     if (cards.length >= 8) break;
-    
     const words = extractWords(sent).filter(w => !STOP.has(w) && w.length > 4);
-    
-    // Find best noun to blank out
     const candidateNouns = words.filter(w => nouns.has(w) && !usedTerms.has(w));
     const bestNoun = candidateNouns.find(n => keywords.includes(n)) || candidateNouns[0];
-    
     if (!bestNoun) continue;
-    
     usedTerms.add(bestNoun);
     const term = bestNoun.charAt(0).toUpperCase() + bestNoun.slice(1);
     const masked = sent.replace(new RegExp(`\\b${bestNoun}\\b`, 'gi'), '______');
-    
-    // Only add if the masked sentence makes sense as a question
     if (masked.includes('______') && masked.length < 200) {
-      cards.push({
-        front: masked,
-        back: sent.trim(),
-        term
-      });
+      cards.push({ front: masked, back: sent.trim(), term });
     }
   }
-  
-  // Type 2: "What is X?" definition-style cards
   const defSentences = extractSentences(text).filter(({ text: sent }) => {
     const sentLower = sent.toLowerCase();
     return DEFINITION_PATTERNS.some(pattern => sentLower.includes(pattern));
   });
-  
   for (const { text: sent } of defSentences) {
     if (cards.length >= 12) break;
-    
     const words = extractWords(sent).filter(w => !STOP.has(w) && w.length > 4);
     const keyNoun = words.find(w => nouns.has(w) && !usedTerms.has(w));
-    
     if (keyNoun) {
       usedTerms.add(keyNoun);
       const term = keyNoun.charAt(0).toUpperCase() + keyNoun.slice(1);
-      cards.push({
-        front: `What is ${term}?`,
-        back: sent.trim(),
-        term
-      });
+      cards.push({ front: `What is ${term}?`, back: sent.trim(), term });
     }
   }
-  
   return cards.slice(0, 12);
 }
 
-// Smarter summary with better sentence selection
 function buildSummary(text, rankedSents) {
   if (rankedSents.length === 0) return 'Could not extract a meaningful summary.';
-  
-  const topSents = rankedSents
-    .filter(s => s.score > 0)
-    .sort((a, b) => b.score - a.score);
-  
+  const topSents = rankedSents.filter(s => s.score > 0).sort((a, b) => b.score - a.score);
   const selected = [];
-  const usedParas = new Set();
-  
-  // Always include first sentence from intro (if high scoring enough)
   const firstSent = topSents.find(s => s.paraIndex === 0 && s.isFirstInPara);
   if (firstSent && firstSent.score > topSents[0].score * 0.3) {
     selected.push(firstSent);
-    usedParas.add(0);
   }
-  
-  // Get diverse sentences from different paragraphs
   for (const sent of topSents) {
     if (selected.length >= 8) break;
-    
-    // Skip if already selected or from overused paragraph
     if (selected.includes(sent)) continue;
-    
-    // Prefer diversity — limit sentences per paragraph
     const paraCount = selected.filter(s => s.paraIndex === sent.paraIndex).length;
     if (paraCount >= 2) continue;
-    
     selected.push(sent);
   }
-  
-  // Sort back into reading order
   selected.sort((a, b) => a.globalIdx - b.globalIdx);
-  
-  // Split into 2 paragraphs
   const half = Math.ceil(selected.length / 2);
   const p1 = selected.slice(0, half).map(s => s.text).join(' ');
   const p2 = selected.slice(half).map(s => s.text).join(' ');
-  
   return p2.trim() ? `${p1.trim()}\n\n${p2.trim()}` : p1.trim();
 }
 
-// Smarter key points with diversity
 function buildKeyPoints(rankedSents) {
   const points = [];
-  const usedParas = new Set();
-  
-  const topSents = rankedSents
-    .filter(s => s.score > 0)
-    .sort((a, b) => b.score - a.score);
-  
+  const topSents = rankedSents.filter(s => s.score > 0).sort((a, b) => b.score - a.score);
   for (const sent of topSents) {
     if (points.length >= 8) break;
-    
-    // Check similarity with existing points (avoid near-duplicates)
     const isSimilar = points.some(existing => {
       const existingWords = new Set(extractWords(existing));
       const sentWords = new Set(extractWords(sent.text));
       const intersection = [...existingWords].filter(w => sentWords.has(w)).length;
       const union = new Set([...existingWords, ...sentWords]).size;
-      const similarity = intersection / union;
-      return similarity > 0.5; // 50% word overlap = too similar
+      return intersection / union > 0.5;
     });
-    
     if (isSimilar) continue;
-    
-    // Prefer diversity across paragraphs
     const paraCount = points.filter(p => {
       const pSent = rankedSents.find(s => s.text === p);
       return pSent && pSent.paraIndex === sent.paraIndex;
     }).length;
-    
-    if (paraCount >= 3) continue; // Max 3 points per paragraph
-    
+    if (paraCount >= 3) continue;
     points.push(sent.text.trim());
   }
-  
   return points;
 }
 
-// Main processing pipeline
 function processText(text) {
   const keywords = extractKeywords(text, 30);
   const phrases = extractPhrases(text, 15);
   const rankedSents = rankSentences(text, keywords);
-  
   return {
     summary: buildSummary(text, rankedSents),
     keyPoints: buildKeyPoints(rankedSents),
@@ -1275,13 +1131,10 @@ function hideError() {
 function updateProgress(pct, msg) {
   document.getElementById('progressPct').textContent = pct + '%';
   document.getElementById('progressMsg').textContent = msg;
-  
   const circle = document.getElementById('progressCircle');
   const circumference = 2 * Math.PI * 37;
   const offset = circumference * (1 - pct / 100);
   circle.style.strokeDashoffset = offset;
-  
-  // Update step indicators
   if (pct >= 50) {
     document.getElementById('step1').className = 'step done';
     document.getElementById('step1').querySelector('span').textContent = '✅';
@@ -1298,11 +1151,9 @@ function updateProgress(pct, msg) {
 
 function setStage(stage) {
   currentStage = stage;
-  
   document.getElementById('uploadScreen').classList.add('hidden');
   document.getElementById('processingScreen').classList.add('hidden');
   document.getElementById('resultsScreen').classList.add('hidden');
-  
   if (stage === 'upload') {
     document.getElementById('uploadScreen').classList.remove('hidden');
     document.getElementById('headerTitle').textContent = '📚 StudyLens';
@@ -1310,7 +1161,6 @@ function setStage(stage) {
   } else if (stage === 'processing') {
     document.getElementById('processingScreen').classList.remove('hidden');
     document.getElementById('headerTitle').textContent = '⚙️ Processing…';
-    // Reset step indicators
     ['step1', 'step2', 'step3'].forEach(id => {
       document.getElementById(id).className = 'step pending';
       document.getElementById(id).querySelector('span').textContent = '⏳';
@@ -1337,18 +1187,13 @@ function reset() {
 function updateFlashcard() {
   const card = currentResults.flashcards[currentCardIndex];
   const total = currentResults.flashcards.length;
-  
   document.getElementById('cardCounter').textContent = `${currentCardIndex + 1}/${total}`;
   document.getElementById('cardProgress').style.width = `${((currentCardIndex + 1) / total) * 100}%`;
   document.getElementById('cardTerm').textContent = card.term;
   document.getElementById('flashcardFront').textContent = card.front;
   document.getElementById('flashcardBack').textContent = card.back;
-  
-  // Update button states
   document.getElementById('prevBtn').className = currentCardIndex === 0 ? 'nav-btn disabled' : 'nav-btn secondary';
   document.getElementById('nextBtn').className = currentCardIndex === total - 1 ? 'nav-btn disabled' : 'nav-btn secondary';
-  
-  // Reset flip
   isFlipped = false;
   document.getElementById('flashcardInner').classList.remove('flipped');
   document.getElementById('flipBtn').textContent = 'Reveal';
@@ -1375,12 +1220,10 @@ function renderGlossary(filter = '') {
     g.term.toLowerCase().includes(filter.toLowerCase()) ||
     g.definition.toLowerCase().includes(filter.toLowerCase())
   );
-  
   if (filtered.length === 0) {
     container.innerHTML = '<p style="text-align:center;color:#90CAF9;font-size:12px;padding-top:20px;">No matching terms.</p>';
     return;
   }
-  
   filtered.forEach(item => {
     const div = document.createElement('div');
     div.className = 'card fade-in';
@@ -1408,21 +1251,12 @@ function renderSummary() {
 }
 
 function switchTab(tabName) {
-  // Hide all tabs
   ['flashcardsTab', 'keypointsTab', 'glossaryTab', 'summaryTab'].forEach(id => {
     document.getElementById(id).classList.add('hidden');
   });
-  
-  // Show selected tab
   document.getElementById(tabName + 'Tab').classList.remove('hidden');
-  
-  // Update nav
-  document.querySelectorAll('.nav-tab').forEach(btn => {
-    btn.classList.remove('active');
-  });
+  document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
   document.querySelector(`.nav-tab[data-tab="${tabName}"]`).classList.add('active');
-  
-  // Reset card flip when switching to flashcards
   if (tabName === 'flashcards') {
     isFlipped = false;
     document.getElementById('flashcardInner').classList.remove('flipped');
@@ -1436,23 +1270,18 @@ function switchTab(tabName) {
 
 async function processFile(file) {
   if (!file) return;
-  
   const isPDF = file.type === 'application/pdf';
   const isDocx = file.name.toLowerCase().endsWith('.docx') || file.type.includes('wordprocessingml');
   const isImg = file.type.startsWith('image/');
-  
   if (!isPDF && !isDocx && !isImg) {
     showError('Please upload a PDF, Word document (.docx), or an image.');
     return;
   }
-  
   currentFileName = file.name;
   hideError();
   setStage('processing');
-  
   try {
     let text = '';
-    
     if (isPDF) {
       updateProgress(5, 'Loading PDF engine…');
       text = await extractFromPDF(file, updateProgress);
@@ -1463,18 +1292,13 @@ async function processFile(file) {
       updateProgress(5, 'Loading OCR engine…');
       text = await extractFromImage(file, updateProgress);
     }
-    
     updateProgress(65, 'Running NLP analysis…');
     await new Promise(r => setTimeout(r, 60));
-    
     const data = processText(text);
-    
     updateProgress(95, 'Building your study set…');
     await new Promise(r => setTimeout(r, 80));
-    
     currentResults = data;
     updateProgress(100, 'Done!');
-    
     setTimeout(() => {
       setStage('results');
       updateFlashcard();
@@ -1483,7 +1307,6 @@ async function processFile(file) {
       renderSummary();
       switchTab('flashcards');
     }, 300);
-    
   } catch (err) {
     showError(err.message);
     setStage('upload');
@@ -1493,15 +1316,6 @@ async function processFile(file) {
 // ═════════════════════════════════════════════════════════════════════════════
 //  EVENT LISTENERS
 // ═════════════════════════════════════════════════════════════════════════════
-
-document.getElementById('backBtn').addEventListener('click', () => {
-  if (currentStage === 'upload') {
-    // TODO: navigate to home page in your app
-    console.log('Navigate to home');
-  } else {
-    reset();
-  }
-});
 
 document.getElementById('chooseBtn').addEventListener('click', (e) => {
   e.stopPropagation();
@@ -1516,7 +1330,6 @@ document.getElementById('fileInput').addEventListener('change', (e) => {
   processFile(e.target.files[0]);
 });
 
-// Drag and drop
 const dropZone = document.getElementById('dropZone');
 const dropIcon = document.getElementById('dropIcon');
 
@@ -1538,7 +1351,6 @@ dropZone.addEventListener('drop', (e) => {
   processFile(e.dataTransfer.files[0]);
 });
 
-// Flashcard interactions
 document.getElementById('flashcard3d').addEventListener('click', () => {
   isFlipped = !isFlipped;
   document.getElementById('flashcardInner').classList.toggle('flipped');
@@ -1565,18 +1377,13 @@ document.getElementById('nextBtn').addEventListener('click', () => {
   }
 });
 
-// Bottom nav
 document.querySelectorAll('.nav-tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    switchTab(btn.dataset.tab);
-  });
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
 });
 
-// Glossary search
 document.getElementById('searchInput').addEventListener('input', (e) => {
   renderGlossary(e.target.value);
 });
-
 </script>
 
 </body>
