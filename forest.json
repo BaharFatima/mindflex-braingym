@@ -1,0 +1,897 @@
+[
+  {
+    "leaf": false,
+    "feature": "inactivity_seconds",
+    "threshold": 67.5,
+    "left": {
+      "leaf": false,
+      "feature": "session_duration",
+      "threshold": 193.5,
+      "left": {
+        "leaf": false,
+        "feature": "restart_count",
+        "threshold": 2.5,
+        "left": {
+          "leaf": false,
+          "feature": "session_duration",
+          "threshold": 181.5,
+          "left": {
+            "leaf": true,
+            "value": 0
+          },
+          "right": {
+            "leaf": true,
+            "value": 1
+          }
+        },
+        "right": {
+          "leaf": true,
+          "value": 1
+        }
+      },
+      "right": {
+        "leaf": true,
+        "value": 0
+      }
+    },
+    "right": {
+      "leaf": false,
+      "feature": "switch_count",
+      "threshold": 5.5,
+      "left": {
+        "leaf": false,
+        "feature": "inactivity_seconds",
+        "threshold": 87.5,
+        "left": {
+          "leaf": false,
+          "feature": "inactivity_seconds",
+          "threshold": 71.5,
+          "left": {
+            "leaf": true,
+            "value": 1
+          },
+          "right": {
+            "leaf": true,
+            "value": 0
+          }
+        },
+        "right": {
+          "leaf": true,
+          "value": 1
+        }
+      },
+      "right": {
+        "leaf": true,
+        "value": 1
+      }
+    }
+  },
+  {
+    "leaf": false,
+    "feature": "inactivity_seconds",
+    "threshold": 48.5,
+    "left": {
+      "leaf": false,
+      "feature": "restart_count",
+      "threshold": 2.5,
+      "left": {
+        "leaf": false,
+        "feature": "session_duration",
+        "threshold": 183.5,
+        "left": {
+          "leaf": false,
+          "feature": "inactivity_seconds",
+          "threshold": 28.0,
+          "left": {
+            "leaf": true,
+            "value": 0
+          },
+          "right": {
+            "leaf": true,
+            "value": 1
+          }
+        },
+        "right": {
+          "leaf": true,
+          "value": 0
+        }
+      },
+      "right": {
+        "leaf": true,
+        "value": 1
+      }
+    },
+    "right": {
+      "leaf": false,
+      "feature": "session_duration",
+      "threshold": 107.5,
+      "left": {
+        "leaf": false,
+        "feature": "restart_count",
+        "threshold": 2.5,
+        "left": {
+          "leaf": false,
+          "feature": "switch_count",
+          "threshold": 6.0,
+          "left": {
+            "leaf": true,
+            "value": 1
+          },
+          "right": {
+            "leaf": true,
+            "value": 1
+          }
+        },
+        "right": {
+          "leaf": true,
+          "value": 1
+        }
+      },
+      "right": {
+        "leaf": false,
+        "feature": "inactivity_seconds",
+        "threshold": 59.5,
+        "left": {
+          "leaf": false,
+          "feature": "switch_count",
+          "threshold": 1.5,
+          "left": {
+            "leaf": true,
+            "value": 1
+          },
+          "right": {
+            "leaf": true,
+            "value": 1
+          }
+        },
+        "right": {
+          "leaf": false,
+          "feature": "switch_count",
+          "threshold": 7.5,
+          "left": {
+            "leaf": true,
+            "value": 0
+          },
+          "right": {
+            "leaf": true,
+            "value": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "leaf": false,
+    "feature": "session_duration",
+    "threshold": 191.5,
+    "left": {
+      "leaf": false,
+      "feature": "switch_count",
+      "threshold": 5.5,
+      "left": {
+        "leaf": false,
+        "feature": "inactivity_seconds",
+        "threshold": 96.0,
+        "left": {
+          "leaf": false,
+          "feature": "inactivity_seconds",
+          "threshold": 82.0,
+          "left": {
+            "leaf": true,
+            "value": 1
+          },
+          "right": {
+            "leaf": true,
+            "value": 0
+          }
+        },
+        "right": {
+          "leaf": true,
+          "value": 1
+        }
+      },
+      "right": {
+        "leaf": true,
+        "value": 1
+      }
+    },
+    "right": {
+      "leaf": false,
+      "feature": "session_duration",
+      "threshold": 195.5,
+      "left": {
+        "leaf": false,
+        "feature": "switch_count",
+        "threshold": 4.5,
+        "left": {
+          "leaf": true,
+          "value": 1
+        },
+        "right": {
+          "leaf": true,
+          "value": 0
+        }
+      },
+      "right": {
+        "leaf": false,
+        "feature": "session_duration",
+        "threshold": 206.5,
+        "left": {
+          "leaf": false,
+          "feature": "switch_count",
+          "threshold": 4.0,
+          "left": {
+            "leaf": true,
+            "value": 0
+          },
+          "right": {
+            "leaf": true,
+            "value": 1
+          }
+        },
+        "right": {
+          "leaf": true,
+          "value": 0
+        }
+      }
+    }
+  },
+  {
+    "leaf": false,
+    "feature": "switch_count",
+    "threshold": 4.5,
+    "left": {
+      "leaf": false,
+      "feature": "session_duration",
+      "threshold": 164.5,
+      "left": {
+        "leaf": false,
+        "feature": "restart_count",
+        "threshold": 1.5,
+        "left": {
+          "leaf": false,
+          "feature": "inactivity_seconds",
+          "threshold": 61.0,
+          "left": {
+            "leaf": true,
+            "value": 0
+          },
+          "right": {
+            "leaf": true,
+            "value": 1
+          }
+        },
+        "right": {
+          "leaf": false,
+          "feature": "switch_count",
+          "threshold": 2.5,
+          "left": {
+            "leaf": true,
+            "value": 0
+          },
+          "right": {
+            "leaf": true,
+            "value": 1
+          }
+        }
+      },
+      "right": {
+        "leaf": false,
+        "feature": "session_duration",
+        "threshold": 193.0,
+        "left": {
+          "leaf": false,
+          "feature": "inactivity_seconds",
+          "threshold": 37.5,
+          "left": {
+            "leaf": true,
+            "value": 0
+          },
+          "right": {
+            "leaf": true,
+            "value": 0
+          }
+        },
+        "right": {
+          "leaf": true,
+          "value": 0
+        }
+      }
+    },
+    "right": {
+      "leaf": false,
+      "feature": "session_duration",
+      "threshold": 104.5,
+      "left": {
+        "leaf": false,
+        "feature": "inactivity_seconds",
+        "threshold": 53.0,
+        "left": {
+          "leaf": false,
+          "feature": "inactivity_seconds",
+          "threshold": 32.5,
+          "left": {
+            "leaf": true,
+            "value": 1
+          },
+          "right": {
+            "leaf": true,
+            "value": 0
+          }
+        },
+        "right": {
+          "leaf": true,
+          "value": 1
+        }
+      },
+      "right": {
+        "leaf": false,
+        "feature": "inactivity_seconds",
+        "threshold": 82.0,
+        "left": {
+          "leaf": false,
+          "feature": "restart_count",
+          "threshold": 1.5,
+          "left": {
+            "leaf": true,
+            "value": 0
+          },
+          "right": {
+            "leaf": true,
+            "value": 1
+          }
+        },
+        "right": {
+          "leaf": true,
+          "value": 0
+        }
+      }
+    }
+  },
+  {
+    "leaf": false,
+    "feature": "switch_count",
+    "threshold": 4.5,
+    "left": {
+      "leaf": false,
+      "feature": "restart_count",
+      "threshold": 3.0,
+      "left": {
+        "leaf": false,
+        "feature": "switch_count",
+        "threshold": 0.5,
+        "left": {
+          "leaf": true,
+          "value": 0
+        },
+        "right": {
+          "leaf": false,
+          "feature": "restart_count",
+          "threshold": 1.5,
+          "left": {
+            "leaf": true,
+            "value": 0
+          },
+          "right": {
+            "leaf": true,
+            "value": 0
+          }
+        }
+      },
+      "right": {
+        "leaf": true,
+        "value": 1
+      }
+    },
+    "right": {
+      "leaf": false,
+      "feature": "session_duration",
+      "threshold": 110.5,
+      "left": {
+        "leaf": false,
+        "feature": "session_duration",
+        "threshold": 71.5,
+        "left": {
+          "leaf": true,
+          "value": 1
+        },
+        "right": {
+          "leaf": false,
+          "feature": "switch_count",
+          "threshold": 6.5,
+          "left": {
+            "leaf": true,
+            "value": 1
+          },
+          "right": {
+            "leaf": true,
+            "value": 1
+          }
+        }
+      },
+      "right": {
+        "leaf": false,
+        "feature": "session_duration",
+        "threshold": 186.5,
+        "left": {
+          "leaf": false,
+          "feature": "restart_count",
+          "threshold": 0.5,
+          "left": {
+            "leaf": true,
+            "value": 0
+          },
+          "right": {
+            "leaf": true,
+            "value": 0
+          }
+        },
+        "right": {
+          "leaf": true,
+          "value": 1
+        }
+      }
+    }
+  },
+  {
+    "leaf": false,
+    "feature": "inactivity_seconds",
+    "threshold": 61.5,
+    "left": {
+      "leaf": false,
+      "feature": "session_duration",
+      "threshold": 206.5,
+      "left": {
+        "leaf": false,
+        "feature": "session_duration",
+        "threshold": 63.5,
+        "left": {
+          "leaf": true,
+          "value": 1
+        },
+        "right": {
+          "leaf": false,
+          "feature": "session_duration",
+          "threshold": 83.5,
+          "left": {
+            "leaf": true,
+            "value": 0
+          },
+          "right": {
+            "leaf": true,
+            "value": 0
+          }
+        }
+      },
+      "right": {
+        "leaf": true,
+        "value": 0
+      }
+    },
+    "right": {
+      "leaf": false,
+      "feature": "switch_count",
+      "threshold": 5.5,
+      "left": {
+        "leaf": false,
+        "feature": "inactivity_seconds",
+        "threshold": 92.0,
+        "left": {
+          "leaf": false,
+          "feature": "switch_count",
+          "threshold": 4.5,
+          "left": {
+            "leaf": true,
+            "value": 1
+          },
+          "right": {
+            "leaf": true,
+            "value": 0
+          }
+        },
+        "right": {
+          "leaf": true,
+          "value": 1
+        }
+      },
+      "right": {
+        "leaf": true,
+        "value": 1
+      }
+    }
+  },
+  {
+    "leaf": false,
+    "feature": "session_duration",
+    "threshold": 133.5,
+    "left": {
+      "leaf": false,
+      "feature": "restart_count",
+      "threshold": 2.5,
+      "left": {
+        "leaf": false,
+        "feature": "inactivity_seconds",
+        "threshold": 55.0,
+        "left": {
+          "leaf": false,
+          "feature": "inactivity_seconds",
+          "threshold": 40.5,
+          "left": {
+            "leaf": true,
+            "value": 1
+          },
+          "right": {
+            "leaf": true,
+            "value": 0
+          }
+        },
+        "right": {
+          "leaf": false,
+          "feature": "switch_count",
+          "threshold": 5.5,
+          "left": {
+            "leaf": true,
+            "value": 1
+          },
+          "right": {
+            "leaf": true,
+            "value": 1
+          }
+        }
+      },
+      "right": {
+        "leaf": true,
+        "value": 1
+      }
+    },
+    "right": {
+      "leaf": false,
+      "feature": "inactivity_seconds",
+      "threshold": 37.5,
+      "left": {
+        "leaf": false,
+        "feature": "restart_count",
+        "threshold": 1.5,
+        "left": {
+          "leaf": true,
+          "value": 0
+        },
+        "right": {
+          "leaf": false,
+          "feature": "session_duration",
+          "threshold": 215.0,
+          "left": {
+            "leaf": true,
+            "value": 0
+          },
+          "right": {
+            "leaf": true,
+            "value": 0
+          }
+        }
+      },
+      "right": {
+        "leaf": false,
+        "feature": "session_duration",
+        "threshold": 207.0,
+        "left": {
+          "leaf": false,
+          "feature": "session_duration",
+          "threshold": 154.5,
+          "left": {
+            "leaf": true,
+            "value": 0
+          },
+          "right": {
+            "leaf": true,
+            "value": 1
+          }
+        },
+        "right": {
+          "leaf": true,
+          "value": 0
+        }
+      }
+    }
+  },
+  {
+    "leaf": false,
+    "feature": "session_duration",
+    "threshold": 132.5,
+    "left": {
+      "leaf": false,
+      "feature": "inactivity_seconds",
+      "threshold": 67.5,
+      "left": {
+        "leaf": false,
+        "feature": "switch_count",
+        "threshold": 6.5,
+        "left": {
+          "leaf": false,
+          "feature": "restart_count",
+          "threshold": 1.5,
+          "left": {
+            "leaf": true,
+            "value": 0
+          },
+          "right": {
+            "leaf": true,
+            "value": 1
+          }
+        },
+        "right": {
+          "leaf": true,
+          "value": 1
+        }
+      },
+      "right": {
+        "leaf": false,
+        "feature": "session_duration",
+        "threshold": 104.5,
+        "left": {
+          "leaf": true,
+          "value": 1
+        },
+        "right": {
+          "leaf": false,
+          "feature": "inactivity_seconds",
+          "threshold": 76.5,
+          "left": {
+            "leaf": true,
+            "value": 0
+          },
+          "right": {
+            "leaf": true,
+            "value": 1
+          }
+        }
+      }
+    },
+    "right": {
+      "leaf": false,
+      "feature": "inactivity_seconds",
+      "threshold": 49.0,
+      "left": {
+        "leaf": false,
+        "feature": "session_duration",
+        "threshold": 177.5,
+        "left": {
+          "leaf": false,
+          "feature": "inactivity_seconds",
+          "threshold": 37.5,
+          "left": {
+            "leaf": true,
+            "value": 0
+          },
+          "right": {
+            "leaf": true,
+            "value": 1
+          }
+        },
+        "right": {
+          "leaf": true,
+          "value": 0
+        }
+      },
+      "right": {
+        "leaf": false,
+        "feature": "session_duration",
+        "threshold": 145.5,
+        "left": {
+          "leaf": false,
+          "feature": "switch_count",
+          "threshold": 3.5,
+          "left": {
+            "leaf": true,
+            "value": 0
+          },
+          "right": {
+            "leaf": true,
+            "value": 0
+          }
+        },
+        "right": {
+          "leaf": false,
+          "feature": "inactivity_seconds",
+          "threshold": 57.5,
+          "left": {
+            "leaf": true,
+            "value": 1
+          },
+          "right": {
+            "leaf": true,
+            "value": 1
+          }
+        }
+      }
+    }
+  },
+  {
+    "leaf": false,
+    "feature": "session_duration",
+    "threshold": 199.0,
+    "left": {
+      "leaf": false,
+      "feature": "switch_count",
+      "threshold": 5.5,
+      "left": {
+        "leaf": false,
+        "feature": "inactivity_seconds",
+        "threshold": 75.0,
+        "left": {
+          "leaf": false,
+          "feature": "restart_count",
+          "threshold": 3.0,
+          "left": {
+            "leaf": true,
+            "value": 0
+          },
+          "right": {
+            "leaf": true,
+            "value": 1
+          }
+        },
+        "right": {
+          "leaf": false,
+          "feature": "switch_count",
+          "threshold": 4.5,
+          "left": {
+            "leaf": true,
+            "value": 1
+          },
+          "right": {
+            "leaf": true,
+            "value": 1
+          }
+        }
+      },
+      "right": {
+        "leaf": false,
+        "feature": "restart_count",
+        "threshold": 0.5,
+        "left": {
+          "leaf": true,
+          "value": 0
+        },
+        "right": {
+          "leaf": false,
+          "feature": "inactivity_seconds",
+          "threshold": 36.5,
+          "left": {
+            "leaf": true,
+            "value": 1
+          },
+          "right": {
+            "leaf": true,
+            "value": 1
+          }
+        }
+      }
+    },
+    "right": {
+      "leaf": false,
+      "feature": "switch_count",
+      "threshold": 4.5,
+      "left": {
+        "leaf": true,
+        "value": 0
+      },
+      "right": {
+        "leaf": true,
+        "value": 1
+      }
+    }
+  },
+  {
+    "leaf": false,
+    "feature": "switch_count",
+    "threshold": 4.5,
+    "left": {
+      "leaf": false,
+      "feature": "inactivity_seconds",
+      "threshold": 55.0,
+      "left": {
+        "leaf": false,
+        "feature": "session_duration",
+        "threshold": 163.5,
+        "left": {
+          "leaf": false,
+          "feature": "session_duration",
+          "threshold": 123.0,
+          "left": {
+            "leaf": true,
+            "value": 0
+          },
+          "right": {
+            "leaf": true,
+            "value": 1
+          }
+        },
+        "right": {
+          "leaf": false,
+          "feature": "restart_count",
+          "threshold": 1.5,
+          "left": {
+            "leaf": true,
+            "value": 0
+          },
+          "right": {
+            "leaf": true,
+            "value": 0
+          }
+        }
+      },
+      "right": {
+        "leaf": false,
+        "feature": "restart_count",
+        "threshold": 3.0,
+        "left": {
+          "leaf": false,
+          "feature": "inactivity_seconds",
+          "threshold": 62.5,
+          "left": {
+            "leaf": true,
+            "value": 0
+          },
+          "right": {
+            "leaf": true,
+            "value": 1
+          }
+        },
+        "right": {
+          "leaf": true,
+          "value": 1
+        }
+      }
+    },
+    "right": {
+      "leaf": false,
+      "feature": "session_duration",
+      "threshold": 104.5,
+      "left": {
+        "leaf": false,
+        "feature": "inactivity_seconds",
+        "threshold": 53.5,
+        "left": {
+          "leaf": false,
+          "feature": "switch_count",
+          "threshold": 6.5,
+          "left": {
+            "leaf": true,
+            "value": 1
+          },
+          "right": {
+            "leaf": true,
+            "value": 1
+          }
+        },
+        "right": {
+          "leaf": true,
+          "value": 1
+        }
+      },
+      "right": {
+        "leaf": false,
+        "feature": "switch_count",
+        "threshold": 5.5,
+        "left": {
+          "leaf": false,
+          "feature": "inactivity_seconds",
+          "threshold": 66.0,
+          "left": {
+            "leaf": true,
+            "value": 1
+          },
+          "right": {
+            "leaf": true,
+            "value": 0
+          }
+        },
+        "right": {
+          "leaf": true,
+          "value": 1
+        }
+      }
+    }
+  }
+]
