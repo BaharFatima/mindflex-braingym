@@ -19,38 +19,32 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh; /* Changed to min-height to allow body scroll if needed */
+  min-height: 100vh;
 }
 .container {
   width: 320px;
-  /* Removed fixed height to allow growth, or keep fixed and scroll content inside */
   height: 640px; 
   border-radius: 30px;
   background: linear-gradient(180deg, #BBDEFB 0%, #E3F2FD 100%);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  overflow: hidden; /* Keep container overflow hidden for rounded corners */
+  overflow: hidden;
   position: relative;
   display: flex;
   flex-direction: column;
-  /* Removed justify-content: space-between to allow natural scrolling */
 }
 
-/* Scrollable content wrapper */
 .scroll-content {
   flex: 1;
-  overflow-y: auto; /* Enables scrolling */
+  overflow-y: auto;
   overflow-x: hidden;
-  padding-bottom: 80px; /* Space for fixed bottom nav */
+  padding-bottom: 80px;
   scroll-behavior: smooth;
 }
 
-/* Header */
 .header {
   padding: 25px 20px 10px;
   color: #0D47A1;
   position: relative;
-  /* Sticky header optional - currently static to scroll away */
-  /* position: sticky; top: 0; background: #E3F2FD; z-index: 10; */
 }
 .header h2 {
   font-size: 18px;
@@ -74,7 +68,6 @@ body {
   font-size: 11px;
 }
 
-/* Baymax */
 .baymax-section {
   text-align: center;
   margin-top: 15px;
@@ -90,7 +83,6 @@ body {
   50% { transform: translateY(-5px); }
 }
 
-/* Grid */
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -112,7 +104,6 @@ body {
   transition: 0.25s;
   border: 2px solid #E3F2FD;
   cursor: pointer;
-  /* Reset button styles */
   font-family: inherit;
   text-align: center;
   line-height: 1.2;
@@ -122,16 +113,13 @@ body {
   background: #F0F9FF;
   border-color: #90CAF9;
 }
-.card:active {
-  transform: scale(0.98);
-}
+.card:active { transform: scale(0.98); }
 .card span {
   font-size: 25px;
   margin-bottom: 6px;
   display: block;
 }
 
-/* ========== STANDARD NAV BAR STYLES ========== */
 .bottom-nav {
   position: absolute;
   bottom: 0;
@@ -229,46 +217,30 @@ body {
   border-radius: 8px;
 }
 
-.nav-item[data-category="habit-tracker"].selected .nav-icon .fallback-icon {
-  background-color: #ff4081;
-}
+.nav-item[data-category="habit-tracker"].selected .nav-icon .fallback-icon { background-color: #ff4081; }
+.nav-item[data-category="cv"].selected .nav-icon .fallback-icon { background-color: #0D47A1; }
 
-.nav-item[data-category="cv"].selected .nav-icon .fallback-icon {
-  background-color: #0D47A1;
-}
-
-/* Scrollbar styling for webkit browsers */
-.scroll-content::-webkit-scrollbar {
-  width: 4px;
-}
-.scroll-content::-webkit-scrollbar-track {
-  background: transparent;
-}
-.scroll-content::-webkit-scrollbar-thumb {
-  background: #B3E5FC;
-  border-radius: 10px;
-}
+.scroll-content::-webkit-scrollbar { width: 4px; }
+.scroll-content::-webkit-scrollbar-track { background: transparent; }
+.scroll-content::-webkit-scrollbar-thumb { background: #B3E5FC; border-radius: 10px; }
 </style>
 </head>
 <body>
 
 <div class="container">
-  
-  <!-- Wrapper for scrolling content -->
   <div class="scroll-content">
     
     <!-- Header -->
     <div class="header">
-    <h2 id="greeting">Welcome back,<br><span id="username">User</span></h2>
-     <div class="weather">
-  <span id="temp">--°</span><br>
-  <span id="date"></span>
-</div>
+      <h2 id="greeting">Welcome back,<br><span id="username">User</span></h2>
+      <div class="weather">
+        <span id="temp">--°</span><br>
+        <span id="date"></span>
+      </div>
     </div>
 
     <!-- Baymax -->
     <div class="baymax-section">
-      <!-- Using a placeholder if baymax.png is missing, ensure your file exists -->
       <img src="baymax.png" onerror="this.src='https://img.icons8.com/clouds/100/baymax.png'" alt="Baymax" class="baymax-img" />
     </div>
 
@@ -292,33 +264,26 @@ body {
       <button class="card" onclick="window.navigateTo('progress.tracker.html')">
         <span>📈</span>Progress Tracker
       </button>
-      
-  
     </div>
-  </div> <!-- End scroll-content -->
+  </div>
 
   <!-- NAV BAR -->
   <nav class="bottom-nav">
     <a href="cv.html" class="nav-item" data-category="cv">
       <div class="nav-icon">
         <img src="cv.png" alt="CV" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-        <div class="fallback-icon" style="display: none;">
-          <i class="fas fa-file-alt"></i>
-        </div>
+        <div class="fallback-icon" style="display: none;"><i class="fas fa-file-alt"></i></div>
       </div>
       <div class="nav-label">CV</div>
     </a>
-
     <a href="achievements.html" class="nav-item" data-category="achievements">
       <div class="nav-icon"><i class="fas fa-trophy"></i></div>
       <div class="nav-label">Achievements</div>
     </a>
-
     <a href="#" class="nav-item selected" data-category="home">
       <div class="nav-icon"><i class="fas fa-home"></i></div>
       <div class="nav-label">Home</div>
     </a>
-
     <a href="habittracker.html" class="nav-item" data-category="habit-tracker">
       <div class="nav-icon">
         <img src="https://z-cdn-media.chatglm.cn/files/a1979dda-a3e4-4b38-b0cf-00e4ad455277_pasted_image_1762936027415.png?auth_key=1862936037-6cc8a5a356484e1cb70a8f599e1f2ce8-0-496c548f3f7ef2ea6a808a3cc812dc2c" alt="Habit Tracker" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -326,20 +291,17 @@ body {
       </div>
       <div class="nav-label">Habit Tracker</div>
     </a>
-
     <a href="profile.html" class="nav-item" data-category="user-account">
       <div class="nav-icon"><i class="fas fa-user-circle"></i></div>
       <div class="nav-label">Account</div>
     </a>
   </nav>
-
 </div>
 
-<!-- Added type="module" for imports to work -->
 <script type="module">
-  // Import Firebase
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
@@ -353,97 +315,73 @@ body {
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  const db = getFirestore(app);
 
-  onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.replace("loginmain.html");
-    return;
-  }
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.replace("loginmain.html");
+      return;
+    }
 
-  const nameSpan = document.getElementById("username");
+    const nameSpan = document.getElementById("username");
 
-  // Priority order
-  let name =
-    user.displayName ||
-    user.email?.split("@")[0] ||
-    "User";
+    // Show fallback name immediately while Firestore loads
+    nameSpan.textContent = user.displayName || user.email?.split("@")[0] || "User";
 
-  nameSpan.textContent = name;
-});
+    // Then load the custom saved name from Firestore
+    try {
+      const docSnap = await getDoc(doc(db, "users", user.uid));
+      if (docSnap.exists() && docSnap.data().name) {
+        nameSpan.textContent = docSnap.data().name;
+      }
+    } catch(e) {
+      console.warn("Firestore read error:", e);
+    }
+  });
 
-//weather 
-navigator.geolocation.getCurrentPosition(async (position) => {
+  // Weather
+  navigator.geolocation.getCurrentPosition(async (position) => {
+    const lat = position.coords.latitude;
+    const lon = position.coords.longitude;
+    const apiKey = "4f5aba5a326a5986219d69f9126927bf";
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    const temperature = Math.round(data.main.temp);
+    const weatherMain = data.weather[0].main;
+    let icon = "☀️";
+    if (weatherMain === "Clouds") icon = "☁️";
+    if (weatherMain === "Rain") icon = "🌧️";
+    if (weatherMain === "Thunderstorm") icon = "⛈️";
+    if (weatherMain === "Drizzle") icon = "🌦️";
+    if (weatherMain === "Snow") icon = "❄️";
+    if (weatherMain === "Mist" || weatherMain === "Fog" || weatherMain === "Haze") icon = "🌫️";
+    document.getElementById("temp").textContent = icon + " " + temperature + "°";
+  });
 
-  const lat = position.coords.latitude;
-  const lon = position.coords.longitude;
-
-  const apiKey = "4f5aba5a326a5986219d69f9126927bf";
-
-  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
-
-  const response = await fetch(url);
-  const data = await response.json();
-
-  const temperature = Math.round(data.main.temp);
-
-  const weatherMain = data.weather[0].main;
-
-  let icon = "☀️";
-
-  if (weatherMain === "Clouds") icon = "☁️";
-  if (weatherMain === "Rain") icon = "🌧️";
-  if (weatherMain === "Thunderstorm") icon = "⛈️";
-  if (weatherMain === "Drizzle") icon = "🌦️";
-  if (weatherMain === "Snow") icon = "❄️";
-  if (weatherMain === "Mist" || weatherMain === "Fog" || weatherMain === "Haze") icon = "🌫️";
-
-  document.getElementById("temp").textContent = icon + " " + temperature + "°";
-
-});
-
-  // FIX: Attach navigateTo to window so HTML onclick can see it
   window.navigateTo = function(page) {
     window.location.href = page;
   }
 
-  // Bottom nav interaction
   document.addEventListener('DOMContentLoaded', function() {
     const navItems = document.querySelectorAll('.nav-item');
-    
     navItems.forEach(item => {
       item.addEventListener('click', function(e) {
         const targetUrl = this.getAttribute('href');
-        
-        // Remove selected from all, add to clicked
         navItems.forEach(i => i.classList.remove('selected'));
         this.classList.add('selected');
-
-        // Navigation delay for effect
         if (targetUrl && targetUrl !== '#') {
           e.preventDefault();
           setTimeout(() => window.location.href = targetUrl, 300);
         }
       });
     });
+
+    const dateElement = document.getElementById("date");
+    const today = new Date();
+    const options = { weekday: "long", month: "long", day: "numeric" };
+    dateElement.textContent = today.toLocaleDateString("en-US", options);
   });
-  // Dynamic Date
-document.addEventListener("DOMContentLoaded", () => {
-
-  const dateElement = document.getElementById("date");
-
-  const today = new Date();
-
-  const options = {
-    weekday: "long",
-    month: "long",
-    day: "numeric"
-  };
-
-  const formattedDate = today.toLocaleDateString("en-US", options);
-
-  dateElement.textContent = formattedDate;
-
-});
 </script>
 
 </body>
