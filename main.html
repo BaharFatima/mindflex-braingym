@@ -260,9 +260,10 @@ body {
     <!-- Header -->
     <div class="header">
     <h2 id="greeting">Welcome back,<br><span id="username">User</span></h2>
-      <div class="weather">
-        ☁️ 76°<br><span>Tuesday, April 23</span>
-      </div>
+     <div class="weather">
+  <span id="temp">--°</span><br>
+  <span id="date"></span>
+</div>
     </div>
 
     <!-- Baymax -->
@@ -367,7 +368,37 @@ body {
     user.email?.split("@")[0] ||
     "User";
 
-  nameSpan.textContent = name + " 👋";
+  nameSpan.textContent = name;
+});
+
+//weather 
+navigator.geolocation.getCurrentPosition(async (position) => {
+
+  const lat = position.coords.latitude;
+  const lon = position.coords.longitude;
+
+  const apiKey = "4f5aba5a326a5986219d69f9126927bf";
+
+  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
+
+  const response = await fetch(url);
+  const data = await response.json();
+
+  const temperature = Math.round(data.main.temp);
+
+  const weatherMain = data.weather[0].main;
+
+  let icon = "☀️";
+
+  if (weatherMain === "Clouds") icon = "☁️";
+  if (weatherMain === "Rain") icon = "🌧️";
+  if (weatherMain === "Thunderstorm") icon = "⛈️";
+  if (weatherMain === "Drizzle") icon = "🌦️";
+  if (weatherMain === "Snow") icon = "❄️";
+  if (weatherMain === "Mist" || weatherMain === "Fog" || weatherMain === "Haze") icon = "🌫️";
+
+  document.getElementById("temp").textContent = icon + " " + temperature + "°";
+
 });
 
   // FIX: Attach navigateTo to window so HTML onclick can see it
@@ -395,6 +426,24 @@ body {
       });
     });
   });
+  // Dynamic Date
+document.addEventListener("DOMContentLoaded", () => {
+
+  const dateElement = document.getElementById("date");
+
+  const today = new Date();
+
+  const options = {
+    weekday: "long",
+    month: "long",
+    day: "numeric"
+  };
+
+  const formattedDate = today.toLocaleDateString("en-US", options);
+
+  dateElement.textContent = formattedDate;
+
+});
 </script>
 
 </body>
