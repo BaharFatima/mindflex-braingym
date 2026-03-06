@@ -1,0 +1,17 @@
+{
+  "feature": "errorRate",
+  "threshold": 0.06000000052154064,
+  "left": {
+    "class": "Analytical"
+  },
+  "right": {
+    "feature": "avgRT",
+    "threshold": 785.0,
+    "left": {
+      "class": "Impulsive"
+    },
+    "right": {
+      "class": "Balanced"
+    }
+  }
+}
