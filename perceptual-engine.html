@@ -1,0 +1,821 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Perceptual Intelligence Engine</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #b8d4ed;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px 10px 40px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 750px;
+      background: #eef4fb;
+      border-radius: 30px;
+      padding: 28px 24px 32px;
+      box-shadow: 0 6px 28px rgba(0,0,0,0.10);
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 900;
+      color: #1a2a4a;
+      text-align: center;
+      margin-bottom: 22px;
+      letter-spacing: -0.5px;
+    }
+
+    .test-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    select {
+      padding: 11px 36px 11px 16px;
+      background: #fff;
+      color: #1a2a4a;
+      border: 2px solid #dce8f5;
+      border-radius: 50px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+      transition: border-color .2s;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a9ab8' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+    }
+    select:focus { border-color: #7db8dc; }
+
+    button {
+      padding: 11px 22px;
+      background: #c5d9f0;
+      color: #2d6a9f;
+      border: none;
+      border-radius: 50px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: inset 0 -3px 0 #a8c4e0;
+      transition: background .2s, transform .15s;
+    }
+    button:hover  { background: #b5cde8; transform: translateY(-1px); }
+    button:active { transform: translateY(1px); box-shadow: inset 0 -1px 0 #a8c4e0; }
+
+    .status-bar {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      background: #fff;
+      border: 2px solid #dce8f5;
+      border-radius: 50px;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #1a2a4a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .label { color: #7a9ab8; font-weight: 700; }
+
+    #trialDisplay,
+    #difficultyDisplay,
+    #liveAI {
+      color: #2d6a9f;
+      font-weight: 900;
+    }
+
+    h2#aiResult {
+      font-size: 15px;
+      font-weight: 800;
+      color: #1a2a4a;
+      text-align: center;
+      margin-bottom: 14px;
+      min-height: 20px;
+      line-height: 1.6;
+    }
+
+    h2#aiResult p {
+      color: #2d6a9f !important;
+      font-size: 18px !important;
+      font-weight: 900 !important;
+    }
+
+    canvas {
+      background: #1076ad;
+      border: 2px solid #dce8f5;
+      border-radius: 20px;
+      display: block;
+      margin: 0 auto 16px;
+      max-width: 100%;
+    }
+
+    #controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    #controls button {
+      background: #fff;
+      border: 2px solid #dce8f5;
+      color: #1a2a4a;
+      border-radius: 50px;
+      padding: 10px 22px;
+      font-size: 14px;
+      font-weight: 800;
+      box-shadow: none;
+      transition: background .15s, border-color .15s, transform .15s;
+    }
+    #controls button:hover {
+      background: #deeaf8;
+      border-color: #7db8dc;
+      transform: scale(1.03);
+      box-shadow: none;
+    }
+    #controls button:active { transform: scale(.97); }
+
+    h3#question {
+      font-size: 15px;
+      font-weight: 700;
+      color: #6b8cba;
+      text-align: center;
+      margin-bottom: 14px;
+      min-height: 18px;
+    }
+
+    body > button {
+      display: block;
+      margin: 18px auto 0;
+      background: #2d6a9f;
+      color: #fff;
+      border-radius: 50px;
+      padding: 13px 30px;
+      font-size: 15px;
+      font-weight: 800;
+      box-shadow: 0 4px 14px rgba(45,106,159,0.25);
+      border: none;
+    }
+    body > button:hover  { background: #1a5080; transform: translateY(-2px); }
+    body > button:active { transform: translateY(0); }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <h1>Perceptual Intelligence Engine</h1>
+
+  <div class="test-controls">
+      <select id="illusionType">
+        <option value="muller">Müller-Lyer Illusion</option>
+        <option value="stroop">Stroop Cognitive Test</option>
+        <option value="whack">Reaction Whack</option>
+      </select>
+
+      <button onclick="startSession()">Start Test</button>
+  </div>
+
+  <div class="status-bar">
+
+      <div class="stat">
+        <span class="label">Trial:</span>
+        <span id="trialDisplay">0</span>
+      </div>
+
+      <div class="stat">
+        <span class="label">Difficulty:</span>
+        <span id="difficultyDisplay">15</span>
+      </div>
+
+      <div class="stat">
+        <span class="label">Live AI:</span>
+        <span id="liveAI">Analyzing...</span>
+      </div>
+
+  </div>
+
+  <h2 id="aiResult"></h2>
+
+  <canvas id="canvas" width="700" height="420"></canvas>
+
+  <div id="controls"></div>
+  <h3 id="question"></h3>
+</div>
+
+<script>
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+let treeModel = null;
+
+fetch("model_rules.json")
+  .then(response => response.json())
+  .then(data => {
+      treeModel = data
+      console.log("ML model loaded:", treeModel)
+  })
+
+let session = {
+  trial: 0,
+  maxTrials: 20,
+  difficulty: 15,
+  trials: [],
+  type: "muller"
+};
+
+let correctAnswer = "";
+let startTime = 0;
+let changeInterval = null;
+let sessionStartTime = 0;
+
+// =========================
+// SESSION CONTROL
+// =========================
+
+function startSession() {
+  sessionStartTime = Date.now()
+  alert(
+"Instructions:\n\n" +
+"Muller-Lyer: choose the longer line\n" +
+"Stroop: choose the color of the word\n"+
+"Reaction Whack: click the circle as fast as you can\n\n"
+)
+
+  session.trial = 0;
+  session.difficulty = 15;
+  session.trials = [];
+  session.type = document.getElementById("illusionType").value;
+  nextTrial();
+}
+
+function nextTrial() {
+  if (session.trial >= session.maxTrials) {
+    analyzeSession();
+    return;
+  }
+
+  session.trial++;
+  document.getElementById("trialDisplay").innerText =
+    session.trial;
+  document.getElementById("difficultyDisplay").innerText =
+     session.difficulty;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  document.getElementById("controls").innerHTML = "";
+
+  if (session.type === "muller") generateMuller();
+  if (session.type === "stroop") generateStroop();
+  if (session.type === "whack") generateWhack();
+  
+}
+
+// =========================
+// ILLUSION 1: MÜLLER-LYER
+// =========================
+
+function generateMuller() {
+document.getElementById("question").innerText =
+"which line looks longer?"
+   let base = 200;
+  let distortion = session.difficulty;
+
+  // 20% chance equal
+  if (Math.random() < 0.2) distortion = 0;
+
+  let topLen = base;
+  let bottomLen = base;
+
+  if (distortion === 0) {
+    correctAnswer = "equal";
+  } else if (Math.random() > 0.5) {
+    topLen = base + distortion;
+    correctAnswer = "top";
+  } else {
+    bottomLen = base + distortion;
+    correctAnswer = "bottom";
+  }
+
+  drawLine(200, 150, topLen, true);
+  drawLine(200, 250, bottomLen, false);
+
+  createButton("Top Line", "top");
+  createButton("Bottom Line", "bottom");
+  createButton("Equal", "equal");
+
+  startTime = performance.now();
+  
+}
+
+function drawLine(x, y, len, inward) {
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x + len, y);
+  ctx.strokeStyle = "white";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  let arrow = 15;
+  ctx.beginPath();
+  if (inward) {
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + arrow, y - arrow);
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + arrow, y + arrow);
+  } else {
+    ctx.moveTo(x + len, y);
+    ctx.lineTo(x + len - arrow, y - arrow);
+    ctx.moveTo(x + len, y);
+    ctx.lineTo(x + len - arrow, y + arrow);
+  }
+  ctx.stroke();
+}
+
+// =========================
+// ILLUSION 2: STROOP
+// =========================
+
+function generateStroop() {
+  document.getElementById("question").innerText =
+"what is the COLOR of the word?"
+  const words = ["RED", "BLUE", "GREEN", "YELLOW"];
+  const colors = ["red", "blue", "green", "yellow"];
+
+  let word = words[Math.floor(Math.random()*4)];
+  let color = colors[Math.floor(Math.random()*4)];
+
+  correctAnswer = color;
+
+  ctx.font = "60px Arial";
+  ctx.fillStyle = color;
+  ctx.fillText(word, 220, 200);
+
+  colors.forEach(c => {
+    createButton(c.toUpperCase(), c);
+  });
+
+  startTime = performance.now();
+}
+
+// =========================
+// ILLUSION 3: REACTION WHACK
+function generateWhack(){
+
+ document.getElementById("question").innerText = "Whack the mole!"
+
+ ctx.clearRect(0,0,canvas.width,canvas.height)
+
+ let holes = []
+ let cols = 4
+ let rows = 2
+ let radius = 35
+
+ let startX = 120
+ let startY = 150
+
+ // draw holes
+ for(let r=0;r<rows;r++){
+   for(let c=0;c<cols;c++){
+
+     let x = startX + c*140
+     let y = startY + r*120
+
+     holes.push({x,y})
+
+     ctx.beginPath()
+     ctx.arc(x,y,radius,0,Math.PI*2)
+     ctx.fillStyle="#444"
+     ctx.fill()
+
+   }
+ }
+
+ // choose random mole
+ let moleIndex = Math.floor(Math.random()*holes.length)
+ let mole = holes[moleIndex]
+
+ ctx.beginPath()
+ ctx.arc(mole.x,mole.y,25,0,Math.PI*2)
+ ctx.fillStyle="lime"
+ ctx.fill()
+
+ correctAnswer = moleIndex.toString()
+
+ startTime = performance.now()
+
+ let responded = false   // prevents double responses
+
+ canvas.onclick = function(e){
+
+   if(responded) return
+   responded = true
+
+   let rect = canvas.getBoundingClientRect()
+
+   let mx = e.clientX - rect.left
+   let my = e.clientY - rect.top
+
+   let hitIndex = -1
+
+   holes.forEach((hole,i)=>{
+
+     let dx = mx - hole.x
+     let dy = my - hole.y
+     let dist = Math.sqrt(dx*dx + dy*dy)
+
+     if(dist < radius){
+        hitIndex = i
+     }
+
+   })
+
+   canvas.onclick = null
+
+   if(hitIndex !== -1){
+      handleResponse(hitIndex.toString())
+   }else{
+      handleResponse("miss")
+   }
+
+ }
+
+}
+// =========================
+// RESPONSE HANDLING
+// =========================
+
+function createButton(text, value) {
+  let btn = document.createElement("button");
+  btn.innerText = text;
+  btn.onclick = () => handleResponse(value);
+  document.getElementById("controls").appendChild(btn);
+}
+
+function handleResponse(choice) {
+  let rt = performance.now() - startTime;
+  let correct = choice === correctAnswer;
+
+  if (changeInterval) clearInterval(changeInterval);
+
+  session.trials.push({
+   illusionType: session.type,
+   reactionTime: rt,
+   correct: correct,
+   difficulty: session.difficulty,
+   trial: session.trial
+  });
+
+  // ML LIVE PREDICTION
+  let live = predictLiveProfile();
+
+  if(live){
+    document.getElementById("liveAI").innerText = live;
+  }
+
+  adaptDifficulty(correct);
+  nextTrial();
+
+  let focus = computeFocusScore()
+
+document.getElementById("liveAI").innerText =
+predictLiveProfile() + " | Focus: " + focus + "%"
+}
+
+//adaptive difficulty function
+
+function adaptDifficulty(correct){
+
+ let profile = predictLiveProfile()
+
+ if(profile === "Impulsive"){
+    session.difficulty += 2
+ }
+
+ else if(profile === "SlowAccurate"){
+    session.difficulty -= 2
+ }
+
+ else if(profile === "Analytical"){
+    session.difficulty += 1
+ }
+
+ else if(profile === "Balanced"){
+    session.difficulty = session.difficulty
+ }
+
+ if(correct) session.difficulty -= 1
+
+ if(session.difficulty < 1) session.difficulty = 1
+ if(session.difficulty > 40) session.difficulty = 40
+
+}
+//extract features
+function extractFeatures(trials){
+
+ let totalRT = 0;
+ let errors = 0;
+ let difficulties = [];
+
+ trials.forEach(t => {
+
+   totalRT += t.reactionTime
+
+   if(!t.correct) errors++
+
+   difficulties.push(t.difficulty)
+
+ })
+
+ let avgRT = totalRT / trials.length
+
+ let errorRate = errors / trials.length
+
+ let avgDifficulty =
+   difficulties.reduce((a,b)=>a+b)/difficulties.length
+
+ return {
+   avgRT,
+   errorRate,
+   avgDifficulty
+ }
+
+}
+
+//ml functions
+function classifyWithTree(node, features){
+
+  // if we reached a leaf node
+  if(node.class){
+    return node.class
+  }
+
+  let value = features[node.feature]
+
+  if(value <= node.threshold){
+     return classifyWithTree(node.left, features)
+  } else {
+     return classifyWithTree(node.right, features)
+  }
+}
+
+//reaction function
+function reactionVariance(trials){
+
+ let mean = trials.reduce((sum,t)=>sum + t.reactionTime,0)/trials.length
+
+ let variance = trials.reduce((sum,t)=>{
+   return sum + Math.pow(t.reactionTime-mean,2)
+ },0)/trials.length
+
+ return variance
+}
+
+//streak function
+function correctStreak(trials){
+
+ let streak = 0
+ let max = 0
+
+ trials.forEach(t=>{
+   if(t.correct){
+     streak++
+     if(streak > max) max = streak
+   }else{
+     streak = 0
+   }
+ })
+
+ return max
+}
+
+// ANALYSIS
+// =========================
+
+function analyzeSession(){
+
+ const features = extractFeatures(session.trials)
+ const variance = reactionVariance(session.trials)
+ const streak = correctStreak(session.trials)
+ const sessionDuration = Date.now() - sessionStartTime
+
+ // SHOW FEATURES IN CONSOLE
+ console.log("Features:", features)
+
+ const result = classifyWithTree(treeModel, {
+   avgRT: features.avgRT,
+   errorRate: features.errorRate,
+   avgDifficulty: features.avgDifficulty
+})
+ document.getElementById("aiResult").innerHTML =
+`
+<p style="font-size:24px; font-weight:bold; color:#0f0;">AI Cognitive Profile: ${result}</p>
+Avg Reaction Time: ${features.avgRT.toFixed(0)} ms<br>
+Error Rate: ${(features.errorRate*100).toFixed(1)}%<br>
+Difficulty Level: ${features.avgDifficulty.toFixed(2)}
+`
+
+ // show numeric results
+ alert(
+   "Session Results\n\n" +
+   "Average RT: " + features.avgRT.toFixed(2) + " ms\n" +
+   "Error Rate: " + (features.errorRate*100).toFixed(1) + "%\n" +
+   "Avg Difficulty: " + features.avgDifficulty.toFixed(2)
+ )
+
+ // store session
+storeSession(
+  features.avgRT,
+  features.errorRate,
+  features.avgDifficulty,
+  variance,
+  streak,
+  sessionDuration,
+  result
+)
+let suggestion = generateRecommendation(result)
+
+document.getElementById("aiResult").innerHTML +=
+"<br><br><b>Recommendation:</b> " + suggestion
+
+let pattern = analyzePatterns()
+
+document.getElementById("aiResult").innerHTML +=
+"<br><br><b>Pattern Insight:</b> " + pattern
+}
+
+function generateRecommendation(profile){
+
+ let recommendation = ""
+
+ if(profile === "Impulsive"){
+   recommendation = "Try Calm Space for 2 minutes breathing."
+ }
+
+ else if(profile === "SlowAccurate"){
+   recommendation = "Try Focus Sprint: 10 min study session."
+ }
+
+ else if(profile === "Analytical"){
+   recommendation = "Try Advanced Flashcards for deeper learning."
+ }
+
+ else{
+   recommendation = "Keep practicing to improve focus."
+ }
+
+ return recommendation
+}
+
+
+function downloadDataset(features){
+
+ const row =
+ `${features.avgRT},${features.errorRate},${features.avgDifficulty}\n`
+
+ const blob = new Blob([row],{type:"text/csv"})
+
+ const link = document.createElement("a")
+
+ link.href = URL.createObjectURL(blob)
+
+ link.download = "mindflex_dataset.csv"
+
+ link.click()
+
+}
+
+function storeSession(avgRT,errorRate,avgDifficulty,variance,streak,sessionDuration,label){
+
+ let data = JSON.parse(localStorage.getItem("mindflexData")) || []
+
+ data.push({
+   avgRT,
+   errorRate,
+   avgDifficulty,
+   variance,
+   streak,
+   sessionDuration,
+   label
+ })
+
+ localStorage.setItem("mindflexData", JSON.stringify(data))
+
+}
+
+function exportDataset(){
+
+ let data = JSON.parse(localStorage.getItem("mindflexData")) || []
+
+let csv = "avgRT,errorRate,avgDifficulty,variance,streak,sessionDuration,label\n"
+
+ data.forEach(row=>{
+ csv += `${row.avgRT},${row.errorRate},${row.avgDifficulty},${row.variance},${row.streak},${row.sessionDuration},${row.label}\n`
+ })
+
+ const blob = new Blob([csv], {type:"text/csv"})
+
+ const link = document.createElement("a")
+
+ link.href = URL.createObjectURL(blob)
+
+ link.download = "mindflex_dataset.csv"
+
+ link.click()
+
+}
+
+//predective adjustment runtime part
+function predictLiveProfile(){
+
+ if(session.trials.length < 5) return null
+
+ const features = extractFeatures(session.trials)
+
+ return classifyWithTree(treeModel,{
+    avgRT: features.avgRT,
+    errorRate: features.errorRate,
+    avgDifficulty: features.avgDifficulty
+ })
+
+}
+
+function computeFocusScore(){
+
+ if(session.trials.length < 3) return 0
+
+ const f = extractFeatures(session.trials)
+
+ let focus = 100
+
+ focus -= f.errorRate * 60
+ focus -= (f.avgRT / 2000) * 40
+
+ if(focus < 0) focus = 0
+ if(focus > 100) focus = 100
+
+ return Math.round(focus)
+}
+
+function analyzePatterns(){
+
+ let data = JSON.parse(localStorage.getItem("mindflexData")) || []
+
+ if(data.length < 5) return "Not enough data yet."
+
+ let totalFocus = 0
+
+ data.forEach(d=>{
+
+   let focus = 100
+   focus -= d.errorRate * 60
+   focus -= (d.avgRT / 2000) * 40
+
+   if(focus < 0) focus = 0
+
+   totalFocus += focus
+
+ })
+
+ let avgFocus = totalFocus / data.length
+
+ if(avgFocus < 50)
+   return "Your focus pattern shows frequent attention drops."
+
+ if(avgFocus < 70)
+   return "Your attention fluctuates between focused and distracted."
+
+ return "Your focus pattern is stable."
+}
+</script>
+
+</body>
+</html>
