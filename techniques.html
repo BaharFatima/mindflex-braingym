@@ -108,6 +108,91 @@
     line-height: 1.5;
   }
 
+  /* ===== FOCUS TIMER CARD ===== */
+  .focus-timer-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, #1a6fc4, #3da5f5);
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    text-decoration: none;
+    color: white;
+    box-shadow: 0 4px 14px rgba(26, 111, 196, 0.35);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .focus-timer-card::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 80px;
+    height: 80px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 50%;
+  }
+
+  .focus-timer-card::after {
+    content: '';
+    position: absolute;
+    bottom: -30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 50%;
+  }
+
+  .focus-timer-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 20px rgba(26, 111, 196, 0.45);
+  }
+
+  .focus-timer-card:active {
+    transform: scale(0.98);
+  }
+
+  .timer-card-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .timer-card-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .timer-card-text h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    margin-bottom: 2px;
+  }
+
+  .timer-card-text p {
+    font-size: 0.72rem;
+    opacity: 0.85;
+  }
+
+  .timer-card-arrow {
+    font-size: 1rem;
+    opacity: 0.8;
+    z-index: 1;
+  }
+
   /* ===== NAVIGATION BAR ===== */
   .menu-container {
     position: absolute;
@@ -164,20 +249,17 @@
     font-weight: 600;
   }
 
-  /* Pop-up animation when selected */
   .menu-item.selected .menu-icon i {
     transform: translateY(-5px) scale(1.1);
     text-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
 
-  /* Colors per category */
   .menu-item[data-category="cv"].selected .menu-icon i           { color: #0D47A1; }
   .menu-item[data-category="achievements"].selected .menu-icon i  { color: #9c27b0; }
   .menu-item[data-category="home"].selected .menu-icon i          { color: #1565C0; }
   .menu-item[data-category="habit-tracker"].selected .menu-icon i { color: #ff4081; }
   .menu-item[data-category="user-account"].selected .menu-icon i  { color: #00838F; }
 
-  /* Image icons */
   .menu-icon img {
     width: 20px;
     height: 20px;
@@ -197,7 +279,6 @@
     filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(13,71,161,0.4));
   }
 
-  /* Fallback icon */
   .menu-icon .fallback-icon {
     width: 20px;
     height: 20px;
@@ -221,7 +302,6 @@
   .menu-item[data-category="cv"].selected .menu-icon .fallback-icon           { background-color: #0D47A1; }
   .menu-item[data-category="habit-tracker"].selected .menu-icon .fallback-icon { background-color: #ff4081; }
 
-  /* Scrollbar */
   main::-webkit-scrollbar       { width: 4px; }
   main::-webkit-scrollbar-track { background: transparent; }
   main::-webkit-scrollbar-thumb { background: #B3E5FC; border-radius: 10px; }
@@ -249,6 +329,18 @@
 
   <!-- Content Sections -->
   <main>
+
+    <!-- ===== FOCUS TIMER CARD ===== -->
+    <a href="focus-timer.html" class="focus-timer-card">
+      <div class="timer-card-left">
+        <div class="timer-card-icon">⏱️</div>
+        <div class="timer-card-text">
+          <h4>Focus Timer</h4>
+          <p>Start a timed study session</p>
+        </div>
+      </div>
+      <div class="timer-card-arrow"><i class="fas fa-chevron-right"></i></div>
+    </a>
 
     <!-- ADHD -->
     <div class="section active" id="adhd">
@@ -528,13 +620,11 @@
 </div>
 
 <script>
-  // Toggle technique details
   function toggleDetails(el) {
     const d = el.querySelector('.details');
     d.style.display = d.style.display === 'block' ? 'none' : 'block';
   }
 
-  // Disorder tab switching
   document.querySelectorAll(".tab").forEach(tab => {
     tab.addEventListener("click", () => {
       document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
@@ -545,7 +635,6 @@
     });
   });
 
-  // Nav bar interaction
   document.addEventListener('DOMContentLoaded', function() {
     const menuItems = document.querySelectorAll('.menu-item');
 
