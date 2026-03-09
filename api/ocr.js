@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const API_KEY = "K85088363188957";
+  const API_KEY = "K85088363188957"; // your OCR.Space key
 
   try {
 
@@ -13,25 +13,27 @@ export default async function handler(req, res) {
     const response = await fetch("https://api.ocr.space/parse/image", {
       method: "POST",
       headers: {
-        apikey: API_KEY,
-        "Content-Type": "application/json"
+        apikey: API_KEY
       },
-      body: JSON.stringify({
+      body: new URLSearchParams({
         base64Image: image,
-        language: "eng"
+        language: "eng",
+        OCREngine: "2"
       })
     });
 
     const data = await response.json();
 
     const text =
-      data.ParsedResults?.[0]?.ParsedText || "";
+      data?.ParsedResults?.[0]?.ParsedText || "";
 
-    res.status(200).json({ text });
+    return res.status(200).json({ text });
 
   } catch (error) {
 
-    res.status(500).json({ text: "" });
+    console.error(error);
+
+    return res.status(500).json({ text: "" });
 
   }
 }
