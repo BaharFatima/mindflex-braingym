@@ -402,11 +402,11 @@ async function scanText() {
 
   document.getElementById("outputText").value = "Scanning...";
 
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
+  canvas.width = 1280;
+  canvas.height = 720;
   ctx.drawImage(video, 0, 0);
 
-  const imageData = canvas.toDataURL("image/jpeg", 0.9);
+  const imageData = canvas.toDataURL("image/jpeg", 0.6);
 
   try {
     const response = await fetch("/api/ocr", {
