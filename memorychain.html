@@ -1,6 +1,5 @@
 
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -154,7 +153,20 @@ footer{
   font-size:14px;
   color:#3e61b2;
 }
-
+.reset-btn{
+  position:absolute;
+  right:18px;
+  top:18px;
+  background:#ff5252;
+  color:white;
+  border:none;
+  padding:6px 12px;
+  border-radius:14px;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:0 6px 14px rgba(0,0,0,0.2);
+}
 
 </style>
 </head>
@@ -162,12 +174,14 @@ footer{
 <div class = "app">
 <header>
   <a href="../focuslab.html" class="back-btn">←</a>
+    <button id="resetBtn" class="reset-btn">Reset</button>
   <span class="page-title">Memory Chain</span>
 </header>
 
 <div class="main-section">
   <button id="startGame">Start</button>
   <p id="status">Watch the pattern carefully...</p>
+  <p id="progressDisplay">Step 0 / 0</p>
   <div id="gameArea"></div>
 </div>
 
@@ -179,7 +193,6 @@ footer{
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-const startButton = document.getElementById("startGame");
 import { getAuth, onAuthStateChanged } from 
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -198,15 +211,13 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
 const auth = getAuth(app);
 
 let currentUser = null;
-
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if(user){
     currentUser = user;
-    loadProgress();
+    await loadProgress(); // safe now
   } else {
     window.location.href = "../login.html";
   }
@@ -222,6 +233,10 @@ const grid = document.getElementById("gameArea");
 const statusText = document.getElementById("status");
 const nextButton = document.getElementById("nextLevel");
 const levelDisplay = document.getElementById("level");
+const resetBtn = document.getElementById("resetBtn");
+const startButton = document.getElementById("startGame");
+const progressDisplay = document.getElementById("progressDisplay");
+
 
 let level = 1;
 const maxLevel = 150;
@@ -300,6 +315,41 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
 function setPointerEvents(enabled) {
   grid.style.pointerEvents = enabled ? "auto" : "none";
 }
+// reset
+async function resetGame(){
+
+  const confirmReset = confirm("Restart Memory Chain from Level 1?");
+  if(!confirmReset) return;
+
+  // reset state
+  level = 1;
+  sequence = [];
+  playerSequence = [];
+
+  totalAttempts = 0;
+  totalFailures = 0;
+  totalSuccess = 0;
+
+  // reset UI
+  statusText.textContent = "Press Start to begin";
+  levelDisplay.textContent = `Level ${level} / ${maxLevel}`;
+
+  startButton.style.display = "block";
+  nextButton.style.display = "none";
+
+  // clear grid visuals
+  const blocks = document.querySelectorAll(".block");
+  blocks.forEach(b => {
+    b.classList.remove("active","wrong","correct");
+  });
+
+  clickable = false;
+  playing = false;
+  setPointerEvents(false);
+
+  await saveProgress();
+}
+resetBtn.addEventListener("click", resetGame);
 
 /* ---------- GRID ---------- */
 function createGrid() {
