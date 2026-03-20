@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -157,6 +159,21 @@ header{
   display:none;
   box-shadow:0 10px 20px rgba(21,101,192,0.4);
 }
+/* reset */
+.reset-btn{
+  position:absolute;
+  right:15px;
+  top:15px;
+  background:#ff5252;
+  color:white;
+  border:none;
+  padding:6px 12px;
+  border-radius:14px;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:0 6px 14px rgba(0,0,0,0.2);
+}
 </style>
 </head>
 
@@ -167,6 +184,7 @@ header{
   <header>
     <a href="focuslab.html" class="back-btn">←</a>
     <div class="page-title">Pattern Logic</div>
+   <button id="resetBtn" class="reset-btn">Reset</button>
   </header>
 
   <div class="content">
@@ -210,18 +228,121 @@ onAuthStateChanged(auth, (user) => {
 });
 
 let level = 1;
-const maxLevel = 50;
+const maxLevel = 200;
 let correct = 0;
 let attempts = 0;
 let currentAnswer = null;
 let highestLevel = 1;
 let explanationText = "";
+let usedPatterns = new Set();
+let questions = [];
 
 const levelText = document.getElementById("levelText");
 const sequenceBox = document.getElementById("sequenceBox");
 const optionsBox = document.getElementById("optionsBox");
 const explanationBox = document.getElementById("explanationBox");
 const nextBtn = document.getElementById("nextBtn");
+const resetBtn=document.getElementById("resetBtn");
+
+
+// questionbank
+function generateQuestionBank(){
+
+  questions=[];
+
+  // arithmetic sequences
+  for(let i=0;i<40;i++){
+    let start=Math.floor(Math.random()*20)+1;
+    let diff=Math.floor(Math.random()*6)+2;
+
+    let seq=[start,start+diff,start+2*diff,start+3*diff];
+
+    questions.push({
+      seq:seq,
+      answer:start+4*diff,
+      explanation:"Add "+diff+" each step."
+    });
+  }
+
+  // multiplication sequences
+  for(let i=0;i<40;i++){
+    let start=Math.floor(Math.random()*4)+2;
+    let mul=Math.floor(Math.random()*4)+2;
+
+    let seq=[start,start*mul,start*mul*mul,start*mul*mul*mul];
+
+    questions.push({
+      seq:seq,
+      answer:seq[3]*mul,
+      explanation:"Multiply by "+mul+" each step."
+    });
+  }
+
+  // alternating patterns
+  for(let i=0;i<30;i++){
+    let a=Math.floor(Math.random()*6)+2;
+    let b=Math.floor(Math.random()*5)+1;
+    let start=Math.floor(Math.random()*20)+5;
+
+    let seq=[start,start+a,start+a-b,start+a-b+a];
+
+    questions.push({
+      seq:seq,
+      answer:start+a-b+a-b,
+      explanation:"Add "+a+", subtract "+b+", repeat."
+    });
+  }
+
+  // algebra equations
+  for(let i=0;i<40;i++){
+    let x=Math.floor(Math.random()*8)+2;
+
+    questions.push({
+      seq:["x + 2 = "+(x+2),"x + 4 = "+(x+4),"x + 6 = "+(x+6),"x + 8 = ?"],
+      answer:x+8,
+      explanation:"Solve for x pattern."
+    });
+  }
+
+  // equation solving
+  for(let i=0;i<50;i++){
+    let a=Math.floor(Math.random()*5)+2;
+    let b=Math.floor(Math.random()*10)+5;
+
+    let result=a*b;
+
+    questions.push({
+      seq:["? × "+a+" = "+result],
+      answer:b,
+      explanation:"Solve the equation."
+    });
+  }
+
+  // shuffle questions
+  questions.sort(()=>Math.random()-0.5);
+}
+
+
+// reset
+async function resetGame(){
+
+  level = 1;
+  correct = 0;
+  attempts = 0;
+  highestLevel = 1;
+
+  await saveProgress();   // save reset progress
+
+  generateQuestionBank(); // rebuild unique questions
+  generatePattern();      // restart level 1
+
+}
+
+resetBtn.onclick = () => {
+  if (confirm("Restart from Level 1?")) {
+    resetGame();
+  }
+};
 
 async function loadProgress() {
   if (!currentUser) return;
@@ -237,6 +358,7 @@ async function loadProgress() {
   } catch(e) {
     console.log("Load failed:", e);
   }
+  generateQuestionBank();
   generatePattern();
 }
 
@@ -250,56 +372,40 @@ async function saveProgress() {
   );
 }
 
-function generatePattern() {
-  optionsBox.innerHTML = "";
-  explanationBox.textContent = "";
-  nextBtn.style.display = "none";
-  levelText.textContent = "Level " + level;
+function generatePattern(){
 
-  let seq = [];
-  let diff;
+  optionsBox.innerHTML="";
+  explanationBox.textContent="";
+  nextBtn.style.display="none";
 
-  if (level <= 10) {
-    let start = Math.floor(Math.random() * 10) + 1;
-    diff = Math.floor(Math.random() * 5) + 2;
-    seq = [start, start + diff, start + 2 * diff, start + 3 * diff];
-    currentAnswer = start + 4 * diff;
-    explanationText = "Each number increases by " + diff + ".";
-  } else if (level <= 20) {
-    let start = 2;
-    diff = Math.floor(Math.random() * 3) + 2;
-    seq = [start, start * diff, start * diff * diff, start * diff * diff * diff];
-    currentAnswer = seq[3] * diff;
-    explanationText = "Each number is multiplied by " + diff + ".";
-  } else if (level <= 30) {
-    let start = 20;
-    let a = 4, b = 3;
-    seq = [start, start + a, start + a - b, start + a - b + a];
-    currentAnswer = start + a - b + a - b;
-    explanationText = "Add " + a + ", subtract " + b + ", repeat.";
-  } else {
-    let start = 3;
-    seq = [start, start + 2, start + 6, start + 12];
-    currentAnswer = start + 20;
-    explanationText = "Differences increase progressively.";
-  }
+  levelText.textContent="Level "+level;
 
-  sequenceBox.textContent = seq.join(" , ") + " , ?";
+  const q=questions[level-1];
 
-  let options = new Set([currentAnswer]);
-  while (options.size < 4) {
-    options.add(currentAnswer + Math.floor(Math.random() * 10) - 5);
+  sequenceBox.textContent=q.seq.join(" , ");
+
+  currentAnswer=q.answer;
+  explanationText=q.explanation;
+
+  let options=new Set([currentAnswer]);
+
+  while(options.size<4){
+    options.add(currentAnswer+Math.floor(Math.random()*10)-5);
   }
 
   Array.from(options)
-    .sort(() => Math.random() - 0.5)
-    .forEach(num => {
-      const btn = document.createElement("button");
-      btn.className = "option";
-      btn.textContent = num;
-      btn.onclick = () => checkAnswer(num, btn);
-      optionsBox.appendChild(btn);
-    });
+  .sort(()=>Math.random()-0.5)
+  .forEach(num=>{
+
+    const btn=document.createElement("button");
+    btn.className="option";
+    btn.textContent=num;
+
+    btn.onclick=()=>checkAnswer(num,btn);
+
+    optionsBox.appendChild(btn);
+
+  });
 }
 
 function checkAnswer(selected, btn) {
@@ -328,6 +434,14 @@ nextBtn.onclick = async () => {
   if (level > highestLevel) highestLevel = level;
   await saveProgress();
   generatePattern();
+};
+
+resetBtn.onclick=()=>{
+
+  if(confirm("Restart from Level 1?")){
+    resetGame();
+  }
+
 };
 </script>
 
