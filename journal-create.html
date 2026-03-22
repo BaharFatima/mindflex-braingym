@@ -1,10 +1,12 @@
+
+
 <!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0" />
 <title>Create Entry — Journal</title>
-
+<script src="https://unpkg.com/compromise"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
@@ -347,6 +349,285 @@ addNoteBtn.onclick = ()=>{
   noteInput.value = '';
 };
 
+//stress detection
+const stressWords = {
+
+mild:["worried","concerned","nervous","uneasy"],
+
+moderate:["stressed","anxious","overwhelmed","frustrated"],
+
+severe:["panic","hopeless","exhausted","burnout","depressed"]
+
+}
+//stress intensity function
+function detectStressLevel(text){
+
+text = text.toLowerCase()
+
+for(let word of stressWords.severe){
+if(text.includes(word)) return "severe"
+}
+
+for(let word of stressWords.moderate){
+if(text.includes(word)) return "moderate"
+}
+
+for(let word of stressWords.mild){
+if(text.includes(word)) return "mild"
+}
+
+return "none"
+
+}
+//category detection
+function detectCategory(topics){
+
+const categories = {
+
+school:["exam","assignment","class","teacher","project","college"],
+
+relationships:["friend","family","mom","dad","boyfriend","girlfriend"],
+
+health:["sleep","diet","exercise","sick","tired"],
+
+work:["job","meeting","deadline","boss"]
+
+}
+
+let detected = []
+
+topics.forEach(topic=>{
+
+Object.keys(categories).forEach(cat=>{
+
+if(categories[cat].some(word=>topic.toLowerCase().includes(word))){
+detected.push(cat)
+}
+
+})
+
+})
+
+return detected
+
+}
+
+// AFINN SENTIMENT LEXICON
+const AFINN = {
+happy:3,
+good:2,
+great:3,
+excellent:4,
+amazing:4,
+love:3,
+hopeful:2,
+optimistic:2,
+motivated:2,
+confident:2,
+relieved:2,
+proud:2,
+calm:1,
+peaceful:2,
+joy:3,
+excited:3,
+delighted:3,
+satisfied:2,
+success:3,
+successful:3,
+win:3,
+won:3,
+passed:2,
+progress:2,
+better:1,
+improve:2,
+
+sad:-2,
+bad:-2,
+terrible:-4,
+awful:-4,
+angry:-3,
+mad:-2,
+frustrated:-2,
+depressed:-4,
+tired:-1,
+exhausted:-2,
+stressed:-2,
+stress:-2,
+anxious:-2,
+nervous:-2,
+worried:-2,
+fear:-2,
+failure:-3,
+fail:-3,
+failed:-3,
+mistake:-2,
+problem:-2,
+issue:-1,
+sick:-2,
+hurt:-2,
+pain:-2,
+lonely:-2,
+upset:-2,
+disappointed:-2,
+hopeless:-3
+}
+//stemming or lemmatization
+function normalizeWord(word){
+
+word = word.toLowerCase()
+
+if(word.endsWith("ing")){
+return word.slice(0,-3)
+}
+
+if(word.endsWith("ed")){
+return word.slice(0,-2)
+}
+
+if(word.endsWith("es")){
+return word.slice(0,-2)
+}
+
+if(word.endsWith("s") && word.length > 3){
+return word.slice(0,-1)
+}
+
+return word
+}
+// window.normalizeWord = normalizeWord
+
+//nlp processing
+function analyzeJournal(text){
+
+const doc = nlp(text)
+
+// topic extraction
+const topics = doc.nouns().out("array")
+
+// category detection
+const categories = detectCategory(topics) || []
+
+// stress detection
+const stressLevel = detectStressLevel(text)
+
+// sentiment phrase detection
+const positivePhrases = [
+"doing well",
+"feel good",
+"went well",
+"doing great"
+]
+
+const negativePhrases = [
+"feel bad",
+"went wrong",
+"not doing well",
+"feel terrible"
+]
+
+// intensifiers
+const intensifiers = ["very","really","extremely","so"]
+
+// negations
+const negations = ["not","never","no","dont","didnt","isnt","wasnt","cant"]
+
+// contrast words
+const contrastWords = ["but","however","though","although"]
+
+let score = 0
+let cleanedText = text.toLowerCase()
+let processedText = cleanedText
+
+// contrast handling
+for(let word of contrastWords){
+
+if(processedText.includes(" " + word + " ")){
+
+const parts = processedText.split(" " + word + " ")
+processedText = parts[1]
+
+break
+}
+
+}
+
+// phrase sentiment
+negativePhrases.forEach(p=>{
+if(cleanedText.includes(p)) score -= 2
+})
+
+positivePhrases.forEach(p=>{
+if(cleanedText.includes(p)) score += 2
+})
+
+// tokenize text
+const words = processedText
+.replace(/[^\w\s]/g,"")
+.split(/\s+/)
+
+// sentiment scoring
+for(let i=0;i<words.length;i++){
+
+let currentWord = normalizeWord(words[i])
+
+const word = words[i]
+const prev1 = words[i-1] || ""
+const prev2 = words[i-2] || ""
+
+let multiplier = 1
+
+if(intensifiers.includes(prev1)) multiplier = 2
+
+const negated =
+negations.includes(prev1) || negations.includes(prev2)
+
+if(negated && AFINN[currentWord]){
+
+score -= AFINN[currentWord]
+continue
+
+}
+
+if(AFINN[currentWord]){
+
+score += AFINN[currentWord] * multiplier
+
+}
+
+}
+
+// final sentiment
+let sentiment = "neutral"
+
+if(score > 0) sentiment = "positive"
+if(score < 0) sentiment = "negative"
+
+// emotion detection
+const emotions = []
+
+if(text.includes("anxious") || text.includes("nervous"))
+emotions.push("anxiety")
+
+if(text.includes("sad") || text.includes("depressed"))
+emotions.push("sadness")
+
+if(text.includes("angry") || text.includes("mad"))
+emotions.push("anger")
+
+if(text.includes("happy") || text.includes("excited") || text.includes("hopeful"))
+emotions.push("joy")
+
+return {
+sentiment,
+score,
+topics,
+emotions,
+categories,
+stressLevel
+}
+
+}
+
 /* ---- SAVE ---- */
 saveBtn.onclick = async () => {
 
@@ -354,21 +635,47 @@ saveBtn.onclick = async () => {
     alert("User not logged in.");
     return;
   }
+ const text = topNote.value
+const analysis = analyzeJournal(text)
 
-  const entry = {
-    title: noteTitle.textContent.trim() || "Untitled",
-    content: topNote.value,
-    mood: selectedMood,
-    sleepHours: parseInt(sleepH.textContent),
-    sleepMins: parseInt(sleepM.textContent),
-    exerciseHours: parseInt(exH.textContent),
-    exerciseMins: parseInt(exM.textContent),
-    challenges: getTags(challengeTags),
-    wins: getTags(winTags),
-    notes: getTags(noteTags),
-    savedAt: new Date(),
-    userId: currentUser.uid
-  };
+// stress trigger detection
+let trigger = null
+
+if (analysis.topics.includes("exam") && analysis.sentiment === "negative") {
+  trigger = "academic_stress"
+}
+
+if (analysis.emotions.includes("anxiety") && analysis.sentiment === "negative") {
+  trigger = "high_anxiety"
+}
+ const entry = {
+
+ title: (noteTitle.textContent.trim() === "Title" ? "Untitled" : noteTitle.textContent.trim()),
+  content: text,
+
+  mood: selectedMood,
+
+  sleepHours: parseInt(sleepH.textContent),
+  sleepMins: parseInt(sleepM.textContent),
+
+  exerciseHours: parseInt(exH.textContent),
+  exerciseMins: parseInt(exM.textContent),
+
+  challenges: getTags(challengeTags),
+  wins: getTags(winTags),
+  notes: getTags(noteTags),
+
+  sentiment: analysis.sentiment,
+  sentimentScore: analysis.score,
+  emotions: analysis.emotions,
+  topics: analysis.topics,
+  categories: analysis.categories || [],
+  stressLevel: analysis.stressLevel || "none",
+  trigger: trigger,
+
+  savedAt: new Date(),
+  userId: currentUser.uid
+}
 
   try {
   await addDoc(collection(db, "users", currentUser.uid, "journal"), entry);
