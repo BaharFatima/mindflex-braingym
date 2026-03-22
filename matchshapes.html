@@ -1,5 +1,7 @@
 
 
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -170,7 +172,21 @@ body{
   display:none;
   box-shadow:0 8px 20px rgba(62,97,178,0.4);
 }
-
+/* reset */
+.reset-btn{
+  position:absolute;
+  right:15px;
+  top:15px;
+  background:#ff5252;
+  color:white;
+  border:none;
+  padding:6px 12px;
+  border-radius:14px;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:0 6px 14px rgba(0,0,0,0.2);
+}
 
 </style>
 </head>
@@ -178,6 +194,7 @@ body{
 <div class="app"> 
     <div class = "header-bar">  </div>
 <div class="back-btn" onclick="window.location.href='../focuslab.html'">←</div>
+<button id="resetBtn" class="reset-btn">Reset</button>
 <p class="note">
   Note: Match the shape with the color of its name.
 
@@ -195,7 +212,7 @@ body{
 </div>
 <script type="module" src="attention.js"></script>
 <script type="module">
-import { addXP } from "../xp.js";
+import { addXP } from "../xp.";js
 import { getAuth, onAuthStateChanged } 
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -219,6 +236,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 let currentUser = null;
+const resetBtn = document.getElementById("resetBtn");
 
 
 
@@ -282,6 +300,24 @@ wrongClicks,
   lastPlayed: new Date()
   },{merge:true});
 }
+// reset
+async function resetGame(){
+
+  const confirmReset = confirm("Restart Match Shapes from Level 1?");
+
+  if(!confirmReset) return;
+
+  level = 1;
+  correctClicks = 0;
+  wrongClicks = 0;
+  totalAttempts = 0;
+
+  levelText.textContent = "LEVEL 1";
+
+  await saveProgress();
+  generateLevel();
+}
+
 function generateLevel(){
   nextBtn.style.display="none";
   rowTop.innerHTML="";
@@ -353,7 +389,8 @@ onAuthStateChanged(auth, (user) => {
     alert("User not logged in");
   }
 });
-
+// reset
+resetBtn.addEventListener("click", resetGame);
 </script>
 
 </body>
