@@ -63,6 +63,17 @@ header{
   align-items:center;
   justify-content:flex-start;
   text-align:center;
+
+  overflow-y:auto;   /* enables vertical scrolling */
+  overflow-x:hidden; /* prevents sideways scroll */
+}
+.main::-webkit-scrollbar{
+  width:6px;
+}
+
+.main::-webkit-scrollbar-thumb{
+  background:#7a9bd4;
+  border-radius:10px;
 }
 
 .level-display{
@@ -78,21 +89,27 @@ header{
 }
 
 .game-area{
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  align-items:center;
-  min-height:220px;
+  display:grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap:12px;
+
   width:100%;
+  height:360px;     /* space for ~50 emojis */
+  overflow-y:auto;  /* scroll if more */
+
+  justify-items:center;
+  align-items:center;
+
+  margin-bottom:20px;
 }
 
 .object{
-  font-size:2.2rem;
+  font-size:2rem;
   margin:6px;
 }
 
 .options{
-  margin-top:15px;
+  margin-top:auto;     /* pushes it below content */
   display:flex;
   gap:10px;
   flex-wrap:wrap;
@@ -107,6 +124,10 @@ header{
   font-size:15px;
   cursor:pointer;
   transition:.2s;
+  display: flex;
+  margin-top: 10px;
+  gap:10px;
+  justify-content: center;
 }
 
 .option:hover{
@@ -127,7 +148,33 @@ header{
 .stats{
   font-size:12px;
   margin-top:15px;
+  margin-bottom: 10px;
   color:#2e4fa3;
+}
+/* reset */
+.reset-btn{
+  position:absolute;
+  right:15px;
+  top:15px;
+  background:#ff5252;
+  color:white;
+  border:none;
+  padding:6px 12px;
+  border-radius:14px;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:0 6px 14px rgba(0,0,0,0.2);
+}
+.note {
+  font-size: 10px;
+  color: #353639;
+  background: #E3F2FD;
+  padding: 6px 8px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  text-align: center;
+  border: 1px solid #BBDEFB;
 }
 </style>
 </head>
@@ -138,6 +185,7 @@ header{
 <header>
   <div class="left-header">
         <a href="focuslab.html" class="back-btn">←</a>
+          <button id="resetBtn" class="reset-btn">Reset</button>
         </div>
   Count It
 </header>
@@ -146,6 +194,7 @@ header{
 
 <div class="level-display" id="levelText"></div>
 <div class="instruction">Count the objects carefully</div>
+          <p class="note">note: please scroll the canvas </p>
 
 <div class="game-area" id="gameArea"></div>
 
@@ -192,6 +241,7 @@ const optionsDiv = document.getElementById('options');
 const nextBtn    = document.getElementById('nextBtn');
 const levelText  = document.getElementById('levelText');
 const statsBox   = document.getElementById('statsBox');
+const resetBtn = document.getElementById("resetBtn");
 
 // ✅ onAuthStateChanged gates everything — no race condition
 onAuthStateChanged(auth, async (user) => {
@@ -224,7 +274,18 @@ async function saveProgress() {
       { merge: true });
   } catch(e) { console.log("Save failed:", e); }
 }
+// reset
+async function resetGame(){
 
+  level = 1;
+  totalAttempts = 0;
+  correctAnswers = 0;
+  correctAnswer = 0;
+
+  await saveProgress();   // <-- this line fixes it
+
+  startLevel();
+}
 function startLevel() {
   gameArea.innerHTML = ""; optionsDiv.innerHTML = "";
   nextBtn.style.display = "none";
@@ -275,6 +336,16 @@ nextBtn.onclick = async () => {
   await saveProgress();
   startLevel();
 };
+// reset
+resetBtn.addEventListener("click", () => {
+
+  const confirmReset = confirm("Restart game from Level 1?");
+
+  if(confirmReset){
+    resetGame();
+  }
+
+});
 </script>
 </body>
 </html>
