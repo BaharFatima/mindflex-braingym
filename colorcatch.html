@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -159,6 +161,21 @@ header{
   display:none;
   box-shadow:0 8px 20px rgba(62,97,178,0.4);
 }
+/* reset button */
+.reset-btn{
+  position:absolute;
+  right:15px;
+  top:15px;
+  background:#ff5252;
+  color:white;
+  border:none;
+  padding:6px 12px;
+  border-radius:14px;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:0 6px 14px rgba(0,0,0,0.2);
+}
 </style>
 </head>
 <body>
@@ -167,6 +184,7 @@ header{
 <header>
   <div class="left-header">
         <a href="focuslab.html" class="back-btn">←</a>
+         <button id="resetBtn" class="reset-btn">Reset</button>
         </div>
   <span class="page-title">Color Catch</span>
 </header>
@@ -229,7 +247,7 @@ const colors = [
   {name: "Teal", hex: "#26A69A"},
 ];
 
-const maxLevel = 30;
+const maxLevel = 300;
 let level = 1;
 let correct = 0;
 let wrong = 0;
@@ -270,7 +288,26 @@ async function saveProgress(uid){
     lastPlayed: new Date()
   }, { merge:true });
 }
+// reset game
+async function resetGame(){
+  level = 1;
+  correct = 0;
+  wrong = 0;
+  attempts = 0;
 
+  if(auth.currentUser){
+    await setDoc(doc(db,"users",auth.currentUser.uid,"games","colorcatch"),{
+      level:1,
+      correct:0,
+      wrong:0,
+      attempts:0,
+      accuracy:0,
+      lastPlayed:new Date()
+    },{merge:true});
+  }
+
+  startLevel();
+}
 function startLevel(){
   grid.innerHTML = "";
   nextBtn.style.display = "none";
@@ -329,6 +366,12 @@ onAuthStateChanged(auth, async (user) => {
   } else {
     console.log("User not logged in");
     // redirect if needed
+  }
+});
+// reset button
+resetBtn.addEventListener("click", () => {
+  if(confirm("Reset the game and start from Level 1?")){
+    resetGame();
   }
 });
 
