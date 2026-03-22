@@ -1,6 +1,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -152,6 +153,21 @@ header{
   display:none;
   cursor:pointer;
 }
+/* reset */
+.reset-btn{
+  position:absolute;
+  right:15px;
+  top:15px;
+  background:#ff5252;
+  color:white;
+  border:none;
+  padding:6px 12px;
+  border-radius:14px;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:0 6px 14px rgba(0,0,0,0.2);
+}
 </style>
 </head>
 
@@ -161,6 +177,7 @@ header{
 
 <header>
   <a href="focuslab.html" class="back-btn">←</a>
+  <button id="resetBtn" class="reset-btn">Reset</button>
   <div class="page-title">Reaction Rush</div>
 </header>
 
@@ -222,27 +239,39 @@ const gameArea=document.getElementById("gameArea");
 const scoreText=document.getElementById("scoreText");
 const levelText=document.getElementById("levelText");
 const nextBtn=document.getElementById("nextBtn");
+const resetBtn = document.getElementById("resetBtn");
+
+
+// reset
+async function resetGame(){
+
+  level = 1;
+  score = 0;
+
+  nextBtn.style.display = "none";
+
+  await saveProgress();
+
+  startGame();
+}
 
 /* LOAD PROGRESS */
 async function loadProgress(){
-  if(!currentUser) {
+  if(!currentUser){
     startGame();
     return;
   }
 
   try{
-    const snap = await getDoc(
-      doc(db,"users", currentUser.uid, "games", "reactionRush")
-    );
-
+    const snap = await getDoc(doc(db,"progress",deviceId));
     if(snap.exists()){
-      const data = snap.data();
-      level = data.level || 1;
-      score = data.score || 0;
+      const data = snap.data().reactionRush;
+      if(data){
+        level=data.level||1;
+        score=data.score||0;
+      }
     }
-  }catch(e){
-    console.log(e);
-  }
+  }catch(e){}
 
   startGame();
 }
@@ -261,6 +290,7 @@ async function saveProgress(){
     { merge:true }
   );
 }
+
 /* SPAWN CIRCLE */
 function spawnCircle(){
   gameArea.innerHTML="";
@@ -277,27 +307,33 @@ function spawnCircle(){
   circle.style.left=Math.random()*maxX+"px";
   circle.style.top=Math.random()*maxY+"px";
 
-  circle.onclick=()=>{
-    score++;
-    updateUI();
+circle.onclick=()=>{
 
-    if(score>=10){
-      nextBtn.style.display="block";
-      saveProgress();
-    }else{
-      spawnCircle();
-    }
-  };
+  if(score >= 10) return; // prevent extra clicks
+
+  score++;
+  updateUI();
+
+  if(score === 10){
+    nextBtn.style.display="block";
+    gameArea.innerHTML = ""; // remove circle
+    saveProgress();
+    return;
+  }
+
+  spawnCircle();
+};
 
   gameArea.appendChild(circle);
 }
+
 function updateUI(){
   levelText.textContent = "Level " + level + " / " + maxLevel;
   scoreText.textContent = "Score: " + score;
 }
 /* START */
 function startGame(){
-  updateUI
+  updateUI();
   spawnCircle();
 }
 
@@ -314,7 +350,16 @@ addXP(db, currentUser, 10);
   saveProgress();
   startGame();
 };
+loadProgress();
 
+// reset
+resetBtn.onclick = () => {
+
+  if(confirm("Restart game from Level 1?")){
+    resetGame();
+  }
+
+};
 </script>
 
 </body>
