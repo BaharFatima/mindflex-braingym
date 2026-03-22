@@ -1,36 +1,48 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Perceptual Intelligence Engine</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Nunito', sans-serif;
-      background: #b8d4ed;
-      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(180deg, #B3E5FC 0%, #E1F5FE 100%);
       display: flex;
       justify-content: center;
-      align-items: flex-start;
-      padding: 20px 10px 40px;
+      align-items: center;
+      min-height: 100vh;
     }
 
     .container {
-      width: 100%;
-      max-width: 750px;
-      background: #eef4fb;
+      width: 320px;
+      height: 640px;
       border-radius: 30px;
-      padding: 28px 24px 32px;
-      box-shadow: 0 6px 28px rgba(0,0,0,0.10);
+      background: linear-gradient(180deg, #BBDEFB 0%, #E3F2FD 100%);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    header {
+      background: linear-gradient(180deg, #90CAF9, #BBDEFB);
+      padding: 16px 16px 20px;
+      border-radius: 0 0 30px 30px;
+      position: relative;
+      flex-shrink: 0;
+      text-align: center;
     }
 
     .back-btn {
       position: absolute;
-      top: 15px;
+      top: 14px;
       left: 15px;
       font-size: 1.6rem;
       cursor: pointer;
@@ -39,252 +51,272 @@
       text-decoration: none;
     }
 
-
-    h1 {
-      font-size: 24px;
-      font-weight: 900;
-      color: #1a2a4a;
-      text-align: center;
-      margin-bottom: 22px;
-      letter-spacing: -0.5px;
+    header h1 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0D47A1;
+      margin-top: 4px;
+      line-height: 1.3;
     }
 
-    .test-controls {
+    header p {
+      font-size: 10px;
+      color: #1565C0;
+      opacity: 0.8;
+      margin-top: 2px;
+    }
+
+    .scroll-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 14px 14px;
       display: flex;
-      align-items: center;
+      flex-direction: column;
       gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-bottom: 18px;
+      scrollbar-width: none;
+    }
+    .scroll-body::-webkit-scrollbar { display: none; }
+
+    .controls-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
     }
 
     select {
-      padding: 11px 36px 11px 16px;
+      flex: 1;
+      padding: 9px 12px;
       background: #fff;
-      color: #1a2a4a;
-      border: 2px solid #dce8f5;
-      border-radius: 50px;
-      font-family: 'Nunito', sans-serif;
-      font-size: 14px;
-      font-weight: 700;
+      color: #0D47A1;
+      border: 1.5px solid #BBDEFB;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
       cursor: pointer;
       outline: none;
-      transition: border-color .2s;
       appearance: none;
       -webkit-appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a9ab8' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237a9ab8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
-      background-position: right 12px center;
+      background-position: right 10px center;
     }
-    select:focus { border-color: #7db8dc; }
+    select:focus { border-color: #64B5F6; }
 
-    button {
-      padding: 11px 22px;
-      background: #c5d9f0;
-      color: #2d6a9f;
+    .start-btn {
+      padding: 9px 14px;
+      background: linear-gradient(135deg, #64B5F6, #1E88E5);
+      color: #fff;
       border: none;
-      border-radius: 50px;
-      font-family: 'Nunito', sans-serif;
-      font-size: 14px;
-      font-weight: 800;
+      border-radius: 12px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
       cursor: pointer;
-      box-shadow: inset 0 -3px 0 #a8c4e0;
-      transition: background .2s, transform .15s;
+      white-space: nowrap;
+      transition: opacity 0.2s;
     }
-    button:hover  { background: #b5cde8; transform: translateY(-1px); }
-    button:active { transform: translateY(1px); box-shadow: inset 0 -1px 0 #a8c4e0; }
+    .start-btn:hover { opacity: 0.9; }
+    .start-btn:active { opacity: 0.8; }
 
     .status-bar {
       display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
+      gap: 6px;
+      justify-content: space-between;
     }
 
     .stat {
+      flex: 1;
       background: #fff;
-      border: 2px solid #dce8f5;
-      border-radius: 50px;
-      padding: 7px 16px;
-      font-size: 13px;
-      font-weight: 700;
-      color: #1a2a4a;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .label { color: #7a9ab8; font-weight: 700; }
-
-    #trialDisplay,
-    #difficultyDisplay,
-    #liveAI {
-      color: #2d6a9f;
-      font-weight: 900;
-    }
-
-    h2#aiResult {
-      font-size: 15px;
-      font-weight: 800;
-      color: #1a2a4a;
+      border: 1.5px solid #BBDEFB;
+      border-radius: 12px;
+      padding: 6px 8px;
       text-align: center;
-      margin-bottom: 14px;
-      min-height: 20px;
-      line-height: 1.6;
     }
 
-    h2#aiResult p {
-      color: #2d6a9f !important;
-      font-size: 18px !important;
-      font-weight: 900 !important;
-    }
-
-    canvas {
-      background: #1076ad;
-      border: 2px solid #dce8f5;
-      border-radius: 20px;
+    .stat .label {
+      font-size: 9px;
+      color: #90CAF9;
+      font-weight: 600;
       display: block;
-      margin: 0 auto 16px;
-      max-width: 100%;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .stat span:last-child {
+      font-size: 12px;
+      font-weight: 700;
+      color: #0D47A1;
+    }
+
+    #trialDisplay, #difficultyDisplay, #liveAI {
+      color: #1565C0;
+      font-weight: 700;
+    }
+
+    #aiResult {
+      background: #fff;
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #0D47A1;
+      text-align: center;
+      line-height: 1.6;
+      border: 1.5px solid #BBDEFB;
+      min-height: 36px;
+    }
+
+    #aiResult p {
+      color: #1565C0 !important;
+      font-size: 13px !important;
+      font-weight: 700 !important;
+    }
+
+    /* Canvas used for muller + stroop only */
+    #canvas {
+      background: #1076ad;
+      border-radius: 16px;
+      display: block;
+      width: 100% !important;
+      height: auto !important;
+      border: 2px solid #BBDEFB;
+    }
+
+    /* Whack game area - shown instead of canvas */
+    #whackArea {
+      display: none;
+      width: 100%;
+      border-radius: 16px;
+      background: #DDEEFA;
+      border: 2px solid #BBDEFB;
+      position: relative;
+      overflow: hidden;
+      height: 180px;
+    }
+
+    /* The single falling ball */
+    .whack-ball {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #42A5F5, #1565C0);
+      box-shadow: 0 8px 20px rgba(21,101,192,0.5);
+      cursor: pointer;
+      animation: floatBob 1.5s ease-in-out infinite alternate;
+      transition: left 0.1s;
+    }
+
+    @keyframes floatBob {
+      from { transform: translateY(-4px); }
+      to   { transform: translateY(4px); }
+    }
+
+    #question {
+      font-size: 11px;
+      font-weight: 600;
+      color: #1565C0;
+      text-align: center;
+      min-height: 16px;
     }
 
     #controls {
       display: flex;
-      gap: 10px;
-      justify-content: center;
+      gap: 6px;
       flex-wrap: wrap;
-      margin-bottom: 10px;
+      justify-content: center;
     }
 
     #controls button {
-      background: #fff;
-      border: 2px solid #dce8f5;
-      color: #1a2a4a;
-      border-radius: 50px;
-      padding: 10px 22px;
-      font-size: 14px;
-      font-weight: 800;
-      box-shadow: none;
-      transition: background .15s, border-color .15s, transform .15s;
+      padding: 7px 14px;
+      background: #E3F2FD;
+      color: #1565C0;
+      border: 1.5px solid #BBDEFB;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s;
     }
-    #controls button:hover {
-      background: #deeaf8;
-      border-color: #7db8dc;
-      transform: scale(1.03);
-      box-shadow: none;
-    }
-    #controls button:active { transform: scale(.97); }
-
-    h3#question {
-      font-size: 15px;
-      font-weight: 700;
-      color: #6b8cba;
-      text-align: center;
-      margin-bottom: 14px;
-      min-height: 18px;
-    }
-
-    body > button {
-      display: block;
-      margin: 18px auto 0;
-      background: #2d6a9f;
-      color: #fff;
-      border-radius: 50px;
-      padding: 13px 30px;
-      font-size: 15px;
-      font-weight: 800;
-      box-shadow: 0 4px 14px rgba(45,106,159,0.25);
-      border: none;
-    }
-    body > button:hover  { background: #1a5080; transform: translateY(-2px); }
-    body > button:active { transform: translateY(0); }
+    #controls button:hover { background: #BBDEFB; transform: scale(1.04); }
+    #controls button:active { transform: scale(0.97); }
   </style>
 </head>
 <body>
 <div class="container">
-<div class="header">
-        <a href="main.html" class="back-btn">←</a>
-        </div>
-  <h1>Perceptual Intelligence Engine</h1>
 
-  <div class="test-controls">
+  <header>
+    <a href="main.html" class="back-btn">←</a>
+    <h1>Perceptual Intelligence Engine</h1>
+    <p>Cognitive perception test &amp; AI profiling</p>
+  </header>
+
+  <div class="scroll-body">
+
+    <div class="controls-row">
       <select id="illusionType">
         <option value="muller">Müller-Lyer Illusion</option>
         <option value="stroop">Stroop Cognitive Test</option>
         <option value="whack">Reaction Whack</option>
       </select>
+      <button class="start-btn" onclick="startSession()">▶ Start</button>
+    </div>
 
-      <button onclick="startSession()">Start Test</button>
-  </div>
-
-  <div class="status-bar">
-
+    <div class="status-bar">
       <div class="stat">
-        <span class="label">Trial:</span>
+        <span class="label">Trial</span>
         <span id="trialDisplay">0</span>
       </div>
-
       <div class="stat">
-        <span class="label">Difficulty:</span>
+        <span class="label">Difficulty</span>
         <span id="difficultyDisplay">15</span>
       </div>
-
       <div class="stat">
-        <span class="label">Live AI:</span>
-        <span id="liveAI">Analyzing...</span>
+        <span class="label">Live AI</span>
+        <span id="liveAI">—</span>
       </div>
+    </div>
+
+    <div id="aiResult"></div>
+
+    <!-- Canvas for muller + stroop -->
+    <canvas id="canvas" width="700" height="420"></canvas>
+
+    <!-- Whack area with single falling ball -->
+    <div id="whackArea"></div>
+
+    <h3 id="question"></h3>
+    <div id="controls"></div>
 
   </div>
 
-  <h2 id="aiResult"></h2>
-
-  <canvas id="canvas" width="700" height="420"></canvas>
-
-  <div id="controls"></div>
-  <h3 id="question"></h3>
 </div>
 
 <script>
-
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+const whackArea = document.getElementById("whackArea");
 
 let treeModel = null;
-
 fetch("model_rules.json")
   .then(response => response.json())
-  .then(data => {
-      treeModel = data
-      console.log("ML model loaded:", treeModel)
-  })
+  .then(data => { treeModel = data; console.log("ML model loaded:", treeModel); });
 
-let session = {
-  trial: 0,
-  maxTrials: 20,
-  difficulty: 15,
-  trials: [],
-  type: "muller"
-};
-
+let session = { trial: 0, maxTrials: 20, difficulty: 15, trials: [], type: "muller" };
 let correctAnswer = "";
 let startTime = 0;
 let changeInterval = null;
+let fallInterval = null;
 let sessionStartTime = 0;
 
-// =========================
-// SESSION CONTROL
-// =========================
-
 function startSession() {
-  sessionStartTime = Date.now()
+  sessionStartTime = Date.now();
   alert(
-"Instructions:\n\n" +
-"Muller-Lyer: choose the longer line\n" +
-"Stroop: choose the color of the word\n"+
-"Reaction Whack: click the circle as fast as you can\n\n"
-)
-
+    "Instructions:\n\n" +
+    "Muller-Lyer: choose the longer line\n" +
+    "Stroop: choose the color of the word\n" +
+    "Reaction Whack: tap the falling ball as fast as you can\n\n"
+  );
   session.trial = 0;
   session.difficulty = 15;
   session.trials = [];
@@ -293,200 +325,133 @@ function startSession() {
 }
 
 function nextTrial() {
-  if (session.trial >= session.maxTrials) {
-    analyzeSession();
-    return;
-  }
-
+  if (session.trial >= session.maxTrials) { analyzeSession(); return; }
   session.trial++;
-  document.getElementById("trialDisplay").innerText =
-    session.trial;
-  document.getElementById("difficultyDisplay").innerText =
-     session.difficulty;
-
+  document.getElementById("trialDisplay").innerText = session.trial;
+  document.getElementById("difficultyDisplay").innerText = session.difficulty;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   document.getElementById("controls").innerHTML = "";
+  document.getElementById("question").innerText = "";
+
+  // Always show canvas, hide whackArea
+  canvas.style.display = "block";
+  whackArea.style.display = "none";
 
   if (session.type === "muller") generateMuller();
   if (session.type === "stroop") generateStroop();
   if (session.type === "whack") generateWhack();
-  
 }
 
-// =========================
-// ILLUSION 1: MÜLLER-LYER
-// =========================
-
+// ── MÜLLER-LYER ──────────────────────────────────────────
 function generateMuller() {
-document.getElementById("question").innerText =
-"which line looks longer?"
-   let base = 200;
-  let distortion = session.difficulty;
-
-  // 20% chance equal
+  document.getElementById("question").innerText = "which line looks longer?";
+  let base = 200, distortion = session.difficulty;
   if (Math.random() < 0.2) distortion = 0;
-
-  let topLen = base;
-  let bottomLen = base;
-
+  let topLen = base, bottomLen = base;
   if (distortion === 0) {
     correctAnswer = "equal";
   } else if (Math.random() > 0.5) {
-    topLen = base + distortion;
-    correctAnswer = "top";
+    topLen = base + distortion; correctAnswer = "top";
   } else {
-    bottomLen = base + distortion;
-    correctAnswer = "bottom";
+    bottomLen = base + distortion; correctAnswer = "bottom";
   }
-
   drawLine(200, 150, topLen, true);
   drawLine(200, 250, bottomLen, false);
-
   createButton("Top Line", "top");
   createButton("Bottom Line", "bottom");
   createButton("Equal", "equal");
-
   startTime = performance.now();
-  
 }
 
-function drawLine(x, y, len, inward) {
-  ctx.beginPath();
-  ctx.moveTo(x, y);
-  ctx.lineTo(x + len, y);
-  ctx.strokeStyle = "white";
-  ctx.lineWidth = 2;
-  ctx.stroke();
-
-  let arrow = 15;
-  ctx.beginPath();
-  if (inward) {
-    ctx.moveTo(x, y);
-    ctx.lineTo(x + arrow, y - arrow);
-    ctx.moveTo(x, y);
-    ctx.lineTo(x + arrow, y + arrow);
-  } else {
-    ctx.moveTo(x + len, y);
-    ctx.lineTo(x + len - arrow, y - arrow);
-    ctx.moveTo(x + len, y);
-    ctx.lineTo(x + len - arrow, y + arrow);
+function drawLine(x, y, length, inward) {
+  ctx.strokeStyle = "#fff";
+  ctx.lineWidth = 3;
+  let x1 = x, x2 = x + length;
+  ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x2, y); ctx.stroke();
+  let arrowSize = 20, dir = inward ? 1 : -1;
+  for (let px of [x1, x2]) {
+    let sign = (px === x1) ? 1 : -1;
+    ctx.beginPath(); ctx.moveTo(px, y); ctx.lineTo(px + dir * sign * arrowSize, y - arrowSize); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(px, y); ctx.lineTo(px + dir * sign * arrowSize, y + arrowSize); ctx.stroke();
   }
-  ctx.stroke();
 }
 
-// =========================
-// ILLUSION 2: STROOP
-// =========================
-
+// ── STROOP ───────────────────────────────────────────────
 function generateStroop() {
-  document.getElementById("question").innerText =
-"what is the COLOR of the word?"
-  const words = ["RED", "BLUE", "GREEN", "YELLOW"];
-  const colors = ["red", "blue", "green", "yellow"];
-
-  let word = words[Math.floor(Math.random()*4)];
-  let color = colors[Math.floor(Math.random()*4)];
-
-  correctAnswer = color;
-
-  ctx.font = "60px Arial";
-  ctx.fillStyle = color;
-  ctx.fillText(word, 220, 200);
-
-  colors.forEach(c => {
-    createButton(c.toUpperCase(), c);
-  });
-
+  document.getElementById("question").innerText = "what COLOR is the word written in?";
+  const colors = ["red","blue","green","yellow"];
+  const words  = ["RED","BLUE","GREEN","YELLOW"];
+  const colorMap = { red:"#e74c3c", blue:"#3498db", green:"#2ecc71", yellow:"#f1c40f" };
+  let wordIdx  = Math.floor(Math.random() * words.length);
+  let colorIdx = Math.floor(Math.random() * colors.length);
+  correctAnswer = colors[colorIdx];
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.font = "bold 72px Poppins, sans-serif";
+  ctx.fillStyle = colorMap[colors[colorIdx]];
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(words[wordIdx], canvas.width / 2, canvas.height / 2);
+  colors.forEach(c => createButton(c.charAt(0).toUpperCase() + c.slice(1), c));
   startTime = performance.now();
 }
 
-// =========================
-// ILLUSION 3: REACTION WHACK
-function generateWhack(){
+// ── WHACK — holes grid + mole pops in random hole ────────
+function generateWhack() {
+  document.getElementById("question").innerText = "Whack the mole!";
 
- document.getElementById("question").innerText = "Whack the mole!"
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
- ctx.clearRect(0,0,canvas.width,canvas.height)
+  let holes = [];
+  let cols = 4, rows = 2, radius = 35;
+  let startX = 120, startY = 150;
 
- let holes = []
- let cols = 4
- let rows = 2
- let radius = 35
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      let x = startX + c * 140;
+      let y = startY + r * 120;
+      holes.push({ x, y });
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fillStyle = "#444";
+      ctx.fill();
+    }
+  }
 
- let startX = 120
- let startY = 150
+  let moleIndex = Math.floor(Math.random() * holes.length);
+  let mole = holes[moleIndex];
 
- // draw holes
- for(let r=0;r<rows;r++){
-   for(let c=0;c<cols;c++){
+  ctx.beginPath();
+  ctx.arc(mole.x, mole.y, 25, 0, Math.PI * 2);
+  ctx.fillStyle = "lime";
+  ctx.fill();
 
-     let x = startX + c*140
-     let y = startY + r*120
+  correctAnswer = moleIndex.toString();
+  startTime = performance.now();
 
-     holes.push({x,y})
+  let responded = false;
 
-     ctx.beginPath()
-     ctx.arc(x,y,radius,0,Math.PI*2)
-     ctx.fillStyle="#444"
-     ctx.fill()
+  canvas.onclick = function(e) {
+    if (responded) return;
+    responded = true;
 
-   }
- }
+    let rect = canvas.getBoundingClientRect();
+    let scaleX = canvas.width / rect.width;
+    let scaleY = canvas.height / rect.height;
+    let mx = (e.clientX - rect.left) * scaleX;
+    let my = (e.clientY - rect.top) * scaleY;
 
- // choose random mole
- let moleIndex = Math.floor(Math.random()*holes.length)
- let mole = holes[moleIndex]
+    let hitIndex = -1;
+    holes.forEach((hole, i) => {
+      let dx = mx - hole.x, dy = my - hole.y;
+      if (Math.sqrt(dx*dx + dy*dy) < radius) hitIndex = i;
+    });
 
- ctx.beginPath()
- ctx.arc(mole.x,mole.y,25,0,Math.PI*2)
- ctx.fillStyle="lime"
- ctx.fill()
-
- correctAnswer = moleIndex.toString()
-
- startTime = performance.now()
-
- let responded = false   // prevents double responses
-
- canvas.onclick = function(e){
-
-   if(responded) return
-   responded = true
-
-   let rect = canvas.getBoundingClientRect()
-
-   let mx = e.clientX - rect.left
-   let my = e.clientY - rect.top
-
-   let hitIndex = -1
-
-   holes.forEach((hole,i)=>{
-
-     let dx = mx - hole.x
-     let dy = my - hole.y
-     let dist = Math.sqrt(dx*dx + dy*dy)
-
-     if(dist < radius){
-        hitIndex = i
-     }
-
-   })
-
-   canvas.onclick = null
-
-   if(hitIndex !== -1){
-      handleResponse(hitIndex.toString())
-   }else{
-      handleResponse("miss")
-   }
-
- }
-
+    canvas.onclick = null;
+    handleResponse(hitIndex !== -1 ? hitIndex.toString() : "miss");
+  };
 }
-// =========================
-// RESPONSE HANDLING
-// =========================
 
+// ── SHARED HELPERS ────────────────────────────────────────
 function createButton(text, value) {
   let btn = document.createElement("button");
   btn.innerText = text;
@@ -497,339 +462,150 @@ function createButton(text, value) {
 function handleResponse(choice) {
   let rt = performance.now() - startTime;
   let correct = choice === correctAnswer;
-
   if (changeInterval) clearInterval(changeInterval);
+  if (fallInterval)   clearInterval(fallInterval);
 
   session.trials.push({
-   illusionType: session.type,
-   reactionTime: rt,
-   correct: correct,
-   difficulty: session.difficulty,
-   trial: session.trial
+    illusionType: session.type,
+    reactionTime: rt,
+    correct: correct,
+    difficulty: session.difficulty,
+    trial: session.trial
   });
 
-  // ML LIVE PREDICTION
   let live = predictLiveProfile();
-
-  if(live){
-    document.getElementById("liveAI").innerText = live;
-  }
-
+  if (live) document.getElementById("liveAI").innerText = live;
   adaptDifficulty(correct);
   nextTrial();
 
-  let focus = computeFocusScore()
-
-document.getElementById("liveAI").innerText =
-predictLiveProfile() + " | Focus: " + focus + "%"
+  let focus = computeFocusScore();
+  let liveProfile = predictLiveProfile();
+  if (liveProfile) document.getElementById("liveAI").innerText = liveProfile + " · " + focus + "%";
 }
 
-//adaptive difficulty function
-
-function adaptDifficulty(correct){
-
- let profile = predictLiveProfile()
-
- if(profile === "Impulsive"){
-    session.difficulty += 2
- }
-
- else if(profile === "SlowAccurate"){
-    session.difficulty -= 2
- }
-
- else if(profile === "Analytical"){
-    session.difficulty += 1
- }
-
- else if(profile === "Balanced"){
-    session.difficulty = session.difficulty
- }
-
- if(correct) session.difficulty -= 1
-
- if(session.difficulty < 1) session.difficulty = 1
- if(session.difficulty > 40) session.difficulty = 40
-
-}
-//extract features
-function extractFeatures(trials){
-
- let totalRT = 0;
- let errors = 0;
- let difficulties = [];
-
- trials.forEach(t => {
-
-   totalRT += t.reactionTime
-
-   if(!t.correct) errors++
-
-   difficulties.push(t.difficulty)
-
- })
-
- let avgRT = totalRT / trials.length
-
- let errorRate = errors / trials.length
-
- let avgDifficulty =
-   difficulties.reduce((a,b)=>a+b)/difficulties.length
-
- return {
-   avgRT,
-   errorRate,
-   avgDifficulty
- }
-
+function adaptDifficulty(correct) {
+  let profile = predictLiveProfile();
+  if (profile === "Impulsive")    session.difficulty += 2;
+  else if (profile === "SlowAccurate") session.difficulty -= 2;
+  else if (profile === "Analytical")   session.difficulty += 1;
+  if (correct) session.difficulty -= 1;
+  if (session.difficulty < 1)  session.difficulty = 1;
+  if (session.difficulty > 40) session.difficulty = 40;
 }
 
-//ml functions
-function classifyWithTree(node, features){
-
-  // if we reached a leaf node
-  if(node.class){
-    return node.class
-  }
-
-  let value = features[node.feature]
-
-  if(value <= node.threshold){
-     return classifyWithTree(node.left, features)
-  } else {
-     return classifyWithTree(node.right, features)
-  }
+function extractFeatures(trials) {
+  let totalRT = 0, errors = 0, difficulties = [];
+  trials.forEach(t => { totalRT += t.reactionTime; if (!t.correct) errors++; difficulties.push(t.difficulty); });
+  return {
+    avgRT: totalRT / trials.length,
+    errorRate: errors / trials.length,
+    avgDifficulty: difficulties.reduce((a,b) => a+b) / difficulties.length
+  };
 }
 
-//reaction function
-function reactionVariance(trials){
-
- let mean = trials.reduce((sum,t)=>sum + t.reactionTime,0)/trials.length
-
- let variance = trials.reduce((sum,t)=>{
-   return sum + Math.pow(t.reactionTime-mean,2)
- },0)/trials.length
-
- return variance
+function classifyWithTree(node, features) {
+  if (node.class) return node.class;
+  return features[node.feature] <= node.threshold
+    ? classifyWithTree(node.left, features)
+    : classifyWithTree(node.right, features);
 }
 
-//streak function
-function correctStreak(trials){
-
- let streak = 0
- let max = 0
-
- trials.forEach(t=>{
-   if(t.correct){
-     streak++
-     if(streak > max) max = streak
-   }else{
-     streak = 0
-   }
- })
-
- return max
+function reactionVariance(trials) {
+  let mean = trials.reduce((s,t) => s + t.reactionTime, 0) / trials.length;
+  return trials.reduce((s,t) => s + Math.pow(t.reactionTime - mean, 2), 0) / trials.length;
 }
 
-// ANALYSIS
-// =========================
-
-function analyzeSession(){
-
- const features = extractFeatures(session.trials)
- const variance = reactionVariance(session.trials)
- const streak = correctStreak(session.trials)
- const sessionDuration = Date.now() - sessionStartTime
-
- // SHOW FEATURES IN CONSOLE
- console.log("Features:", features)
-
- const result = classifyWithTree(treeModel, {
-   avgRT: features.avgRT,
-   errorRate: features.errorRate,
-   avgDifficulty: features.avgDifficulty
-})
- document.getElementById("aiResult").innerHTML =
-`
-<p style="font-size:24px; font-weight:bold; color:#0f0;">AI Cognitive Profile: ${result}</p>
-Avg Reaction Time: ${features.avgRT.toFixed(0)} ms<br>
-Error Rate: ${(features.errorRate*100).toFixed(1)}%<br>
-Difficulty Level: ${features.avgDifficulty.toFixed(2)}
-`
-
- // show numeric results
- alert(
-   "Session Results\n\n" +
-   "Average RT: " + features.avgRT.toFixed(2) + " ms\n" +
-   "Error Rate: " + (features.errorRate*100).toFixed(1) + "%\n" +
-   "Avg Difficulty: " + features.avgDifficulty.toFixed(2)
- )
-
- // store session
-storeSession(
-  features.avgRT,
-  features.errorRate,
-  features.avgDifficulty,
-  variance,
-  streak,
-  sessionDuration,
-  result
-)
-let suggestion = generateRecommendation(result)
-
-document.getElementById("aiResult").innerHTML +=
-"<br><br><b>Recommendation:</b> " + suggestion
-
-let pattern = analyzePatterns()
-
-document.getElementById("aiResult").innerHTML +=
-"<br><br><b>Pattern Insight:</b> " + pattern
+function correctStreak(trials) {
+  let streak = 0, max = 0;
+  trials.forEach(t => { if (t.correct) { streak++; if (streak > max) max = streak; } else streak = 0; });
+  return max;
 }
 
-function generateRecommendation(profile){
-
- let recommendation = ""
-
- if(profile === "Impulsive"){
-   recommendation = "Try Calm Space for 2 minutes breathing."
- }
-
- else if(profile === "SlowAccurate"){
-   recommendation = "Try Focus Sprint: 10 min study session."
- }
-
- else if(profile === "Analytical"){
-   recommendation = "Try Advanced Flashcards for deeper learning."
- }
-
- else{
-   recommendation = "Keep practicing to improve focus."
- }
-
- return recommendation
-}
-
-
-function downloadDataset(features){
-
- const row =
- `${features.avgRT},${features.errorRate},${features.avgDifficulty}\n`
-
- const blob = new Blob([row],{type:"text/csv"})
-
- const link = document.createElement("a")
-
- link.href = URL.createObjectURL(blob)
-
- link.download = "mindflex_dataset.csv"
-
- link.click()
-
-}
-
-function storeSession(avgRT,errorRate,avgDifficulty,variance,streak,sessionDuration,label){
-
- let data = JSON.parse(localStorage.getItem("mindflexData")) || []
-
- data.push({
-   avgRT,
-   errorRate,
-   avgDifficulty,
-   variance,
-   streak,
-   sessionDuration,
-   label
- })
-
- localStorage.setItem("mindflexData", JSON.stringify(data))
-
-}
-
-function exportDataset(){
-
- let data = JSON.parse(localStorage.getItem("mindflexData")) || []
-
-let csv = "avgRT,errorRate,avgDifficulty,variance,streak,sessionDuration,label\n"
-
- data.forEach(row=>{
- csv += `${row.avgRT},${row.errorRate},${row.avgDifficulty},${row.variance},${row.streak},${row.sessionDuration},${row.label}\n`
- })
-
- const blob = new Blob([csv], {type:"text/csv"})
-
- const link = document.createElement("a")
-
- link.href = URL.createObjectURL(blob)
-
- link.download = "mindflex_dataset.csv"
-
- link.click()
-
-}
-
-//predective adjustment runtime part
-function predictLiveProfile(){
-
- if(session.trials.length < 5) return null
-
- const features = extractFeatures(session.trials)
-
- return classifyWithTree(treeModel,{
+function analyzeSession() {
+  const features = extractFeatures(session.trials);
+  const variance = reactionVariance(session.trials);
+  const streak   = correctStreak(session.trials);
+  const sessionDuration = Date.now() - sessionStartTime;
+  const result = classifyWithTree(treeModel, {
     avgRT: features.avgRT,
     errorRate: features.errorRate,
     avgDifficulty: features.avgDifficulty
- })
+  });
 
+  document.getElementById("aiResult").innerHTML =
+    `<p>AI Profile: ${result}</p>
+    Avg RT: ${features.avgRT.toFixed(0)} ms &nbsp;|&nbsp;
+    Errors: ${(features.errorRate*100).toFixed(1)}% &nbsp;|&nbsp;
+    Difficulty: ${features.avgDifficulty.toFixed(1)}`;
+
+  alert(
+    "Session Results\n\n" +
+    "Average RT: " + features.avgRT.toFixed(2) + " ms\n" +
+    "Error Rate: " + (features.errorRate*100).toFixed(1) + "%\n" +
+    "Avg Difficulty: " + features.avgDifficulty.toFixed(2)
+  );
+
+  storeSession(features.avgRT, features.errorRate, features.avgDifficulty, variance, streak, sessionDuration, result);
+  document.getElementById("aiResult").innerHTML += "<br><b>Tip:</b> " + generateRecommendation(result);
+  document.getElementById("aiResult").innerHTML += "<br><b>Pattern:</b> " + analyzePatterns();
 }
 
-function computeFocusScore(){
-
- if(session.trials.length < 3) return 0
-
- const f = extractFeatures(session.trials)
-
- let focus = 100
-
- focus -= f.errorRate * 60
- focus -= (f.avgRT / 2000) * 40
-
- if(focus < 0) focus = 0
- if(focus > 100) focus = 100
-
- return Math.round(focus)
+function generateRecommendation(profile) {
+  if (profile === "Impulsive")     return "Try Calm Space for 2 minutes breathing.";
+  if (profile === "SlowAccurate")  return "Try Focus Sprint: 10 min study session.";
+  if (profile === "Analytical")    return "Try Advanced Flashcards for deeper learning.";
+  return "Keep practicing to improve focus.";
 }
 
-function analyzePatterns(){
+function storeSession(avgRT, errorRate, avgDifficulty, variance, streak, sessionDuration, label) {
+  let data = JSON.parse(localStorage.getItem("mindflexData")) || [];
+  data.push({ avgRT, errorRate, avgDifficulty, variance, streak, sessionDuration, label });
+  localStorage.setItem("mindflexData", JSON.stringify(data));
+}
 
- let data = JSON.parse(localStorage.getItem("mindflexData")) || []
+function exportDataset() {
+  let data = JSON.parse(localStorage.getItem("mindflexData")) || [];
+  let csv = "avgRT,errorRate,avgDifficulty,variance,streak,sessionDuration,label\n";
+  data.forEach(row => {
+    csv += `${row.avgRT},${row.errorRate},${row.avgDifficulty},${row.variance},${row.streak},${row.sessionDuration},${row.label}\n`;
+  });
+  const blob = new Blob([csv], {type:"text/csv"});
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "mindflex_dataset.csv";
+  link.click();
+}
 
- if(data.length < 5) return "Not enough data yet."
+function predictLiveProfile() {
+  if (session.trials.length < 5) return null;
+  const features = extractFeatures(session.trials);
+  return classifyWithTree(treeModel, {
+    avgRT: features.avgRT,
+    errorRate: features.errorRate,
+    avgDifficulty: features.avgDifficulty
+  });
+}
 
- let totalFocus = 0
+function computeFocusScore() {
+  if (session.trials.length < 3) return 0;
+  const f = extractFeatures(session.trials);
+  let focus = 100 - f.errorRate * 60 - (f.avgRT / 2000) * 40;
+  return Math.round(Math.max(0, Math.min(100, focus)));
+}
 
- data.forEach(d=>{
-
-   let focus = 100
-   focus -= d.errorRate * 60
-   focus -= (d.avgRT / 2000) * 40
-
-   if(focus < 0) focus = 0
-
-   totalFocus += focus
-
- })
-
- let avgFocus = totalFocus / data.length
-
- if(avgFocus < 50)
-   return "Your focus pattern shows frequent attention drops."
-
- if(avgFocus < 70)
-   return "Your attention fluctuates between focused and distracted."
-
- return "Your focus pattern is stable."
+function analyzePatterns() {
+  let data = JSON.parse(localStorage.getItem("mindflexData")) || [];
+  if (data.length < 5) return "Not enough data yet.";
+  let totalFocus = 0;
+  data.forEach(d => {
+    let focus = 100 - d.errorRate * 60 - (d.avgRT / 2000) * 40;
+    totalFocus += Math.max(0, focus);
+  });
+  let avgFocus = totalFocus / data.length;
+  if (avgFocus < 50) return "Your focus pattern shows frequent attention drops.";
+  if (avgFocus < 70) return "Your attention fluctuates between focused and distracted.";
+  return "Your focus pattern is stable.";
 }
 </script>
-
 </body>
 </html>
