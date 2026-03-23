@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MindFlex Focus Timer</title>
+
+<style>
+  body {
+    margin: 0;
+    background: #cfdfe6;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "Segoe UI", sans-serif;
+  }
+
+  /* PHONE FRAME */
+  .phone {
+    width: 320px;
+    height: 640px;
+    background: #eef6f8;
+    border-radius: 28px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    padding: 16px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .back-btn {
+    font-size: 1.6rem;
+    cursor: pointer;
+    color: #003366;
+    font-weight: bold;
+    text-decoration: none;
+    line-height: 1;
+  }
+
+  .title {
+    font-weight: bold;
+  }
+
+  /* CONTENT */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* TIMER */
+  .timer-box {
+    position: relative;
+    width: 200px;
+    height: 200px;
+  }
+
+  svg {
+    transform: rotate(-90deg);
+  }
+
+  circle {
+    fill: none;
+    stroke-width: 12;
+  }
+
+  .bg {
+    stroke: #dfe8ec;
+  }
+
+  .progress {
+    stroke: #7cc7e8;
+    stroke-dasharray: 565;
+    stroke-dashoffset: 565;
+    transition: stroke-dashoffset 1s linear;
+  }
+
+  .time-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .time-text span {
+    font-size: 34px;
+    font-weight: bold;
+  }
+
+  .time-text small {
+    color: #666;
+  }
+
+  /* BUDDY */
+  .buddy {
+    margin-top: 12px;
+    font-size: 48px;
+  }
+
+  .buddy-text {
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 10px;
+  }
+
+  /* BUTTONS */
+  .modes button {
+    margin: 4px;
+    padding: 6px 12px;
+    border-radius: 14px;
+    border: none;
+    background: #eaf4f8;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  .controls {
+    margin-top: 12px;
+  }
+
+  .controls button {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    font-weight: bold;
+    margin: 0 6px;
+    cursor: pointer;
+  }
+
+  .start { background: #7cc7e8; }
+  .pause { background: #ffd27f; }
+  .reset { background: #ff6b6b; color: white; }
+</style>
+</head>
+
+<body>
+
+<div class="phone">
+
+  <!-- HEADER -->
+  <div class="header">
+    <a href="Studyzone.html" class="back-btn">←</a>
+    <div class="title">Focus Timer</div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <div class="timer-box">
+      <svg width="200" height="200">
+        <circle class="bg" cx="100" cy="100" r="90"/>
+        <circle class="progress" cx="100" cy="100" r="90"/>
+      </svg>
+
+      <div class="time-text">
+        <span id="time">25:00</span>
+        <small id="status">Ready</small>
+      </div>
+    </div>
+
+    <div class="buddy" id="buddy">🙂</div>
+    <div class="buddy-text" id="buddyText">Let's focus together</div>
+
+    <div class="modes">
+      <button onclick="setTime(25)">25</button>
+      <button onclick="setTime(50)">50</button>
+      <button onclick="customTime()">Custom</button>
+    </div>
+
+    <div class="controls">
+      <button class="start" onclick="startTimer()">▶</button>
+      <button class="pause" onclick="pauseTimer()">⏸</button>
+      <button class="reset" onclick="resetTimer()">⟲</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  let duration = 25 * 60;
+  let remaining = duration;
+  let timer = null;
+
+  const timeEl = document.getElementById("time");
+  const statusEl = document.getElementById("status");
+  const ring = document.querySelector(".progress");
+  const buddy = document.getElementById("buddy");
+  const buddyText = document.getElementById("buddyText");
+
+  const circumference = 2 * Math.PI * 90;
+  ring.style.strokeDasharray = circumference;
+
+  function updateUI() {
+    let m = Math.floor(remaining / 60);
+    let s = remaining % 60;
+    timeEl.textContent = `${m}:${s.toString().padStart(2, "0")}`;
+    ring.style.strokeDashoffset =
+      circumference - (remaining / duration) * circumference;
+  }
+
+  function startTimer() {
+    if (timer) return;
+    statusEl.textContent = "Focusing";
+    buddy.textContent = "😤";
+    buddyText.textContent = "Stay with it";
+
+    timer = setInterval(() => {
+      remaining--;
+      updateUI();
+
+      if (remaining <= 0) {
+        clearInterval(timer);
+        timer = null;
+        statusEl.textContent = "Done";
+        buddy.textContent = "🥳";
+        buddyText.textContent = "Session complete!";
+      }
+    }, 1000);
+  }
+
+  function pauseTimer() {
+    clearInterval(timer);
+    timer = null;
+    statusEl.textContent = "Paused";
+    buddy.textContent = "😐";
+    buddyText.textContent = "Paused… come back soon";
+  }
+
+  function resetTimer() {
+    clearInterval(timer);
+    timer = null;
+    remaining = duration;
+    updateUI();
+    statusEl.textContent = "Ready";
+    buddy.textContent = "🙂";
+    buddyText.textContent = "Fresh start";
+  }
+
+  function setTime(min) {
+    duration = min * 60;
+    remaining = duration;
+    resetTimer();
+  }
+
+  function customTime() {
+    let min = prompt("Minutes?");
+    if (!min || min <= 0) return;
+    setTime(min);
+  }
+
+  updateUI();
+</script>
+
+</body>
+</html>
