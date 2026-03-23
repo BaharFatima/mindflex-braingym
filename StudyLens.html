@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StudyLens — CV Study Module</title>
+  <title>StudyLens</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
@@ -824,297 +824,67 @@ async function extractFromImage(file, onProgress) {
 //  ENHANCED NLP ENGINE — Much smarter algorithm, no AI needed
 // ═════════════════════════════════════════════════════════════════════════════
 
-const STOP = new Set([
-  'a','about','above','after','again','all','also','am','an','and','any','are','as','at',
-  'be','because','been','before','being','below','between','both','but','by','can','did',
-  'do','does','doing','down','during','each','few','for','from','further','get','had','has',
-  'have','having','he','her','here','him','his','how','i','if','in','into','is','it','its',
-  'itself','just','me','more','most','my','no','nor','not','now','of','off','on','once',
-  'only','or','other','our','out','over','own','same','she','should','so','some','such',
-  'than','that','the','their','them','then','there','these','they','this','those','through',
-  'to','too','under','until','up','us','very','was','we','were','what','when','where',
-  'which','while','who','why','will','with','would','you','your','s','t','re','ll','ve','d'
-]);
+async function processText(text) {
+  // Replace YOUR_NEW_API_KEY with the one you just made
+const YOUR_API_KEY = "AIzaSyAPRXs6eF47Gg1ieT3brD5Hg2-VKeWYUFE"; 
 
-const IMPORTANT_INDICATORS = [
-  'therefore','thus','hence','consequently','as a result','shows that','demonstrates',
-  'found that','evidence','indicates','suggests','proves','confirms','reveals','discovered',
-  'concluded','determined','established','observed','noted','reported','identified',
-  'significant','important','critical','key','essential','fundamental','primary','major',
-  'however','although','despite','nevertheless','in contrast','on the other hand',
-  'because','since','due to','caused by','leads to','results in','affects','influences'
-];
+// Using 3.1-flash-lite-preview: It's the most stable FREE model in March 2026
+const MODEL_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=${YOUR_API_KEY}`;
 
-const CONCLUSION_INDICATORS = [
-  'in summary','in conclusion','to summarize','overall','finally','in short',
-  'to conclude','in brief','ultimately','all in all','on the whole'
-];
+  if (!text || text.trim().length < 10) {
+    return { summary: "Document unreadable.", keyPoints: [], glossary: [], flashcards: [], wordCount: 0 };
+  }
 
-const DEFINITION_PATTERNS = [
-  ' is ','are ','refers to','defined as','means ','known as','called ','termed ',
-  'describes','represents','denotes','signifies'
-];
+  const promptText = `Return a JSON object ONLY. Analyze this study material: ${text}
+    Format: {
+      "summary": "2 paragraphs",
+      "keyPoints": ["p1","p2","p3","p4","p5","p6","p7","p8"],
+      "glossary": [{"term":"t", "definition":"d"}],
+      "flashcards": [{"front":"q", "back":"a", "term":"t"}]
+    }`;
 
-function extractSentences(text) {
-  const paragraphs = text.split(/\n\n+/).filter(p => p.trim().length > 0);
-  const allSentences = [];
-  
-  paragraphs.forEach((para, pIdx) => {
-    const sents = para
-      .replace(/\s+/g, ' ')
-      .split(/(?<=[.!?])\s+(?=[A-Z])/)
-      .map(s => s.trim())
-      .filter(s => {
-        const wordCount = s.split(/\s+/).length;
-        return wordCount >= 5 && wordCount <= 60 && s.length >= 20;
-      });
+  try {
+    const response = await fetch(MODEL_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: promptText }] }],
+        generationConfig: {
+          temperature: 0.1,
+          // Removed response_mime_type to stay safe from the 400 error
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const errorDetail = await response.json();
+      console.error("API Error Details:", errorDetail);
+      // If 404 persists, we'll know exactly why from the console
+      throw new Error(`Status ${response.status}`);
+    }
+
+    const data = await response.json();
+    let rawText = data.candidates[0].content.parts[0].text;
     
-    sents.forEach((sent, sIdx) => {
-      allSentences.push({
-        text: sent,
-        paraIndex: pIdx,
-        sentIndex: sIdx,
-        isFirstInPara: sIdx === 0,
-        isLastInPara: sIdx === sents.length - 1,
-        paraTotal: paragraphs.length
-      });
-    });
-  });
-  
-  return allSentences;
-}
+    // Clean up any markdown formatting (like ```json)
+    const cleanJson = rawText.replace(/```json|```/g, "").trim();
+    const aiOutput = JSON.parse(cleanJson);
+    
+    aiOutput.wordCount = text.split(/\s+/).length;
+    return aiOutput;
 
-function extractWords(text) {
-  return text.toLowerCase().match(/\b[a-z]{3,}\b/g) || [];
-}
-
-function extractNouns(text) {
-  const words = text.match(/\b[A-Z][a-z]+\b/g) || [];
-  const candidates = text.match(/\b[a-z]{4,}\b/g) || [];
-  const nounEndings = ['tion','sion','ment','ness','ity','ence','ance','ism','ship','dom'];
-  const nouns = new Set(words.map(w => w.toLowerCase()));
-  candidates.forEach(w => {
-    if (nounEndings.some(end => w.endsWith(end))) nouns.add(w);
-  });
-  return Array.from(nouns);
-}
-
-function extractKeywords(text, n = 25) {
-  const allWords = extractWords(text).filter(w => !STOP.has(w));
-  const freq = {};
-  allWords.forEach(w => freq[w] = (freq[w] || 0) + 1);
-  const capitals = new Set((text.match(/\b[A-Z][a-z]{2,}\b/g) || []).map(w => w.toLowerCase()));
-  const nouns = new Set(extractNouns(text));
-  return Object.entries(freq)
-    .filter(([word, count]) => count >= 2)
-    .map(([word, count]) => {
-      let score = count;
-      if (capitals.has(word)) score *= 2.0;
-      if (nouns.has(word)) score *= 1.5;
-      score *= (1 + Math.log(1 + word.length / 5));
-      const docFreq = count / allWords.length;
-      if (docFreq > 0.005 && docFreq < 0.05) score *= 1.3;
-      return { word, score };
-    })
-    .sort((a, b) => b.score - a.score)
-    .slice(0, n)
-    .map(x => x.word);
-}
-
-function extractPhrases(text, n = 15) {
-  const sentences = extractSentences(text);
-  const phrases = {};
-  sentences.forEach(({ text: sent }) => {
-    const words = sent.toLowerCase().match(/\b[a-z]{3,}\b/g) || [];
-    for (let i = 0; i < words.length - 1; i++) {
-      if (STOP.has(words[i]) || STOP.has(words[i + 1])) continue;
-      const bigram = `${words[i]} ${words[i + 1]}`;
-      phrases[bigram] = (phrases[bigram] || 0) + 1;
-      if (i < words.length - 2 && !STOP.has(words[i + 2])) {
-        const trigram = `${words[i]} ${words[i + 1]} ${words[i + 2]}`;
-        phrases[trigram] = (phrases[trigram] || 0) + 1;
-      }
-    }
-  });
-  return Object.entries(phrases)
-    .filter(([phrase, count]) => count >= 2)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, n)
-    .map(([phrase]) => phrase.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
-}
-
-function rankSentences(text, keywords) {
-  const sentences = extractSentences(text);
-  const kwSet = new Set(keywords);
-  const allWords = extractWords(text).filter(w => !STOP.has(w));
-  const wordFreq = {};
-  allWords.forEach(w => wordFreq[w] = (wordFreq[w] || 0) + 1);
-  return sentences.map((sentObj, globalIdx) => {
-    const { text: sent, paraIndex, isFirstInPara, paraTotal } = sentObj;
-    const sentLower = sent.toLowerCase();
-    const words = extractWords(sent).filter(w => !STOP.has(w));
-    if (words.length === 0) return { ...sentObj, score: 0, globalIdx };
-    let score = 0;
-    const keywordHits = words.filter(w => kwSet.has(w)).length;
-    score += keywordHits * 3;
-    const tfidf = words.reduce((sum, w) => sum + (1 / (wordFreq[w] || 1)), 0) / words.length;
-    score += tfidf * 50;
-    if (isFirstInPara) score *= 1.4;
-    if (paraIndex === 0) score *= 1.3;
-    if (paraIndex === paraTotal - 1) score *= 1.2;
-    const hasImportantPhrase = IMPORTANT_INDICATORS.some(ind => sentLower.includes(ind));
-    if (hasImportantPhrase) score *= 1.6;
-    const hasConclusion = CONCLUSION_INDICATORS.some(ind => sentLower.includes(ind));
-    if (hasConclusion) score *= 1.4;
-    if (/\d+(\.\d+)?%?/.test(sent)) score *= 1.3;
-    if (sentLower.includes('because') || sentLower.includes('therefore') || 
-        sentLower.includes('causes') || sentLower.includes('results in')) score *= 1.3;
-    if (words.length < 8 || words.length > 40) score *= 0.7;
-    if (sent.includes('?')) score *= 0.5;
-    const transitions = ['however','moreover','furthermore','additionally','meanwhile'];
-    if (transitions.some(t => sentLower.startsWith(t))) score *= 0.8;
-    return { ...sentObj, score, globalIdx };
-  });
-}
-
-function buildGlossary(text, keywords, phrases) {
-  const sentences = extractSentences(text);
-  const terms = [...new Set([...phrases, ...keywords.slice(0, 10).map(w => w.charAt(0).toUpperCase() + w.slice(1))])];
-  const glossary = [];
-  terms.forEach(term => {
-    const termLower = term.toLowerCase();
-    const definitions = sentences.filter(({ text: sent }) => {
-      const sentLower = sent.toLowerCase();
-      if (!sentLower.includes(termLower)) return false;
-      return DEFINITION_PATTERNS.some(pattern => {
-        const idx = sentLower.indexOf(termLower);
-        const afterTerm = sentLower.slice(idx + termLower.length, idx + termLower.length + 30);
-        return afterTerm.includes(pattern);
-      });
-    });
-    const parenthetical = sentences.find(({ text: sent }) => {
-      const regex = new RegExp(`${termLower}\\s*\\([^)]+\\)`, 'i');
-      return regex.test(sent);
-    });
-    const appositive = sentences.find(({ text: sent }) => {
-      const regex = new RegExp(`${termLower},\\s+(the|a|an)\\s+[a-z]+`, 'i');
-      return regex.test(sent);
-    });
-    let bestDef = definitions[0] || parenthetical || appositive;
-    if (!bestDef) {
-      bestDef = sentences.find(({ text: sent }) => {
-        const sentLower = sent.toLowerCase();
-        return sentLower.includes(termLower) && 
-               IMPORTANT_INDICATORS.some(ind => sentLower.includes(ind));
-      });
-    }
-    if (bestDef) {
-      glossary.push({
-        term,
-        definition: bestDef.text.trim().replace(/^[\s.]+|[\s.]+$/g, '') + '.'
-      });
-    }
-  });
-  return glossary.slice(0, 12);
-}
-
-function buildFlashcards(text, keywords, rankedSents) {
-  const cards = [];
-  const usedTerms = new Set();
-  const nouns = new Set(extractNouns(text));
-  const topSentences = rankedSents
-    .filter(s => s.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 20);
-  for (const { text: sent } of topSentences) {
-    if (cards.length >= 8) break;
-    const words = extractWords(sent).filter(w => !STOP.has(w) && w.length > 4);
-    const candidateNouns = words.filter(w => nouns.has(w) && !usedTerms.has(w));
-    const bestNoun = candidateNouns.find(n => keywords.includes(n)) || candidateNouns[0];
-    if (!bestNoun) continue;
-    usedTerms.add(bestNoun);
-    const term = bestNoun.charAt(0).toUpperCase() + bestNoun.slice(1);
-    const masked = sent.replace(new RegExp(`\\b${bestNoun}\\b`, 'gi'), '______');
-    if (masked.includes('______') && masked.length < 200) {
-      cards.push({ front: masked, back: sent.trim(), term });
-    }
+  } catch (error) {
+    console.error("StudyLens System Error:", error);
+    return {
+      summary: "Connection failed. Please try again or check your API key.",
+      keyPoints: ["Error: " + error.message],
+      glossary: [],
+      flashcards: [{"front": "Error", "back": "Try again", "term": "System"}],
+      wordCount: text.split(/\s+/).length
+    };
   }
-  const defSentences = extractSentences(text).filter(({ text: sent }) => {
-    const sentLower = sent.toLowerCase();
-    return DEFINITION_PATTERNS.some(pattern => sentLower.includes(pattern));
-  });
-  for (const { text: sent } of defSentences) {
-    if (cards.length >= 12) break;
-    const words = extractWords(sent).filter(w => !STOP.has(w) && w.length > 4);
-    const keyNoun = words.find(w => nouns.has(w) && !usedTerms.has(w));
-    if (keyNoun) {
-      usedTerms.add(keyNoun);
-      const term = keyNoun.charAt(0).toUpperCase() + keyNoun.slice(1);
-      cards.push({ front: `What is ${term}?`, back: sent.trim(), term });
-    }
-  }
-  return cards.slice(0, 12);
 }
-
-function buildSummary(text, rankedSents) {
-  if (rankedSents.length === 0) return 'Could not extract a meaningful summary.';
-  const topSents = rankedSents.filter(s => s.score > 0).sort((a, b) => b.score - a.score);
-  const selected = [];
-  const firstSent = topSents.find(s => s.paraIndex === 0 && s.isFirstInPara);
-  if (firstSent && firstSent.score > topSents[0].score * 0.3) {
-    selected.push(firstSent);
-  }
-  for (const sent of topSents) {
-    if (selected.length >= 8) break;
-    if (selected.includes(sent)) continue;
-    const paraCount = selected.filter(s => s.paraIndex === sent.paraIndex).length;
-    if (paraCount >= 2) continue;
-    selected.push(sent);
-  }
-  selected.sort((a, b) => a.globalIdx - b.globalIdx);
-  const half = Math.ceil(selected.length / 2);
-  const p1 = selected.slice(0, half).map(s => s.text).join(' ');
-  const p2 = selected.slice(half).map(s => s.text).join(' ');
-  return p2.trim() ? `${p1.trim()}\n\n${p2.trim()}` : p1.trim();
-}
-
-function buildKeyPoints(rankedSents) {
-  const points = [];
-  const topSents = rankedSents.filter(s => s.score > 0).sort((a, b) => b.score - a.score);
-  for (const sent of topSents) {
-    if (points.length >= 8) break;
-    const isSimilar = points.some(existing => {
-      const existingWords = new Set(extractWords(existing));
-      const sentWords = new Set(extractWords(sent.text));
-      const intersection = [...existingWords].filter(w => sentWords.has(w)).length;
-      const union = new Set([...existingWords, ...sentWords]).size;
-      return intersection / union > 0.5;
-    });
-    if (isSimilar) continue;
-    const paraCount = points.filter(p => {
-      const pSent = rankedSents.find(s => s.text === p);
-      return pSent && pSent.paraIndex === sent.paraIndex;
-    }).length;
-    if (paraCount >= 3) continue;
-    points.push(sent.text.trim());
-  }
-  return points;
-}
-
-function processText(text) {
-  const keywords = extractKeywords(text, 30);
-  const phrases = extractPhrases(text, 15);
-  const rankedSents = rankSentences(text, keywords);
-  return {
-    summary: buildSummary(text, rankedSents),
-    keyPoints: buildKeyPoints(rankedSents),
-    glossary: buildGlossary(text, keywords, phrases),
-    flashcards: buildFlashcards(text, keywords, rankedSents),
-    wordCount: text.split(/\s+/).length
-  };
-}
-
-// ═════════════════════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════════════
 //  UI HELPERS
 // ═════════════════════════════════════════════════════════════════════════════
 
@@ -1270,45 +1040,57 @@ function switchTab(tabName) {
 
 async function processFile(file) {
   if (!file) return;
+  
   const isPDF = file.type === 'application/pdf';
   const isDocx = file.name.toLowerCase().endsWith('.docx') || file.type.includes('wordprocessingml');
   const isImg = file.type.startsWith('image/');
+  
   if (!isPDF && !isDocx && !isImg) {
     showError('Please upload a PDF, Word document (.docx), or an image.');
     return;
   }
+
   currentFileName = file.name;
   hideError();
   setStage('processing');
+
+  // 1. Move the 'text' declaration HERE so it's accessible everywhere
+  let extractedText = ''; 
+
   try {
-    let text = '';
     if (isPDF) {
       updateProgress(5, 'Loading PDF engine…');
-      text = await extractFromPDF(file, updateProgress);
+      extractedText = await extractFromPDF(file, updateProgress);
     } else if (isDocx) {
       updateProgress(5, 'Loading DOCX parser…');
-      text = await extractFromDocx(file, updateProgress);
+      extractedText = await extractFromDocx(file, updateProgress);
     } else {
       updateProgress(5, 'Loading OCR engine…');
-      text = await extractFromImage(file, updateProgress);
+      extractedText = await extractFromImage(file, updateProgress);
     }
-    updateProgress(65, 'Running NLP analysis…');
-    await new Promise(r => setTimeout(r, 60));
-    const data = processText(text);
-    updateProgress(95, 'Building your study set…');
-    await new Promise(r => setTimeout(r, 80));
-    currentResults = data;
-    updateProgress(100, 'Done!');
-    setTimeout(() => {
-      setStage('results');
-      updateFlashcard();
-      renderKeyPoints();
-      renderGlossary();
-      renderSummary();
-      switchTab('flashcards');
-    }, 300);
+
+    updateProgress(65, 'Connecting to Gemini AI…');
+    
+    // 2. Pass 'extractedText' to your AI function
+    const data = await processText(extractedText);
+    
+    if (data) {
+      updateProgress(95, 'Building your study set…');
+      currentResults = data;
+      updateProgress(100, 'Done!');
+      
+      setTimeout(() => {
+        setStage('results');
+        updateFlashcard();
+        renderKeyPoints();
+        renderGlossary();
+        renderSummary();
+        switchTab('flashcards');
+      }, 300);
+    }
   } catch (err) {
-    showError(err.message);
+    console.error(err);
+    showError("Could not process file: " + err.message);
     setStage('upload');
   }
 }
