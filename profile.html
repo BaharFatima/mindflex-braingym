@@ -455,7 +455,7 @@
     .success-toast.info  { background: linear-gradient(135deg, #42A5F5, #1E88E5); box-shadow: 0 4px 20px rgba(30,136,229,0.4); }
     .success-toast.warning { background: linear-gradient(135deg, #FFB300, #F57C00); box-shadow: 0 4px 20px rgba(245,124,0,0.4); }
 
-    /* Bottom nav */
+/* Bottom nav */
     .bottom-nav {
       position: absolute; bottom: 0; left: 0;
       width: 100%;
@@ -464,36 +464,61 @@
       padding: 1px;
       box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
       display: flex; justify-content: space-around;
+      animation: slideUp 0.5s ease-out;
       z-index: 500;
       min-height: 75px;
     }
 
-    .bottom-nav .nav-item {
+    @keyframes slideUp { from { opacity:0; transform: translateY(30px); } to { opacity:1; transform: translateY(0); } }
+
+    .bottom-nav .menu-item {
       display: flex; flex-direction: column; align-items: center;
       gap: 5px; cursor: pointer;
       transition: all 0.3s ease;
-      padding: 10px 5px 5px; position: relative; flex: 1;
-      text-decoration: none;
-      border: none; background: none;
+      padding: 5px; position: relative; flex: 1;
+      text-decoration: none; border-bottom: none !important;
     }
+    .bottom-nav .menu-item:hover { background: transparent !important; }
 
-    .bottom-nav .nav-icon {
+    .bottom-nav .menu-icon {
       width: 40px; height: 40px;
       display: flex; justify-content: center; align-items: center;
       transition: all 0.3s ease;
       color: #5f6368;
+      margin-right: 0 !important;
+      background: transparent !important;
     }
-    .bottom-nav .nav-icon i { font-size: 24px; transition: all 0.3s ease; }
-    .bottom-nav .nav-label {
-      font-size: 10px; color: #5f6368;
-      text-align: center; line-height: 1.2;
-      font-weight: 600; font-family: 'Poppins', sans-serif;
+    .bottom-nav .menu-icon i { font-size: 24px; transition: all 0.3s ease; }
+    .bottom-nav .menu-label { font-size: 10px; color: #5f6368; text-align: center; line-height: 1.2; font-weight: 600; }
+
+    .bottom-nav .menu-item.selected .menu-icon i { transform: translateY(-8px) scale(1.2); text-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+    .bottom-nav .menu-item[data-category="cv"].selected .menu-icon i { color: #0D47A1; }
+    .bottom-nav .menu-item[data-category="achievements"].selected .menu-icon i { color: #9c27b0; }
+    .bottom-nav .menu-item[data-category="home"].selected .menu-icon i { color: #1565C0; }
+    .bottom-nav .menu-item[data-category="habit-tracker"].selected .menu-icon i { color: #ff4081; }
+    .bottom-nav .menu-item[data-category="user-account"].selected .menu-icon i { color: #00838F; }
+
+    .bottom-nav .menu-icon img {
+      width: 24px; height: 24px; transition: all 0.3s ease;
+      object-fit: contain; filter: grayscale(100%) brightness(0.7); border-radius: 8px;
     }
-    .bottom-nav .nav-item.selected .nav-icon i {
+    .bottom-nav .menu-item.selected .menu-icon img {
       transform: translateY(-8px) scale(1.2);
-      text-shadow: 0 4px 8px rgba(0,0,0,0.15);
-      color: #00838F;
+      filter: grayscale(0%) brightness(1.1) drop-shadow(0 4px 8px rgba(0,0,0,0.15));
     }
+
+    .bottom-nav .menu-icon .fallback-icon {
+      width: 24px; height: 24px;
+      background-color: #5f6368; border-radius: 8px;
+      display: flex; justify-content: center; align-items: center;
+      color: white; font-weight: bold; transition: all 0.3s ease;
+    }
+    .bottom-nav .menu-item.selected .menu-icon .fallback-icon {
+      background-color: #ff4081; transform: translateY(-8px) scale(1.2);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15); border-radius: 10px;
+    }
+    .bottom-nav .menu-item[data-category="cv"].selected .menu-icon .fallback-icon { background-color: #0D47A1; }
+
 
     .loading-overlay {
       display: none; position: absolute;
@@ -1009,30 +1034,36 @@
       </div>
     </div>
 
-    <!-- ══════════════════════ BOTTOM NAV ══════════════════════ -->
+    <!-- BOTTOM NAV -->
     <nav class="bottom-nav">
-      <a href="cv.html" class="nav-item" data-category="cv">
-        <div class="nav-icon"><i class="fas fa-file-alt"></i></div>
-        <div class="nav-label">CV</div>
+      <a href="cv.html" class="menu-item" data-category="cv">
+        <div class="menu-icon">
+          <img src="cv.png" alt="CV" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="fallback-icon" style="display:none;"><i class="fas fa-file-alt"></i></div>
+        </div>
+        <div class="menu-label">CV</div>
       </a>
-      <a href="achievements.html" class="nav-item" data-category="achievements">
-        <div class="nav-icon"><i class="fas fa-trophy"></i></div>
-        <div class="nav-label">Achievements</div>
+      <a href="achievements.html" class="menu-item" data-category="achievements">
+        <div class="menu-icon"><i class="fas fa-trophy"></i></div>
+        <div class="menu-label">Achievements</div>
       </a>
-      <a href="main.html" class="nav-item" data-category="home">
-        <div class="nav-icon"><i class="fas fa-home"></i></div>
-        <div class="nav-label">Home</div>
+      <a href="main.html" class="menu-item" data-category="home">
+        <div class="menu-icon"><i class="fas fa-home"></i></div>
+        <div class="menu-label">Home</div>
       </a>
-      <a href="habittracker.html" class="nav-item" data-category="habit-tracker">
-        <div class="nav-icon"><i class="fas fa-check-square"></i></div>
-        <div class="nav-label">Habits</div>
+      <a href="habittracker.html" class="menu-item" data-category="habit-tracker">
+        <div class="menu-icon">
+          <img src="https://z-cdn-media.chatglm.cn/files/a1979dda-a3e4-4b38-b0cf-00e4ad455277_pasted_image_1762936027415.png?auth_key=1862936037-6cc8a5a356484e1cb70a8f599e1f2ce8-0-496c548f3f7ef2ea6a808a3cc812dc2c" alt="Habit Tracker" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="fallback-icon" style="display:none;"><i class="fas fa-check"></i></div>
+        </div>
+        <div class="menu-label">Habit Tracker</div>
       </a>
-      <a href="profile.html" class="nav-item selected" data-category="user-account">
-        <div class="nav-icon"><i class="fas fa-user-circle"></i></div>
-        <div class="nav-label">Account</div>
+      <a href="profile.html" class="menu-item selected" data-category="user-account">
+        <div class="menu-icon"><i class="fas fa-user-circle"></i></div>
+        <div class="menu-label">Account</div>
       </a>
     </nav>
-  </div><!-- /container -->
+  </div>
 
   <!-- ══════════════════════════════════════════════════════════════
        FIREBASE + APP LOGIC
