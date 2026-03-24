@@ -1,79 +1,140 @@
-export default async function handler(req, res) {
-  const API_KEY = process.env.GEMINI_API_KEY;
-  const { text } = req.body;
+api/geneate.js
 
-  // IMPORTANT: We need to tell Gemini EXACTLY what format to return
-  const prompt = `Analyze this document and return ONLY a JSON object (no markdown, no explanation) with this exact structure:
+const HF_HEADERS = (token) => ({
+  Authorization: `Bearer ${token}`,
+  "Content-Type": "application/json",
+});
 
-{
-  "summary": "2-3 paragraph summary",
-  "keyPoints": ["point 1", "point 2", "point 3", "point 4", "point 5", "point 6", "point 7", "point 8"],
-  "glossary": [
-    {"term": "Term1", "definition": "Definition of term1"},
-    {"term": "Term2", "definition": "Definition of term2"}
-  ],
-  "flashcards": [
-    {"front": "Question", "back": "Answer", "term": "KeyTerm"},
-    {"front": "Question 2", "back": "Answer 2", "term": "KeyTerm2"}
-  ],
-  "wordCount": ${text.split(/\s+/).length}
+async function hfPost(url, token, payload) {
+  const r = await fetch(url, {
+    method: "POST",
+    headers: HF_HEADERS(token),
+    body: JSON.stringify(payload),
+  });
+  const j = await r.json();
+  if (!r.ok) {
+    const msg = j?.error || "Hugging Face request failed";
+    throw new Error(`${msg}`);
+  }
+  return j;
 }
 
-Generate 8 key points, 10-12 glossary terms, and 10-12 flashcards. Make them high-quality study materials.
+function safeJsonParse(maybeText) {
+  // Try to extract JSON even if model wraps it with text
+  const first = maybeText.indexOf("{");
+  const last = maybeText.lastIndexOf("}");
+  if (first === -1 || last === -1 || last <= first) return null;
+  const slice = maybeText.slice(first, last + 1);
+  try { return JSON.parse(slice); } catch { return null; }
+}
 
-Document text:
-${text.slice(0, 30000)}`;
-
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+export default async function handler(req, res) {
+  if (req.method !== "POST") return res.status(405).json({ error: "Use POST" });
 
   try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 8000
-        }
-      })
+    const { text } = req.body || {};
+    if (!text || typeof text !== "string") return res.status(400).json({ error: "Missing text" });
+
+    const HF_TOKEN = process.env.HUGGINGFACE_API_KEY;
+    if (!HF_TOKEN) return res.status(500).json({ error: "Missing HUGGINGFACE_API_KEY" });
+
+    const input = text.trim().slice(0, 12000);
+    const wordCount = input.split(/\s+/).filter(Boolean).length;
+
+    // Step 1: summary (abstractive)
+    const summarizerModel = "facebook/bart-large-cnn";
+    const summaryResp = await hfPost(
+      `https://api-inference.huggingface.co/models/${summarizerModel}`,
+      HF_TOKEN,
+      {
+        inputs: input,
+        parameters: { max_length: 180, min_length: 60, do_sample: false },
+        options: { wait_for_model: true },
+      }
+    );
+
+    const summary =
+      Array.isArray(summaryResp) && summaryResp[0]?.summary_text
+        ? summaryResp[0].summary_text
+        : "";
+
+    if (!summary) throw new Error("No summary returned");
+
+    // Step 2: generate study set JSON (flashcards, glossary, keypoints)
+    // You can swap model if this one fails in your account/region.
+    const genModel = "HuggingFaceH4/zephyr-7b-beta"; // try this first
+    const prompt = `
+You are an assistant that creates study materials.
+Return ONLY valid JSON. No markdown. No extra text.
+
+Create:
+- summary: 1 to 2 short paragraphs
+- keyPoints: 5 bullet-style strings
+- glossary: 8 items (term + definition)
+- flashcards: 10 items (term + front question + back answer)
+
+Constraints:
+- Keep language simple for students.
+- No hallucinations; only use the provided content.
+- If content is insufficient, create fewer items but keep JSON valid.
+
+JSON schema exactly:
+{
+  "summary": "string",
+  "keyPoints": ["string"],
+  "glossary": [{"term":"string","definition":"string"}],
+  "flashcards": [{"term":"string","front":"string","back":"string"}]
+}
+
+CONTENT:
+${summary}
+`;
+
+    const genResp = await hfPost(
+      `https://api-inference.huggingface.co/models/${genModel}`,
+      HF_TOKEN,
+      {
+        inputs: prompt,
+        parameters: {
+          max_new_tokens: 800,
+          temperature: 0.2,
+          return_full_text: false,
+        },
+        options: { wait_for_model: true },
+      }
+    );
+
+    // HF text-generation often returns an array with generated_text
+    const generatedText =
+      Array.isArray(genResp) ? (genResp[0]?.generated_text || "") : (genResp?.generated_text || "");
+
+    let study = safeJsonParse(generatedText);
+
+    // Fallback if JSON fails: return at least summary so UI works
+    if (!study) {
+      study = {
+        summary,
+        keyPoints: [],
+        glossary: [],
+        flashcards: [{ term: "Summary", front: "What is the summary?", back: summary }],
+      };
+    }
+
+    // Ensure required fields exist
+    study.summary = typeof study.summary === "string" ? study.summary : summary;
+    study.keyPoints = Array.isArray(study.keyPoints) ? study.keyPoints : [];
+    study.glossary = Array.isArray(study.glossary) ? study.glossary : [];
+    study.flashcards = Array.isArray(study.flashcards) ? study.flashcards : [];
+
+    if (study.flashcards.length === 0) {
+      study.flashcards = [{ term: "Summary", front: "What is the summary?", back: study.summary }];
+    }
+
+    return res.status(200).json({
+      wordCount,
+      ...study,
     });
-
-    const data = await response.json();
-    
-    // Extract the text from Gemini's response
-    const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    
-    if (!aiText) {
-      throw new Error("No response from AI");
-    }
-
-    // Clean up the response (remove markdown if present)
-    let cleanText = aiText.trim();
-    if (cleanText.startsWith('```json')) {
-      cleanText = cleanText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
-    }
-    
-    // Parse the JSON
-    const parsedData = JSON.parse(cleanText);
-    
-    // Make sure it has all required fields
-    if (!parsedData.flashcards || !parsedData.glossary || !parsedData.keyPoints || !parsedData.summary) {
-      throw new Error("Invalid response format from AI");
-    }
-
-    // Return the properly formatted data
-    res.status(200).json(parsedData);
-
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ 
-      error: "Failed to process document",
-      details: error.message 
-    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message || "Server error" });
   }
 }
