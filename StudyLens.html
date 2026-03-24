@@ -825,61 +825,16 @@ async function extractFromImage(file, onProgress) {
 // ═════════════════════════════════════════════════════════════════════════════
 
 async function processText(text) {
-const YOUR_API_KEY = "AIzaSyDtNV8fP3vLCllvUgT5x0o0iCU6SzHAJ68"; 
-const MODEL_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=${YOUR_API_KEY}`;
+  // We point this to our internal 'api/generate' script 
+  // Vercel handles the mapping automatically!
+  const response = await fetch('/api/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: text })
+  });
 
-  if (!text || text.trim().length < 10) {
-    return { summary: "Document unreadable.", keyPoints: [], glossary: [], flashcards: [], wordCount: 0 };
-  }
-
-  const promptText = `Return a JSON object ONLY. Analyze this study material: ${text}
-    Format: {
-      "summary": "2 paragraphs",
-      "keyPoints": ["p1","p2","p3","p4","p5","p6","p7","p8"],
-      "glossary": [{"term":"t", "definition":"d"}],
-      "flashcards": [{"front":"q", "back":"a", "term":"t"}]
-    }`;
-
-  try {
-    const response = await fetch(MODEL_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: promptText }] }],
-        generationConfig: {
-          temperature: 0.1,
-          // Removed response_mime_type to stay safe from the 400 error
-        }
-      })
-    });
-
-    if (!response.ok) {
-      const errorDetail = await response.json();
-      console.error("API Error Details:", errorDetail);
-      // If 404 persists, we'll know exactly why from the console
-      throw new Error(`Status ${response.status}`);
-    }
-
-    const data = await response.json();
-    let rawText = data.candidates[0].content.parts[0].text;
-    
-    // Clean up any markdown formatting (like ```json)
-    const cleanJson = rawText.replace(/```json|```/g, "").trim();
-    const aiOutput = JSON.parse(cleanJson);
-    
-    aiOutput.wordCount = text.split(/\s+/).length;
-    return aiOutput;
-
-  } catch (error) {
-    console.error("StudyLens System Error:", error);
-    return {
-      summary: "Connection failed. Please try again or check your API key.",
-      keyPoints: ["Error: " + error.message],
-      glossary: [],
-      flashcards: [{"front": "Error", "back": "Try again", "term": "System"}],
-      wordCount: text.split(/\s+/).length
-    };
-  }
+  const data = await response.json();
+  return data; // This will now contain the AI's response safely
 }
 // ═════════════════════════════════════════════════════════════════════════
 //  UI HELPERS
