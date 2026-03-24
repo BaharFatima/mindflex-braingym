@@ -13,7 +13,7 @@ export async function saveSession(gameName, db, currentUser) {
     focusScore:          48,         // hardcoded for now ✅
     gameName:            gameName,
     sessionCompleted:    true,
-    distractionDetected: 3,          // hardcoded for now ✅
+    distractionsDetected: 3,          // hardcoded for now ✅
     switchCount:         2,          // hardcoded for now ✅
     distractionLog:      []          // empty for now ✅
   });
