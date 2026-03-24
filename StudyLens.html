@@ -873,9 +873,11 @@ function updateProgress(pct, msg) {
 
 function setStage(stage) {
   currentStage = stage;
+  
   document.getElementById('uploadScreen').classList.add('hidden');
   document.getElementById('processingScreen').classList.add('hidden');
   document.getElementById('resultsScreen').classList.add('hidden');
+  
   if (stage === 'upload') {
     document.getElementById('uploadScreen').classList.remove('hidden');
     document.getElementById('headerTitle').textContent = '📚 StudyLens';
@@ -891,12 +893,16 @@ function setStage(stage) {
     document.getElementById('resultsScreen').classList.remove('hidden');
     const shortName = currentFileName.length > 20 ? currentFileName.slice(0, 17) + '…' : currentFileName;
     document.getElementById('headerTitle').textContent = '📄 ' + shortName;
-    const wordCount = currentResults.wordCount ?? currentResults.text?.split(/\s+/).length ?? 0;
-document.getElementById('headerSubtitle').textContent = 
-  `${wordCount.toLocaleString()} words · ${(currentResults.flashcards?.length ?? 0)} cards`;
+    
+    // ADDED SAFETY CHECK HERE:
+    if (currentResults && currentResults.wordCount) {
+      document.getElementById('headerSubtitle').textContent = 
+        `${currentResults.wordCount.toLocaleString()} words · ${currentResults.flashcards.length} cards`;
+    } else {
+      document.getElementById('headerSubtitle').textContent = 'Analysis Complete';
+    }
   }
 }
-
 function reset() {
   currentFileName = '';
   currentResults = null;
