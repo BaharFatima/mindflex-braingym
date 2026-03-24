@@ -1,7 +1,3 @@
-
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,23 +16,20 @@ body{
   font-family:'Poppins',sans-serif;
 }
 
-/* APP CONTAINER */
-/* APP CONTAINER */
 .app{
   width:320px;
-  height:620px; /* slightly reduced */
+  height:620px;
   border-radius:30px;
   background:linear-gradient(180deg,#BBDEFB 0%, #E3F2FD 100%);
   box-shadow:0 25px 60px rgba(0,0,0,0.25);
   display:flex;
   flex-direction:column;
   overflow:hidden;
-  position:relative;   /* IMPORTANT */
+  position:relative;
   padding:18px;
   box-sizing:border-box;
 }
 
-/* Decorative circles */
 .app::before{
   content:"";
   position:absolute;
@@ -61,7 +54,6 @@ body{
   z-index:0;
 }
 
-/* HEADER */
 header{
   height:60px;
   display:flex;
@@ -77,26 +69,22 @@ header{
   color:#0D47A1;
 }
 
-/* FIXED BACK BUTTON */
-
 .back-btn {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      font-size: 1.6rem;
-      cursor: pointer;
-      color: #003366;
-      font-weight: bold;
-      text-decoration: none;
-    }
-
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  font-size: 1.6rem;
+  cursor: pointer;
+  color: #003366;
+  font-weight: bold;
+  text-decoration: none;
+}
 
 .back-btn:hover{
   transform:scale(1.05);
   background:rgba(255,255,255,0.9);
 }
 
-/* GLASS GAME CARD */
 .game-card{
   flex:1;
   background:rgba(255,255,255,0.65);
@@ -111,7 +99,6 @@ header{
   box-shadow:0 15px 35px rgba(0,0,0,0.15);
 }
 
-
 #gameArea{
   flex:1;
   width:100%;
@@ -122,7 +109,6 @@ header{
   margin:10px 0;
 }
 
-/* MOVING CIRCLE */
 .circle{
   position:absolute;
   border-radius:50%;
@@ -153,7 +139,7 @@ header{
   display:none;
   cursor:pointer;
 }
-/* reset */
+
 .reset-btn{
   position:absolute;
   right:15px;
@@ -182,28 +168,24 @@ header{
 </header>
 
 <div class="game-card">
-
-<div class="stats" id="levelText"></div>
-<div id="gameArea"></div>
-<div class="stats" id="scoreText"></div>
-
-<button class="next-btn" id="nextBtn">Next Level</button>
+  <div class="stats" id="levelText"></div>
+  <div id="gameArea"></div>
+  <div class="stats" id="scoreText"></div>
+  <button class="next-btn" id="nextBtn">Next Level</button>
+</div>
 
 </div>
-</div>
+
 <script type="module" src="attention.js"></script>
 <script type="module">
+import { saveSession } from "./saveSession.js";
 import { addXP } from "./xp.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-import { 
-  getAuth, 
-  onAuthStateChanged 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-/* 🔥 YOUR FIREBASE CONFIG */
 const firebaseConfig = {
-   apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
+  apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
   authDomain: "mindflex-b2a0c.firebaseapp.com",
   projectId: "mindflex-b2a0c",
   storageBucket: "mindflex-b2a0c.firebasestorage.app",
@@ -212,155 +194,164 @@ const firebaseConfig = {
   measurementId: "G-Q2T6HD3S0E"
 };
 
-
-/* INITIALIZE FIREBASE */
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const app  = initializeApp(firebaseConfig);
+const db   = getFirestore(app);
 const auth = getAuth(app);
 
 let currentUser = null;
 
-/* AUTH LISTENER */
+/* GAME STATE */
+let level   = 1;
+let score   = 0;
+const maxLevel = 150;
+
+const gameArea  = document.getElementById("gameArea");
+const scoreText = document.getElementById("scoreText");
+const levelText = document.getElementById("levelText");
+const nextBtn   = document.getElementById("nextBtn");
+const resetBtn  = document.getElementById("resetBtn");
+
+// ── AUTH ─────────────────────────────────────────────────────
+// Wait for DOM to fully render before starting so gameArea has real dimensions
 onAuthStateChanged(auth, (user) => {
   if (user) {
     currentUser = user;
-    loadProgress();
+    requestAnimationFrame(() => loadProgress());
   } else {
-    startGame(); 
+    requestAnimationFrame(() => startGame());
   }
 });
 
-/* GAME STATE */
-let level=1;
-let score=0;
-const maxLevel=150;
-
-const gameArea=document.getElementById("gameArea");
-const scoreText=document.getElementById("scoreText");
-const levelText=document.getElementById("levelText");
-const nextBtn=document.getElementById("nextBtn");
-const resetBtn = document.getElementById("resetBtn");
-
-
-// reset
-async function resetGame(){
-
-  level = 1;
-  score = 0;
-
-  nextBtn.style.display = "none";
-
-  await saveProgress();
-
-  startGame();
+// ── SAVE PROGRESS ─────────────────────────────────────────────
+// Saves to: users/{uid}/games/reactionRush
+// Stores: current level, current score, highestLevel, lastPlayed
+async function saveProgress() {
+  if (!currentUser) return;
+  try {
+    await setDoc(
+      doc(db, "users", currentUser.uid, "games", "reactionRush"),
+      {
+        level,
+        score,
+        highestLevel: level,  // tracks personal best level reached
+        lastPlayed: new Date()
+      },
+      { merge: true }  // merge:true so highestLevel is only updated if higher
+    );
+  } catch(e) {
+    console.error("Save failed:", e);
+  }
 }
 
-/* LOAD PROGRESS */
-async function loadProgress(){
-  if(!currentUser){
+// ── LOAD PROGRESS ─────────────────────────────────────────────
+// Reads from: users/{uid}/games/reactionRush
+// Restores level and score so player continues where they left off
+async function loadProgress() {
+  if (!currentUser) {
     startGame();
     return;
   }
-
-  try{
-    const snap = await getDoc(doc(db,"progress",deviceId));
-    if(snap.exists()){
-      const data = snap.data().reactionRush;
-      if(data){
-        level=data.level||1;
-        score=data.score||0;
+  try {
+    const snap = await getDoc(
+      doc(db, "users", currentUser.uid, "games", "reactionRush")
+    );
+    if (snap.exists()) {
+      const data = snap.data();
+      level = data.level || 1;
+      score = data.score || 0;
+      // If they had finished a level (score=10), start next level fresh
+      if (score >= 10) {
+        score = 0;
       }
     }
-  }catch(e){}
-
+  } catch(e) {
+    console.error("Load failed:", e);
+    // On error just start from level 1
+    level = 1;
+    score = 0;
+  }
   startGame();
 }
-/* SAVE PROGRESS */
-async function saveProgress(){
-  if(!currentUser) return;
 
-  await setDoc(
-    doc(db,"users", currentUser.uid, "games", "reactionRush"),
-    {
-      level,
-      score,
-      highestLevel: level,
-      lastPlayed: new Date()
-    },
-    { merge:true }
-  );
+// ── RESET ─────────────────────────────────────────────────────
+async function resetGame() {
+  level = 1;
+  score = 0;
+  nextBtn.style.display = "none";
+  await saveProgress();
+  startGame();
 }
 
-/* SPAWN CIRCLE */
-function spawnCircle(){
-  gameArea.innerHTML="";
-  const circle=document.createElement("div");
+// ── SPAWN CIRCLE ──────────────────────────────────────────────
+function spawnCircle() {
+  gameArea.innerHTML = "";
+  const circle = document.createElement("div");
   circle.classList.add("circle");
 
-  const size=Math.max(40 - level*0.15,25);
-  circle.style.width=size+"px";
-  circle.style.height=size+"px";
+  const size = Math.max(40 - level * 0.15, 25);
+  circle.style.width  = size + "px";
+  circle.style.height = size + "px";
 
-  const maxX=gameArea.clientWidth-size;
-  const maxY=gameArea.clientHeight-size;
+  // Use fallback dimensions (288 = 320px app - 32px padding) if not rendered yet
+  const areaW = gameArea.clientWidth  || 288;
+  const areaH = gameArea.clientHeight || 340;
+  const maxX  = areaW - size;
+  const maxY  = areaH - size;
 
-  circle.style.left=Math.random()*maxX+"px";
-  circle.style.top=Math.random()*maxY+"px";
+  circle.style.left = Math.random() * maxX + "px";
+  circle.style.top  = Math.random() * maxY + "px";
 
-circle.onclick=()=>{
+  circle.onclick = () => {
+    if (score >= 10) return;
 
-  if(score >= 10) return; // prevent extra clicks
+    score++;
+    updateUI();
 
-  score++;
-  updateUI();
+    if (score === 10) {
+      nextBtn.style.display = "block";
+      gameArea.innerHTML    = "";
+      saveProgress(); // save when level is completed
+      return;
+    }
 
-  if(score === 10){
-    nextBtn.style.display="block";
-    gameArea.innerHTML = ""; // remove circle
-    saveProgress();
-    return;
-  }
-
-  spawnCircle();
-};
+    spawnCircle();
+  };
 
   gameArea.appendChild(circle);
 }
 
-function updateUI(){
+function updateUI() {
   levelText.textContent = "Level " + level + " / " + maxLevel;
   scoreText.textContent = "Score: " + score;
 }
-/* START */
-function startGame(){
+
+function startGame() {
   updateUI();
   spawnCircle();
 }
 
-/* NEXT LEVEL */
-nextBtn.onclick=()=>{
+// ── NEXT LEVEL ────────────────────────────────────────────────
+nextBtn.onclick = async () => {
   level++;
-addXP(db, currentUser, 10);
-  if(level>maxLevel){
-    alert("Completed all 150 levels.");
-    level=1;
+  addXP(db, currentUser, 10);
+
+  if (level > maxLevel) {
+    alert("Completed all 150 levels!");
+    level = 1;
   }
-  score=0;
-  nextBtn.style.display="none";
-  saveProgress();
+
+  score = 0;
+  nextBtn.style.display = "none";
+  await saveProgress(); // save new level before spawning
   startGame();
 };
-loadProgress();
 
-// reset
+// ── RESET BUTTON ──────────────────────────────────────────────
 resetBtn.onclick = () => {
-
-  if(confirm("Restart game from Level 1?")){
+  if (confirm("Restart game from Level 1?")) {
     resetGame();
   }
-
-};
-</script>
+};</script>
 
 </body>
 </html>
