@@ -1,5 +1,3 @@
-api/geneate.js
-
 const HF_HEADERS = (token) => ({
   Authorization: `Bearer ${token}`,
   "Content-Type": "application/json",
@@ -12,20 +10,44 @@ async function hfPost(url, token, payload) {
     body: JSON.stringify(payload),
   });
   const j = await r.json();
-  if (!r.ok) {
-    const msg = j?.error || "Hugging Face request failed";
-    throw new Error(`${msg}`);
-  }
+  if (!r.ok) throw new Error(j?.error || "Hugging Face request failed");
   return j;
 }
 
+function cleanText(raw) {
+  return raw
+    .replace(/\r/g, "\n")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/_{3,}/g, "")                 // remove long blanks like ______
+    .replace(/\bPage\s*\d+\b/gi, "")       // remove "Page 1" etc
+    .replace(/\b\d+\s*\/\s*\d+\b/g, "")    // remove "3/12" patterns
+    .trim();
+}
+
+// chunk by characters (simple, reliable for serverless)
+function chunkText(text, chunkSize = 3500, overlap = 300) {
+  const chunks = [];
+  let i = 0;
+  while (i < text.length) {
+    const end = Math.min(i + chunkSize, text.length);
+    chunks.push(text.slice(i, end));
+    i = end - overlap;
+    if (i < 0) i = 0;
+    if (end === text.length) break;
+  }
+  return chunks;
+}
+
 function safeJsonParse(maybeText) {
-  // Try to extract JSON even if model wraps it with text
   const first = maybeText.indexOf("{");
   const last = maybeText.lastIndexOf("}");
-  if (first === -1 || last === -1 || last <= first) return null;
-  const slice = maybeText.slice(first, last + 1);
-  try { return JSON.parse(slice); } catch { return null; }
+  if (first === -1 || last === -1) return null;
+  try {
+    return JSON.parse(maybeText.slice(first, last + 1));
+  } catch {
+    return null;
+  }
 }
 
 export default async function handler(req, res) {
@@ -38,45 +60,56 @@ export default async function handler(req, res) {
     const HF_TOKEN = process.env.HUGGINGFACE_API_KEY;
     if (!HF_TOKEN) return res.status(500).json({ error: "Missing HUGGINGFACE_API_KEY" });
 
-    const input = text.trim().slice(0, 12000);
-    const wordCount = input.split(/\s+/).filter(Boolean).length;
+    const cleaned = cleanText(text);
+    const wordCount = cleaned.split(/\s+/).filter(Boolean).length;
 
-    // Step 1: summary (abstractive)
+    // 1) Map summarize chunks
     const summarizerModel = "facebook/bart-large-cnn";
-    const summaryResp = await hfPost(
+    const chunks = chunkText(cleaned, 3500, 300).slice(0, 12); // cap for speed/cost
+
+    const chunkSummaries = [];
+    for (let idx = 0; idx < chunks.length; idx++) {
+      const resp = await hfPost(
+        `https://api-inference.huggingface.co/models/${summarizerModel}`,
+        HF_TOKEN,
+        {
+          inputs: chunks[idx],
+          parameters: { max_length: 180, min_length: 60, do_sample: false },
+          options: { wait_for_model: true },
+        }
+      );
+
+      const s = Array.isArray(resp) ? resp[0]?.summary_text : "";
+      if (s) chunkSummaries.push(s.trim());
+    }
+
+    if (!chunkSummaries.length) throw new Error("No summaries returned");
+
+    // 2) Reduce summarize (summary of summaries)
+    const combined = chunkSummaries.join("\n");
+    const reduceResp = await hfPost(
       `https://api-inference.huggingface.co/models/${summarizerModel}`,
       HF_TOKEN,
       {
-        inputs: input,
-        parameters: { max_length: 180, min_length: 60, do_sample: false },
+        inputs: combined.slice(0, 12000),
+        parameters: { max_length: 200, min_length: 80, do_sample: false },
         options: { wait_for_model: true },
       }
     );
+    const finalSummary = Array.isArray(reduceResp) ? reduceResp[0]?.summary_text : "";
+    if (!finalSummary) throw new Error("No final summary returned");
 
-    const summary =
-      Array.isArray(summaryResp) && summaryResp[0]?.summary_text
-        ? summaryResp[0].summary_text
-        : "";
+    // 3) Generate study set JSON (flashcards/keypoints/glossary) from final summary
+    // If Zephyr gives messy JSON for you, switch to "google/flan-t5-large".
+    const genModel = "HuggingFaceH4/zephyr-7b-beta";
 
-    if (!summary) throw new Error("No summary returned");
-
-    // Step 2: generate study set JSON (flashcards, glossary, keypoints)
-    // You can swap model if this one fails in your account/region.
-    const genModel = "HuggingFaceH4/zephyr-7b-beta"; // try this first
     const prompt = `
-You are an assistant that creates study materials.
 Return ONLY valid JSON. No markdown. No extra text.
 
-Create:
-- summary: 1 to 2 short paragraphs
-- keyPoints: 5 bullet-style strings
-- glossary: 8 items (term + definition)
-- flashcards: 10 items (term + front question + back answer)
-
-Constraints:
-- Keep language simple for students.
-- No hallucinations; only use the provided content.
-- If content is insufficient, create fewer items but keep JSON valid.
+Create study material using ONLY the text below.
+Do NOT use fill-in-the-blank questions.
+Do NOT output underscores like "______".
+All flashcards must be normal Q/A.
 
 JSON schema exactly:
 {
@@ -86,8 +119,8 @@ JSON schema exactly:
   "flashcards": [{"term":"string","front":"string","back":"string"}]
 }
 
-CONTENT:
-${summary}
+Text:
+${finalSummary}
 `;
 
     const genResp = await hfPost(
@@ -96,44 +129,43 @@ ${summary}
       {
         inputs: prompt,
         parameters: {
-          max_new_tokens: 800,
-          temperature: 0.2,
+          max_new_tokens: 900,
+          temperature: 0.1,
           return_full_text: false,
         },
         options: { wait_for_model: true },
       }
     );
 
-    // HF text-generation often returns an array with generated_text
-    const generatedText =
-      Array.isArray(genResp) ? (genResp[0]?.generated_text || "") : (genResp?.generated_text || "");
+    const generatedText = Array.isArray(genResp) ? (genResp[0]?.generated_text || "") : "";
+    const study = safeJsonParse(generatedText);
 
-    let study = safeJsonParse(generatedText);
+    // Fallback if JSON fails
+    const out = study || {
+      summary: finalSummary,
+      keyPoints: [],
+      glossary: [],
+      flashcards: [{ term: "Summary", front: "What is this document about?", back: finalSummary }],
+    };
 
-    // Fallback if JSON fails: return at least summary so UI works
-    if (!study) {
-      study = {
-        summary,
-        keyPoints: [],
-        glossary: [],
-        flashcards: [{ term: "Summary", front: "What is the summary?", back: summary }],
-      };
+    // normalize
+    out.summary = typeof out.summary === "string" ? out.summary : finalSummary;
+    out.keyPoints = Array.isArray(out.keyPoints) ? out.keyPoints : [];
+    out.glossary = Array.isArray(out.glossary) ? out.glossary : [];
+    out.flashcards = Array.isArray(out.flashcards) ? out.flashcards : [];
+
+    // enforce no blanks
+    out.flashcards = out.flashcards.map(fc => ({
+      term: String(fc.term || "Card"),
+      front: String(fc.front || "").replace(/_{3,}/g, ""),
+      back: String(fc.back || "").replace(/_{3,}/g, ""),
+    }));
+
+    if (out.flashcards.length === 0) {
+      out.flashcards = [{ term: "Summary", front: "What is this document about?", back: out.summary }];
     }
 
-    // Ensure required fields exist
-    study.summary = typeof study.summary === "string" ? study.summary : summary;
-    study.keyPoints = Array.isArray(study.keyPoints) ? study.keyPoints : [];
-    study.glossary = Array.isArray(study.glossary) ? study.glossary : [];
-    study.flashcards = Array.isArray(study.flashcards) ? study.flashcards : [];
-
-    if (study.flashcards.length === 0) {
-      study.flashcards = [{ term: "Summary", front: "What is the summary?", back: study.summary }];
-    }
-
-    return res.status(200).json({
-      wordCount,
-      ...study,
-    });
+    return res.status(200).json({ wordCount, ...out });
   } catch (err) {
     return res.status(500).json({ error: err.message || "Server error" });
   }
