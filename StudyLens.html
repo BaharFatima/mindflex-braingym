@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StudyLens</title>
+  <title>StudyLens — CV Study Module</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
@@ -12,7 +12,7 @@
       margin: 0;
       padding: 0;
     }
-    
+     
     body {
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(180deg, #B3E5FC 0%, #E1F5FE 100%);
@@ -825,10 +825,7 @@ async function extractFromImage(file, onProgress) {
 // ═════════════════════════════════════════════════════════════════════════════
 
 async function processText(text) {
-  // Replace YOUR_NEW_API_KEY with the one you just made
-const YOUR_API_KEY = "AIzaSyAPRXs6eF47Gg1ieT3brD5Hg2-VKeWYUFE"; 
-
-// Using 3.1-flash-lite-preview: It's the most stable FREE model in March 2026
+const YOUR_API_KEY = "AIzaSyDtNV8fP3vLCllvUgT5x0o0iCU6SzHAJ68"; 
 const MODEL_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent?key=${YOUR_API_KEY}`;
 
   if (!text || text.trim().length < 10) {
@@ -1069,7 +1066,7 @@ async function processFile(file) {
       extractedText = await extractFromImage(file, updateProgress);
     }
 
-    updateProgress(65, 'Connecting to Gemini AI…');
+    updateProgress(65, 'Analyzing document');
     
     // 2. Pass 'extractedText' to your AI function
     const data = await processText(extractedText);
