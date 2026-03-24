@@ -1,38 +1,28 @@
-module.exports = async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
+export default async function handler(req, res) {
   const API_KEY = process.env.GEMINI_API_KEY;
-  
-  if (!API_KEY) {
-    return res.status(500).json({ error: 'GEMINI_API_KEY is not set in Vercel environment variables' });
-  }
-
   const { text } = req.body;
-  if (!text) {
-    return res.status(400).json({ error: 'No text provided' });
-  }
 
-  const prompt = `You are a study assistant. Analyze the document below and return ONLY a valid JSON object. No markdown, no backticks, no explanation — raw JSON only.
+  // IMPORTANT: We need to tell Gemini EXACTLY what format to return
+  const prompt = `Analyze this document and return ONLY a JSON object (no markdown, no explanation) with this exact structure:
 
-Use this exact structure:
 {
-  "flashcards": [
-    { "term": "Short topic label", "front": "Question?", "back": "Answer." }
-  ],
-  "keyPoints": ["Key point 1", "Key point 2"],
+  "summary": "2-3 paragraph summary",
+  "keyPoints": ["point 1", "point 2", "point 3", "point 4", "point 5", "point 6", "point 7", "point 8"],
   "glossary": [
-    { "term": "Word", "definition": "Definition." }
+    {"term": "Term1", "definition": "Definition of term1"},
+    {"term": "Term2", "definition": "Definition of term2"}
   ],
-  "summary": "2-3 sentence summary of the document.",
-  "wordCount": 500
+  "flashcards": [
+    {"front": "Question", "back": "Answer", "term": "KeyTerm"},
+    {"front": "Question 2", "back": "Answer 2", "term": "KeyTerm2"}
+  ],
+  "wordCount": ${text.split(/\s+/).length}
 }
 
-Generate at least 8 flashcards, 5 key points, and 5 glossary terms.
+Generate 8 key points, 10-12 glossary terms, and 10-12 flashcards. Make them high-quality study materials.
 
-DOCUMENT:
-${text.substring(0, 8000)}`;
+Document text:
+${text.slice(0, 30000)}`;
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
@@ -40,26 +30,50 @@ ${text.substring(0, 8000)}`;
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 8000
+        }
+      })
     });
 
     const data = await response.json();
-
+    
+    // Extract the text from Gemini's response
     const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    
     if (!aiText) {
-      return res.status(500).json({ error: 'Gemini returned no content', raw: data });
+      throw new Error("No response from AI");
     }
 
-    const cleaned = aiText.replace(/```json/gi, '').replace(/```/g, '').trim();
-    const match = cleaned.match(/\{[\s\S]*\}/);
-    if (!match) {
-      return res.status(500).json({ error: 'No JSON found in Gemini response', raw: aiText });
+    // Clean up the response (remove markdown if present)
+    let cleanText = aiText.trim();
+    if (cleanText.startsWith('```json')) {
+      cleanText = cleanText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+    }
+    
+    // Parse the JSON
+    const parsedData = JSON.parse(cleanText);
+    
+    // Make sure it has all required fields
+    if (!parsedData.flashcards || !parsedData.glossary || !parsedData.keyPoints || !parsedData.summary) {
+      throw new Error("Invalid response format from AI");
     }
 
-    const parsed = JSON.parse(match[0]);
-    res.status(200).json(parsed);
+    // Return the properly formatted data
+    res.status(200).json(parsedData);
 
   } catch (error) {
-    res.status(500).json({ error: 'Failed: ' + error.message });
+    console.error('Error:', error);
+    res.status(500).json({ 
+      error: "Failed to process document",
+      details: error.message 
+    });
   }
 }
