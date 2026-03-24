@@ -1,26 +1,26 @@
 
 
+
 <!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0" />
 <title>Create Entry — Journal</title>
-<script src="https://unpkg.com/compromise"></script>
+<script src="https://unpkg.com/compromise@14.14.2/builds/compromise.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+ 
 <style>
-/* SAME STYLING AS ORIGINAL FILE --------------------------------------------------- */
 .back-btn {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      font-size: 1.6rem;
-      cursor: pointer;
-      color: #003366;
-      font-weight: bold;
-      text-decoration: none;
-    }
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  font-size: 1.6rem;
+  cursor: pointer;
+  color: #003366;
+  font-weight: bold;
+  text-decoration: none;
+}
 :root{
   --bg1: #d8eaff;
   --bg2: #a6ccff;
@@ -38,7 +38,6 @@ html,body{
   justify-content:center;
   font-family: "Poppins", system-ui;
 }
-/* Mobile frame */
 .app {
   width: 320px;
   height: 640px;
@@ -50,8 +49,6 @@ html,body{
   display: flex;
   flex-direction: column;
 }
-
-/* HEADER */
 header.app-header{
   height:56px;
   display:flex;
@@ -63,16 +60,12 @@ header.app-header{
 }
 header.app-header .left, header.app-header .right{width:36px;text-align:center}
 header.app-header .center{font-size:18px}
-
-/* SCROLL AREA */
 main{
   flex:1;
   overflow:auto;
   padding:14px;
   -webkit-overflow-scrolling:touch;
 }
-
-/* EDITOR */
 .card {background:var(--light);border-radius:12px;padding:12px;margin-bottom:14px;}
 .title-box{font-weight:700;color:var(--text);margin-bottom:8px}
 #noteTitle{
@@ -87,14 +80,11 @@ main{
 .note-area{
   height:110px;border-radius:10px;padding:12px;border:none;
   resize:none;font-size:0.95rem;color:#123;background:rgba(255,255,255,0.6);
+  width:100%;box-sizing:border-box;
 }
-
-/* mood */
 .mood-row{display:flex;gap:12px;margin:10px 0 18px;align-items:center}
 .mood-row span{font-size:22px;cursor:pointer;opacity:.45;transition:.12s}
 .mood-row span.active{opacity:1;transform:scale(1.08)}
-
-/* time */
 .time-section{margin-bottom:14px}
 .time-label{font-weight:700;color:var(--text);margin-bottom:8px}
 .time-row{display:flex;gap:12px;align-items:center}
@@ -106,49 +96,227 @@ main{
   width:34px;height:28px;border-radius:8px;border:none;
   background:rgba(109,168,255,0.15);cursor:pointer;color:var(--accent);font-weight:700;
 }
-
-/* tags */
 .input-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .input-row input{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(12,70,120,0.06)}
 .add-btn{padding:8px 10px;border-radius:8px;border:none;background:rgba(109,168,255,0.18);color:var(--accent);cursor:pointer}
 .tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
 .tag{background:#fff;padding:6px 10px;border-radius:14px;border:1px solid rgba(12,70,120,0.05);display:flex;align-items:center;gap:8px}
 .tag button{border:none;background:transparent;cursor:pointer;color:var(--accent);font-weight:700}
-
-/* save */
 .save-btn{
   display:block;width:100%;padding:12px;border-radius:12px;border:none;
   background:var(--accent);color:white;font-weight:700;margin:18px 0;cursor:pointer;
 }
-
+.bottom-nav{
+  height:64px;background:white;border-top-left-radius:14px;border-top-right-radius:14px;
+  display:flex;align-items:center;justify-content:space-around;padding:8px 14px;
+  box-shadow:0 -6px 18px rgba(0,0,0,0.06)
+}
+.nav-icon{width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:transparent;color:#7b8ea7}
+.nav-icon.active{background:var(--accent);color:white;box-shadow:0 6px 16px rgba(109,168,255,0.24)}
+ 
+/* ── SMART NLP PANEL ─────────────────────────────────────── */
+#nlpPanel {
+  background: var(--light);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 14px;
+  display: none;
+  animation: nlpFade .25s ease;
+}
+#nlpPanel.show { display: block; }
+@keyframes nlpFade {
+  from { opacity:0; transform:translateY(-4px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.nlp-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.nlp-title {
+  font-size: 12px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--accent-dark);
+  display: flex; align-items: center; gap: 6px;
+}
+.nlp-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--accent); animation: blink 1.2s ease infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+.nlp-wbi {
+  font-size: 11px; font-weight: 700; color: var(--text);
+  background: rgba(109,168,255,.15); padding: 3px 9px;
+  border-radius: 20px;
+}
+.nlp-badges {
+  display: flex; gap: 6px; margin-bottom: 10px;
+}
+.nlp-badge {
+  flex:1; background: rgba(255,255,255,.8); border-radius: 10px;
+  padding: 7px 6px; text-align: center;
+  box-shadow: 0 2px 6px rgba(0,70,160,.06);
+}
+.nlp-badge-lbl {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; color: #789; margin-bottom: 3px;
+}
+.nlp-badge-val {
+  font-size: 12px; font-weight: 800; color: var(--text);
+}
+.nlp-bar-wrap { margin-bottom: 10px; }
+.nlp-bar-label {
+  display: flex; justify-content: space-between;
+  font-size: 10px; font-weight: 700; color: #789; margin-bottom: 4px;
+}
+.nlp-bar-track {
+  height: 6px; border-radius: 99px;
+  background: rgba(109,168,255,.15); overflow: hidden;
+}
+.nlp-bar-fill {
+  height: 100%; border-radius: 99px;
+  background: linear-gradient(90deg,#e74c3c 0%,#f39c12 45%,#2ecc71 100%);
+  transition: width .7s cubic-bezier(.4,0,.2,1);
+}
+.nlp-sub {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; color: #789; margin: 8px 0 5px;
+}
+.nlp-pills { display: flex; flex-wrap: wrap; gap: 4px; }
+.nlp-pill {
+  padding: 3px 8px; border-radius: 20px;
+  font-size: .68rem; font-weight: 700;
+}
+.pill-emotion    { background: rgba(109,168,255,.18); color: #1a5fc0; }
+.pill-distortion { background: rgba(255,160,80,.2);  color: #a04010; }
+.pill-intent     { background: rgba(130,100,220,.12);color: #5020a0; }
+.pill-topic      { background: rgba(20,180,130,.1);  color: #0a6040; }
+.pill-verb       { background: rgba(240,100,180,.12);color: #900060; }
+.nlp-block {
+  background: rgba(255,255,255,.6); border-radius: 9px;
+  padding: 8px 10px; margin-bottom: 5px;
+  border-left: 3px solid rgba(109,168,255,.3);
+  font-size: .75rem; color: var(--text); line-height: 1.5;
+}
+.nlp-block.contra { border-left-color: rgba(231,76,60,.4); }
+.nlp-block.neg    { border-left-color: rgba(100,130,160,.3); }
+.nlp-block-meta   { font-size: .68rem; color: #789; margin-top: 3px; }
+.syn-row {
+  display: flex; align-items: center; gap: 6px; margin-bottom: 5px;
+}
+.syn-lbl { font-size: .68rem; font-weight: 600; color: #789; min-width: 80px; }
+.syn-track {
+  flex:1; height: 5px; border-radius: 99px;
+  background: rgba(109,168,255,.1); overflow: hidden;
+}
+.syn-fill { height: 100%; border-radius: 99px; transition: width .7s cubic-bezier(.4,0,.2,1); }
+.syn-num  { font-size: .68rem; font-weight: 700; color: var(--text); min-width: 26px; text-align:right; }
+.temporal-row  { display: flex; gap: 4px; height: 22px; border-radius: 8px; overflow: hidden; margin-bottom: 4px; }
+.t-bar { display:flex; align-items:center; justify-content:center;
+         font-size:.6rem; font-weight:700; color:#fff; transition:flex .7s cubic-bezier(.4,0,.2,1); }
+.t-past    { background: #7c3aed; }
+.t-present { background: #6da8ff; }
+.t-future  { background: #0ea5e9; }
+.temporal-legend { display:flex; gap:8px; }
+.t-leg { font-size:.65rem; font-weight:700; }
+.nlp-insight {
+  background: rgba(255,255,255,.7); border-radius: 9px;
+  padding: 8px 10px; margin-top: 8px;
+  font-size: .75rem; color: var(--text); line-height: 1.55;
+  border-left: 3px solid var(--accent);
+}
 </style>
 </head>
 <body>
-
+ 
 <div class="app">
-
-<!-- HEADER -->
+ 
 <header class="app-header">
   <div class="left">
-     <div class="left-header">
-        <a href="journal.html" class="back-btn">←</a>
-        </div>
-    </button>
+    <div class="left-header">
+      <a href="journal.html" class="back-btn">←</a>
+    </div>
   </div>
   <div class="center">New Entry</div>
   <div class="right"></div>
 </header>
-
-<!-- EDITOR BODY -->
+ 
 <main>
-
+ 
   <div class="card">
-    <div class="title-box"> 
-      <div contenteditable="true" id="noteTitle">Title</div>
+    <div class="title-box">
+      <input type="text" id="noteTitle" placeholder="Title" style="font-size:1rem;font-weight:700;color:var(--text);background:transparent;border:none;outline:none;width:100%;">
     </div>
     <textarea id="topNote" class="note-area" placeholder="Write your journal entry..."></textarea>
   </div>
-
+ 
+  <!-- SMART NLP PANEL -->
+  <div id="nlpPanel">
+    <div class="nlp-header">
+      <div class="nlp-title"><div class="nlp-dot"></div> Smart Analysis</div>
+      <div class="nlp-wbi" id="nlpWbi">WBI —</div>
+    </div>
+    <div class="nlp-badges">
+      <div class="nlp-badge">
+        <div class="nlp-badge-lbl">Sentiment</div>
+        <div class="nlp-badge-val" id="nlpSentiment">—</div>
+      </div>
+      <div class="nlp-badge">
+        <div class="nlp-badge-lbl">Stress</div>
+        <div class="nlp-badge-val" id="nlpStress">—</div>
+      </div>
+      <div class="nlp-badge">
+        <div class="nlp-badge-lbl">Intent</div>
+        <div class="nlp-badge-val" id="nlpIntent">—</div>
+      </div>
+    </div>
+    <div class="nlp-bar-wrap">
+      <div class="nlp-bar-label">
+        <span>Wellbeing Index</span>
+        <span id="nlpWbiNum">—</span>
+      </div>
+      <div class="nlp-bar-track">
+        <div class="nlp-bar-fill" id="nlpWbiBar" style="width:0%"></div>
+      </div>
+    </div>
+ 
+    <div class="nlp-sub">Emotions Detected</div>
+    <div class="nlp-pills" id="nlpEmotions"></div>
+ 
+    <!-- compromise.js extracted topics (nouns) -->
+    <div class="nlp-sub">Key Topics <span style="font-size:.6rem;color:#aaa">(via compromise.js)</span></div>
+    <div class="nlp-pills" id="nlpTopics"></div>
+ 
+    <!-- compromise.js action verbs -->
+    <div id="nlpVerbWrap" style="display:none">
+      <div class="nlp-sub">Action Verbs <span style="font-size:.6rem;color:#aaa">(via compromise.js)</span></div>
+      <div class="nlp-pills" id="nlpVerbs"></div>
+    </div>
+ 
+    <div id="nlpContraWrap" style="display:none">
+      <div class="nlp-sub">Contradictive Phrases</div>
+      <div id="nlpContras"></div>
+    </div>
+ 
+    <div id="nlpNegWrap" style="display:none">
+      <div class="nlp-sub">Negation Handling</div>
+      <div id="nlpNegs"></div>
+    </div>
+ 
+    <div id="nlpDistWrap" style="display:none">
+      <div class="nlp-sub">Thought Patterns</div>
+      <div class="nlp-pills" id="nlpDist"></div>
+    </div>
+ 
+    <div class="nlp-sub">Syntactic Metrics</div>
+    <div id="nlpSyntax"></div>
+ 
+    <div class="nlp-sub">Temporal Focus</div>
+    <div class="temporal-row" id="nlpTemporal"></div>
+    <div class="temporal-legend" id="nlpTemporalLeg"></div>
+ 
+    <div class="nlp-insight" id="nlpInsight"></div>
+  </div>
+  <!-- end NLP panel -->
+ 
   <div style="font-weight:700;color:var(--text);margin-bottom:8px">How are you feeling?</div>
   <div class="mood-row" id="moodRow">
     <span data-i="0">😄</span>
@@ -157,8 +325,7 @@ main{
     <span data-i="3">😟</span>
     <span data-i="4">😡</span>
   </div>
-
-  <!-- Sleep -->
+ 
   <div class="time-section">
     <div class="time-label">Sleep Hours</div>
     <div class="time-row">
@@ -166,23 +333,15 @@ main{
         <button class="updown-btn" data-for="sleepH" data-dir="up">▲</button>
         <button class="updown-btn" data-for="sleepH" data-dir="down">▼</button>
       </div>
-      <div class="time-box">
-        <div class="time-val" id="sleepH">8</div>
-        <div class="tiny">hrs</div>
-      </div>
-
+      <div class="time-box"><div class="time-val" id="sleepH">8</div><div class="tiny">hrs</div></div>
       <div class="updown-col">
         <button class="updown-btn" data-for="sleepM" data-dir="up">▲</button>
         <button class="updown-btn" data-for="sleepM" data-dir="down">▼</button>
       </div>
-      <div class="time-box">
-        <div class="time-val" id="sleepM">0</div>
-        <div class="tiny">min</div>
-      </div>
+      <div class="time-box"><div class="time-val" id="sleepM">0</div><div class="tiny">min</div></div>
     </div>
   </div>
-
-  <!-- Exercise -->
+ 
   <div class="time-section">
     <div class="time-label">Exercise Time</div>
     <div class="time-row">
@@ -190,59 +349,55 @@ main{
         <button class="updown-btn" data-for="exH" data-dir="up">▲</button>
         <button class="updown-btn" data-for="exH" data-dir="down">▼</button>
       </div>
-      <div class="time-box">
-        <div class="time-val" id="exH">0</div>
-        <div class="tiny">hrs</div>
-      </div>
-
+      <div class="time-box"><div class="time-val" id="exH">0</div><div class="tiny">hrs</div></div>
       <div class="updown-col">
         <button class="updown-btn" data-for="exM" data-dir="up">▲</button>
         <button class="updown-btn" data-for="exM" data-dir="down">▼</button>
       </div>
-      <div class="time-box">
-        <div class="time-val" id="exM">30</div>
-        <div class="tiny">min</div>
-      </div>
+      <div class="time-box"><div class="time-val" id="exM">30</div><div class="tiny">min</div></div>
     </div>
   </div>
-
-  <!-- Challenges -->
+ 
   <div style="margin-top:6px;font-weight:700;color:var(--text)">Challenges</div>
   <div class="input-row">
     <input id="challengeInput" placeholder="Add challenge...">
     <button class="add-btn" id="addChallengeBtn">Add</button>
   </div>
   <div class="tags" id="challengeTags"></div>
-
-  <!-- Wins -->
+ 
   <div style="margin-top:6px;font-weight:700;color:var(--text)">Wins</div>
   <div class="input-row">
     <input id="winInput" placeholder="Add win...">
     <button class="add-btn" id="addWinBtn">Add</button>
   </div>
   <div class="tags" id="winTags"></div>
-
-  <!-- Extra Notes -->
+ 
   <div style="margin-top:6px;font-weight:700;color:var(--text)">Additional Notes</div>
   <div class="input-row">
     <input id="noteInput" placeholder="Add note...">
     <button class="add-btn" id="addNoteBtn">Add</button>
   </div>
   <div class="tags" id="noteTags"></div>
-
+ 
   <button class="save-btn" id="saveBtn">Save Entry</button>
-
+ 
 </main>
-
-
+ 
+<div class="bottom-nav">
+  <div class="nav-icon" onclick="window.location.href='home.html'"><i class="fas fa-home"></i></div>
+  <div class="nav-icon"><i class="fas fa-gamepad"></i></div>
+  <div class="nav-icon active" onclick="window.location.href='journal.html'"><i class="fas fa-book"></i></div>
+  <div class="nav-icon"><i class="fas fa-lightbulb"></i></div>
+  <div class="nav-icon"><i class="fas fa-user-circle"></i></div>
 </div>
-<script type ="module">
-// 🔥 Firebase Imports
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+ 
+</div>
+ 
+<script type="module">
+import { initializeApp }             from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-// 🔥 Your Firebase Config (paste YOUR config here)
+ 
 const firebaseConfig = {
   apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
   authDomain: "mindflex-b2a0c.firebaseapp.com",
@@ -252,426 +407,656 @@ const firebaseConfig = {
   appId: "1:148676867562:web:3365a72b6fa6b3751cee93",
   measurementId: "G-Q2T6HD3S0E"
 };
-
-
-// 🔥 Initialize
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
+ 
+const fbApp = initializeApp(firebaseConfig);
+const auth  = getAuth(fbApp);
+const db    = getFirestore(fbApp);
 let currentUser = null;
-
-// 🔥 Check if user is logged in
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    currentUser = user;
-  } else {
-    alert("You must be logged in to save an entry.");
-    window.location.href = "login.html"; // change if needed
-  }
+onAuthStateChanged(auth, u => {
+  if (u) currentUser = u;
+  else { alert("You must be logged in to save an entry."); window.location.href = "login.html"; }
 });
-
-
-// SAME SCRIPT LOGIC AS ORIGINAL FILE (but only save functionality)
-
-const STORAGE_KEY = 'journalEntries_v1';
-
-let selectedMood = null;
-
-/* ---- Tag Functions ---- */
-function createTagElement(text, container){
-  const el = document.createElement('div');
-  el.className = 'tag';
-  el.innerHTML = `<span>${text}</span><button>✕</button>`;
-  el.querySelector('button').onclick = () => el.remove();
+ 
+// ════════════════════════════════════════════════════════════════
+//  SMART NLP ENGINE  —  powered by compromise.js + custom layers
+// ════════════════════════════════════════════════════════════════
+ 
+// ── compromise.js helpers ────────────────────────────────────
+// nlp() is the global exposed by the compromise <script> tag
+function nlpNouns(text) {
+  try {
+    const doc = nlp(text);
+    // Get meaningful nouns: exclude pronouns & articles
+    return doc.nouns()
+      .not("#Pronoun")
+      .out("array")
+      .map(w => w.toLowerCase().trim())
+      .filter(w => w.length > 2)
+      .filter((v, i, a) => a.indexOf(v) === i) // unique
+      .slice(0, 12);
+  } catch(e) { return []; }
+}
+ 
+function nlpVerbs(text) {
+  try {
+    const doc = nlp(text);
+    // Get unique base-form verbs, skip auxiliaries
+    return doc.verbs()
+      .not("#Auxiliary")
+      .toInfinitive()
+      .out("array")
+      .map(w => w.toLowerCase().trim())
+      .filter(w => w.length > 2 && !["be","have","do","go","get","say","make","know","think","see","come"].includes(w))
+      .filter((v, i, a) => a.indexOf(v) === i)
+      .slice(0, 8);
+  } catch(e) { return []; }
+}
+ 
+function nlpSentences(text) {
+  try {
+    return nlp(text).sentences().out("array");
+  } catch(e) { return text.split(/[.!?]+/).filter(s => s.trim().length > 3); }
+}
+ 
+function nlpPeople(text) {
+  try {
+    return nlp(text).people().out("array");
+  } catch(e) { return []; }
+}
+ 
+function nlpPlaces(text) {
+  try {
+    return nlp(text).places().out("array");
+  } catch(e) { return []; }
+}
+ 
+// ── AFINN lexicon ─────────────────────────────────────────────
+const AFINN = {
+  love:3,amazing:4,excellent:4,fantastic:4,wonderful:4,brilliant:4,
+  outstanding:4,ecstatic:4,thrilled:4,elated:4,overjoyed:4,euphoric:4,
+  grateful:3,blessed:3,inspired:3,proud:3,happy:3,great:3,good:2,
+  hopeful:2,optimistic:2,motivated:2,confident:2,relieved:2,calm:2,
+  peaceful:2,joy:3,excited:3,delighted:3,satisfied:2,success:3,
+  successful:3,win:3,won:3,passed:2,progress:2,better:2,improve:2,
+  enjoy:2,enjoyed:2,content:2,cheerful:2,energized:2,productive:2,
+  accomplished:2,focused:2,refreshed:2,rested:2,supported:2,balanced:2,
+  okay:1,fine:1,decent:1,alright:1,manageable:1,stable:1,glad:2,
+  tired:-1,bored:-1,dull:-1,unsure:-1,restless:-1,
+  sad:-2,bad:-2,angry:-3,mad:-2,frustrated:-2,stressed:-2,
+  anxious:-2,nervous:-2,worried:-2,fear:-2,failure:-3,fail:-3,
+  failed:-3,mistake:-2,problem:-2,sick:-2,hurt:-2,pain:-2,
+  lonely:-2,upset:-2,disappointed:-2,overwhelmed:-2,stuck:-2,
+  confused:-2,drained:-2,irritated:-2,annoyed:-2,regret:-2,
+  guilty:-2,ashamed:-2,embarrassed:-2,wrong:-1,lost:-1,
+  terrible:-4,awful:-4,horrible:-4,depressed:-4,hopeless:-3,
+  exhausted:-2,burnout:-3,worthless:-4,devastated:-4,
+  miserable:-4,desperate:-3,panic:-3,breakdown:-4,
+  unbearable:-4,hate:-3,rejected:-3,abandoned:-3,betrayed:-3,
+};
+ 
+const INTENSIFIERS = {
+  very:1.6,really:1.5,extremely:2.0,so:1.4,incredibly:2.0,
+  absolutely:2.0,completely:1.8,totally:1.7,utterly:1.9,
+  quite:1.2,pretty:1.2,deeply:1.6,truly:1.5,genuinely:1.4,
+};
+const DIMINISHERS = { barely:0.3,slightly:0.4,kinda:0.65,sorta:0.65,mildly:0.5,somewhat:0.8 };
+const NEGATIONS = new Set([
+  "not","no","never","neither","nor","nobody","nothing","nowhere",
+  "cannot","cant","dont","doesnt","didnt","wont","wouldnt","shouldnt",
+  "couldnt","isnt","wasnt","arent","werent","havent","hadnt","hasnt",
+  "barely","hardly","without","nope","nah","aint",
+]);
+const CONTRAST = ["but","however","though","although","yet","still",
+  "despite","while","whereas","even though","then again"];
+ 
+const PHRASE_SCORES = {
+  "doing well":2,"feel good":2,"went well":2,"doing great":3,"feeling great":3,
+  "feel better":1,"much better":2,"so happy":3,"feel bad":-2,"went wrong":-2,
+  "not doing well":-3,"feel terrible":-4,"really hard":-2,"can't cope":-4,
+  "falling apart":-4,"breaking down":-4,"losing it":-3,"giving up":-3,
+  "looking forward":2,"really excited":3,"no motivation":-2,"lost motivation":-2,
+  "made progress":2,"proud of myself":3,"feel proud":2,"feel anxious":-2,
+  "feeling hopeless":-4,"feel hopeless":-4,"feel lonely":-2,"feel overwhelmed":-3,
+  "so grateful":3,"feel empty":-3,"racing thoughts":-2,"out of control":-3,
+};
+ 
+const EMOTION_WHEEL = {
+  joy:         ["happy","joy","joyful","delighted","cheerful","glad","pleased","thrilled","elated","ecstatic","blissful"],
+  trust:       ["safe","secure","comfortable","supported","understood","accepted","belonging","cared"],
+  fear:        ["afraid","scared","frightened","terrified","anxious","nervous","worried","dread","panic","uneasy"],
+  surprise:    ["surprised","shocked","astonished","amazed","unexpected","startled"],
+  sadness:     ["sad","unhappy","down","depressed","gloomy","grief","sorrow","heartbroken","hopeless","despair","crying","lonely"],
+  disgust:     ["disgusted","gross","revolting","repulsed","horrible","nasty"],
+  anger:       ["angry","mad","furious","frustrated","irritated","annoyed","enraged","resentful","hate"],
+  anticipation:["excited","eager","looking forward","anticipate","hopeful","planning","upcoming"],
+  gratitude:   ["grateful","thankful","appreciate","blessed","lucky","fortunate"],
+  pride:       ["proud","accomplished","achieved","succeeded","nailed","managed","pulled off"],
+  loneliness:  ["lonely","alone","isolated","no one","nobody","left out","excluded","abandoned"],
+  guilt:       ["guilty","ashamed","embarrassed","regret","sorry","bad about","should have"],
+  anxiety:     ["anxious","anxiety","spiraling","racing thoughts","what if","worst case","can't handle","too much"],
+  burnout:     ["burnout","burnt out","drained","depleted","no energy","running on empty"],
+  calm:        ["calm","peaceful","relaxed","serene","at ease","settled","tranquil"],
+};
+ 
+const INTENTS = [
+  { name:"Venting",      pats:[/\b(so angry|so frustrated|can't believe|fed up|sick of|drives me crazy|pisses me off)\b/gi] },
+  { name:"Seeking help", pats:[/\b(i need|don't know what to do|any advice|should i|how do i|struggling with|please help)\b/gi] },
+  { name:"Celebrating",  pats:[/\b(so proud|finally|i did it|great news|amazing day|best day|nailed it|crushed it)\b/gi] },
+  { name:"Reflecting",   pats:[/\b(i've been thinking|looking back|realised|realized|it made me think|i wonder|in retrospect)\b/gi] },
+  { name:"Planning",     pats:[/\b(going to|plan to|tomorrow|next week|i will|i'm going to|my goal|need to achieve)\b/gi] },
+  { name:"Worrying",     pats:[/\b(what if|so worried|scared that|afraid that|anxious about|might go wrong|terrible if)\b/gi] },
+  { name:"Gratitude",    pats:[/\b(thankful|grateful|appreciate|so lucky|blessed|glad for|thankful for)\b/gi] },
+];
+ 
+const DISTORTIONS = {
+  "Catastrophising":    [/\b(worst|disaster|everything is over|fall apart|never recover|ruined forever)\b/gi],
+  "All-or-Nothing":     [/\b(always|never|everyone|nobody|completely|every single time|total failure|nothing ever)\b/gi],
+  "Mind Reading":       [/\b(they think|he thinks|she thinks|must think|probably thinks|judging me|think i'm)\b/gi],
+  "Fortune Telling":    [/\b(will fail|going to fail|won't work|will go wrong|will be rejected|know it'll)\b/gi],
+  "Overgeneralising":   [/\b(this always happens|story of my life|typical|as usual|same thing every)\b/gi],
+  "Self-Blame":         [/\b(my fault|i ruined|i caused|i'm the reason|because of me)\b/gi],
+  "Should Statements":  [/\b(should be|shouldn't be|must be|supposed to|ought to|have to be)\b/gi],
+  "Emotional Reasoning":[/\b(feel like a failure|feel worthless|feel stupid|feel like i can't)\b/gi],
+  "Labelling":          [/\b(i'm a loser|i'm stupid|i'm worthless|i'm a failure|i'm useless|i'm broken)\b/gi],
+};
+ 
+const STRESS_MAP = {
+  severe:  ["panic attack","breaking down","can't cope","suicidal","harm myself","want to die","can't go on"],
+  high:    ["panic","hopeless","burnout","depressed","overwhelmed","too much","drowning","spiraling","unbearable"],
+  moderate:["stressed","anxious","frustrated","overloaded","can't sleep","racing thoughts"],
+  mild:    ["worried","nervous","uneasy","concerned","unsettled","restless"],
+};
+ 
+const TOPIC_MAP = {
+  Academic:    ["exam","test","quiz","assignment","homework","essay","grade","class","study","college","school","professor","teacher"],
+  Work:        ["job","work","meeting","deadline","boss","office","salary","promotion","client","interview","career","fired","manager"],
+  Relationships:["friend","family","mom","dad","parent","sibling","partner","boyfriend","girlfriend","breakup","argument","fight","date"],
+  Health:      ["sleep","diet","exercise","gym","run","sick","doctor","medication","pain","headache","therapy","mental health"],
+  Finances:    ["money","bill","rent","debt","savings","budget","broke","loan"],
+  Growth:      ["goal","habit","routine","discipline","growth","reading","meditation","journal","progress"],
+  Social:      ["party","event","hangout","went out","gathering","conversation","met"],
+};
+ 
+// ── Utilities ────────────────────────────────────────────────
+function stem(w) {
+  if (w.length<=3) return w;
+  if (/ing$/.test(w)&&w.length>5) return w.slice(0,-3);
+  if (/ness$/.test(w)) return w.slice(0,-4);
+  if (/tion$/.test(w)) return w.slice(0,-4);
+  if (/ful$/.test(w))  return w.slice(0,-3);
+  if (/less$/.test(w)) return w.slice(0,-4);
+  if (/ment$/.test(w)) return w.slice(0,-4);
+  if (/ly$/.test(w)&&w.length>4) return w.slice(0,-2);
+  if (/ed$/.test(w)&&w.length>4) return w.slice(0,-2);
+  if (/ies$/.test(w)) return w.slice(0,-3)+"y";
+  if (/es$/.test(w)&&w.length>4) return w.slice(0,-2);
+  if (/s$/.test(w)&&!/ss$/.test(w)&&w.length>3) return w.slice(0,-1);
+  return w;
+}
+function tokenize(t) {
+  return t.toLowerCase().replace(/['']/g,"").replace(/[^a-z0-9\s]/g," ").split(/\s+/).filter(Boolean);
+}
+function ngrams(toks,n) {
+  return toks.slice(0,toks.length-n+1).map((_,i)=>toks.slice(i,i+n).join(" "));
+}
+function quickScore(text) {
+  const toks=tokenize(text); let s=0;
+  toks.forEach((w,i)=>{
+    const p=toks[i-1]||"";
+    const neg=NEGATIONS.has(p);
+    const mul=INTENSIFIERS[p]||DIMINISHERS[p]||1;
+    const b=AFINN[w]??AFINN[stem(w)]??0;
+    if(b) s+=neg?-(b*mul*0.8):b*mul;
+  });
+  return s;
+}
+ 
+// ── Semantic sentiment (negation-scoped, contrast-aware) ──────
+function semanticSentiment(text) {
+  const toks = tokenize(text);
+  let score = 0;
+  [...ngrams(toks,2),...ngrams(toks,3)].forEach(p=>{ if(PHRASE_SCORES[p]) score+=PHRASE_SCORES[p]; });
+  let workToks = toks;
+  for(const cw of CONTRAST) {
+    const cwT = tokenize(cw);
+    const idx = toks.findIndex((_,i)=>toks.slice(i,i+cwT.length).join(" ")===cwT.join(" "));
+    if(idx>2){workToks=toks.slice(idx+cwT.length);break;}
+  }
+  for(let i=0;i<workToks.length;i++){
+    const raw=workToks[i],stm=stem(raw);
+    const p1=workToks[i-1]||"",p2=workToks[i-2]||"",p3=workToks[i-3]||"",p4=workToks[i-4]||"";
+    const isNeg=NEGATIONS.has(p1)||NEGATIONS.has(p2)||NEGATIONS.has(p3)||NEGATIONS.has(p4);
+    const mul=INTENSIFIERS[p1]||DIMINISHERS[p1]||1;
+    const base=AFINN[raw]??AFINN[stm]??0;
+    if(base!==0) score+=isNeg?-(base*mul*0.85):(base*mul);
+  }
+  return Math.round(score*10)/10;
+}
+ 
+// ── Syntactic analysis (augmented with compromise sentence count) ─
+function syntacticAnalysis(text) {
+  const words   = text.trim().split(/\s+/).filter(Boolean);
+  // Use compromise for accurate sentence splitting
+  const sents   = nlpSentences(text);
+  const unique  = new Set(words.map(w=>w.toLowerCase())).size;
+  const subConj = (text.match(/\b(because|although|since|while|when|if|unless|until|after|before|though|even though)\b/gi)||[]).length;
+  const commas  = (text.match(/,/g)||[]).length;
+  const clauses = sents.length + Math.round((subConj+commas)/2);
+  const passive = (text.match(/\b(was|were|been|being)\s+\w+ed\b/gi)||[]).length;
+  const questions=(text.match(/\?/g)||[]).length;
+  const fp      = (text.match(/\b(i|me|my|myself|i'm|i've|i'd|i'll)\b/gi)||[]).length;
+  return {
+    wordCount:  words.length,
+    sentCount:  sents.length||1,
+    avgSentLen: Math.round(words.length/(sents.length||1)),
+    ttr:        words.length?Math.round(unique/words.length*100):0,
+    clauses, passive, questions,
+    fpRatio:    words.length?Math.round(fp/words.length*100):0,
+  };
+}
+ 
+// ── Contradiction detection ───────────────────────────────────
+function detectContradictions(text) {
+  const results = [];
+  const rx = new RegExp(
+    `([^.!?]{5,}?)\\s+\\b(${CONTRAST.filter(c=>!c.includes(" ")).join("|")})\\b\\s+([^.!?]{5,})`, "gi"
+  );
+  let m;
+  while((m=rx.exec(text))!==null) {
+    const bScore=quickScore(m[1]), aScore=quickScore(m[3]);
+    if((bScore>0.8&&aScore<-0.8)||(bScore<-0.8&&aScore>0.8)) {
+      results.push({
+        phrase:`"…${m[1].trim().slice(-35)} ${m[2]} ${m[3].trim().slice(0,35)}…"`,
+        connector:m[2],
+        flip:`${bScore>0?"positive":"negative"} → ${aScore>0?"positive":"negative"}`,
+      });
+    }
+  }
+  const fineRx=/\b(i'm fine|i am fine|i'm okay|i am okay|i'm good|i'm alright)\b/gi;
+  while((m=fineRx.exec(text))!==null){
+    const ctx=text.slice(Math.max(0,m.index-80),m.index+80).replace(m[0],"");
+    if(quickScore(ctx)<-1.5)
+      results.push({phrase:`"${m[0]}" (context suggests otherwise)`,connector:"implicit",flip:"masked distress"});
+  }
+  return results.slice(0,3);
+}
+ 
+// ── Negation extraction ───────────────────────────────────────
+function extractNegations(text) {
+  const results=[];
+  const rx=/\b(not|never|no|can't|cant|don't|dont|didn't|didnt|doesn't|doesnt|isn't|isnt|wasn't|wasnt|won't|wont|wouldn't|wouldnt|couldn't|couldnt|shouldn't|shouldnt|aren't|arent|weren't|werent|haven't|havent|hadn't|hadnt|hasn't|hasnt)\s+([a-z]+(?:\s+[a-z]+)?)/gi;
+  let m;
+  while((m=rx.exec(text))!==null){
+    const target=m[2].trim(), tScore=quickScore(target);
+    if(Math.abs(tScore)>=1)
+      results.push({
+        original:`${m[1]} ${target}`,
+        implied: tScore>0
+          ?`Denying positive — signals absence of "${target}"`
+          :`Negating negative — may deflect or soften the feeling`,
+      });
+  }
+  return results.slice(0,4);
+}
+ 
+// ── Emotion detection ────────────────────────────────────────
+function detectEmotions(text) {
+  const lower=text.toLowerCase(),hits={};
+  for(const [name,kws] of Object.entries(EMOTION_WHEEL)){
+    const n=kws.filter(k=>lower.includes(k)).length;
+    if(n) hits[name]=n;
+  }
+  return Object.entries(hits).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([e])=>e);
+}
+ 
+function detectStress(text) {
+  const lower=text.toLowerCase();
+  for(const [lvl,sigs] of Object.entries(STRESS_MAP))
+    if(sigs.some(s=>lower.includes(s))) return lvl;
+  return "none";
+}
+ 
+function detectDistortions(text) {
+  return Object.entries(DISTORTIONS)
+    .filter(([,pats])=>pats.some(p=>{p.lastIndex=0;return p.test(text);}))
+    .map(([name])=>name);
+}
+ 
+function detectIntent(text) {
+  for(const intent of INTENTS)
+    if(intent.pats.some(p=>{p.lastIndex=0;return p.test(text);}))
+      return intent.name;
+  return "Reflecting";
+}
+ 
+function temporalAnalysis(text) {
+  const lower=text.toLowerCase();
+  const past   =["yesterday","last","was","were","had","did","went","felt","said","thought","ago","used to","back then"].filter(w=>lower.includes(w)).length;
+  const present=["today","now","currently","right now","lately","recently","still","is","am","are","keep","feel","have","this week"].filter(w=>lower.includes(w)).length;
+  const future =["tomorrow","next","will","going to","plan","hope","might","could","would","soon","someday","want to"].filter(w=>lower.includes(w)).length;
+  const total  =past+present+future||1;
+  return {
+    past:   Math.round(past/total*100),
+    present:Math.round(present/total*100),
+    future: Math.round(future/total*100),
+  };
+}
+ 
+// ── Semantic topic detection using compromise.js nouns ────────
+// compromise extracts actual noun phrases from the text,
+// then we map those nouns against our taxonomy
+function detectTopicsFromNouns(nouns) {
+  const lower = nouns.map(n=>n.toLowerCase());
+  const found = {};
+  for(const [cat,kws] of Object.entries(TOPIC_MAP)){
+    const hits = kws.filter(k => lower.some(n => n.includes(k))).length;
+    if(hits) found[cat]=hits;
+  }
+  return Object.entries(found).sort((a,b)=>b[1]-a[1]).map(([c])=>c);
+}
+ 
+function wellbeingIndex(rawScore,stress,sleepH,totalExM) {
+  const base  =Math.max(0,Math.min(55,((rawScore+20)/40)*55));
+  const sleepB=sleepH>=7&&sleepH<=9?18:sleepH>=6?10:sleepH>=5?4:-8;
+  const exB   =totalExM>=30?17:totalExM>=15?9:totalExM>0?4:0;
+  const stressP={none:0,mild:-5,moderate:-16,high:-28,severe:-40}[stress]||0;
+  return Math.round(Math.max(0,Math.min(100,base+sleepB+exB+stressP)));
+}
+ 
+function generateInsight({sentimentLabel,stress,emotions,distortions,contradictions,negations,wb,syn}){
+  if(stress==="severe") return "⚠️ Your entry shows signs of significant distress. Please consider reaching out to someone you trust or a mental health professional.";
+  if(contradictions.length&&distortions.includes("All-or-Nothing")) return "🔍 Contradictive phrases + all-or-nothing thinking detected. Try writing one sentence about what you actually want.";
+  if(negations.length>3&&sentimentLabel.includes("Negative")) return "🔄 High negation with negative sentiment — try writing directly about what you're feeling instead of what you're not.";
+  if(distortions.includes("Catastrophising")&&stress==="high") return "🧠 Catastrophising + high stress. Ground yourself — what is one concrete fact right now?";
+  if(distortions.includes("Should Statements")) return "💡 'Should' statements create guilt. Try: 'I'd like to…' instead of 'I should…'";
+  if(emotions.includes("gratitude")&&wb>=65) return "✨ Gratitude detected with positive wellbeing. Your mind is in a growth state — a great time to set an intention.";
+  if(emotions.includes("burnout")||emotions.includes("loneliness")) return "🌿 Burnout or loneliness signals detected. Small specific actions matter most — one rest, one connection.";
+  if(syn.questions>=3) return "🤔 Several questions here — try answering just one of them honestly before closing your journal.";
+  if(wb>=75) return "🌟 Strong emotional wellbeing today! Note what's contributing to this.";
+  if(wb<=30) return "💙 A hard day. Writing it down is already brave. Name one small thing you can control tomorrow.";
+  return "📖 Journaling regularly builds self-awareness. Every entry contributes to understanding yourself.";
+}
+ 
+// ── MASTER ANALYSE (compromise.js powers noun/verb/sentence extraction) ──
+function analyzeJournal(text, sleepH=8, totalExM=30) {
+  if(!text||text.trim().length<5) return null;
+ 
+  // ── compromise.js extractions ──
+  const nouns   = nlpNouns(text);    // real POS-tagged nouns
+  const verbs   = nlpVerbs(text);    // real POS-tagged action verbs
+  const people  = nlpPeople(text);   // named people
+  const places  = nlpPlaces(text);   // named places
+ 
+  // ── our custom layers ──
+  const rawScore      = semanticSentiment(text);
+  const stress        = detectStress(text);
+  const emotions      = detectEmotions(text);
+  const distortions   = detectDistortions(text);
+  const intent        = detectIntent(text);
+  const contradictions= detectContradictions(text);
+  const negations     = extractNegations(text);
+  const syn           = syntacticAnalysis(text);  // uses nlpSentences() internally
+  const temporal      = temporalAnalysis(text);
+  const wb            = wellbeingIndex(rawScore,stress,sleepH,totalExM);
+ 
+  // ── topics: map compromise nouns → taxonomy ──
+  const topics = detectTopicsFromNouns(nouns);
+  const categories = topics.map(t=>t.toLowerCase());
+ 
+  let sentimentLabel="Neutral";
+  if(rawScore>=4)       sentimentLabel="Very Positive";
+  else if(rawScore>=2)  sentimentLabel="Positive";
+  else if(rawScore>=.5) sentimentLabel="Slightly Positive";
+  else if(rawScore<=-4) sentimentLabel="Very Negative";
+  else if(rawScore<=-2) sentimentLabel="Negative";
+  else if(rawScore<0)   sentimentLabel="Slightly Negative";
+ 
+  const trigger=
+    (topics.includes("Academic")&&rawScore<0)?"academic_stress":
+    (emotions.includes("anxiety")&&stress!=="none")?"high_anxiety":null;
+ 
+  const analysis={rawScore,sentimentLabel,stress,emotions,distortions,intent,topics,categories,contradictions,negations,syn,temporal,wb,trigger,nouns,verbs,people,places};
+  analysis.insight=generateInsight(analysis);
+  return analysis;
+}
+ 
+// ════════════════════════════════════════════════════════════════
+//  RENDER NLP PANEL
+// ════════════════════════════════════════════════════════════════
+const SENT_COLOR={
+  "Very Positive":"#2ecc71","Positive":"#82c93e","Slightly Positive":"#aed160",
+  "Neutral":"#789","Slightly Negative":"#e08840","Negative":"#e67e22","Very Negative":"#e74c3c"
+};
+const STRESS_COLOR={none:"#2ecc71",mild:"#82c93e",moderate:"#f39c12",high:"#e08840",severe:"#e74c3c"};
+ 
+function makePills(items, className, containerId) {
+  const c=document.getElementById(containerId);
+  c.innerHTML="";
+  items.forEach(item=>{
+    const p=document.createElement("span");
+    p.className=`nlp-pill ${className}`;
+    p.textContent=item;
+    c.appendChild(p);
+  });
+}
+ 
+function renderNLP(a) {
+  const panel=document.getElementById("nlpPanel");
+  panel.classList.add("show");
+ 
+  const sEl=document.getElementById("nlpSentiment");
+  sEl.textContent=a.sentimentLabel;
+  sEl.style.color=SENT_COLOR[a.sentimentLabel]||"#789";
+ 
+  const stEl=document.getElementById("nlpStress");
+  stEl.textContent=a.stress;
+  stEl.style.color=STRESS_COLOR[a.stress]||"#789";
+ 
+  document.getElementById("nlpIntent").textContent=a.intent;
+  document.getElementById("nlpWbi").textContent=`WBI ${a.wb}/100`;
+  document.getElementById("nlpWbiNum").textContent=`${a.wb}/100`;
+  document.getElementById("nlpWbiBar").style.width=`${a.wb}%`;
+ 
+  makePills(a.emotions,"pill-emotion","nlpEmotions");
+ 
+  // Topics from compromise.js nouns → taxonomy
+  if(a.topics.length) makePills(a.topics,"pill-topic","nlpTopics");
+  else document.getElementById("nlpTopics").innerHTML=`<span class="nlp-pill pill-topic">General</span>`;
+ 
+  // Action verbs from compromise.js
+  const verbWrap=document.getElementById("nlpVerbWrap");
+  if(a.verbs.length){
+    verbWrap.style.display="block";
+    makePills(a.verbs,"pill-verb","nlpVerbs");
+  } else verbWrap.style.display="none";
+ 
+  const cw=document.getElementById("nlpContraWrap");
+  if(a.contradictions.length){
+    cw.style.display="block";
+    document.getElementById("nlpContras").innerHTML=a.contradictions.map(c=>`
+      <div class="nlp-block contra">
+        <div>${c.phrase}</div>
+        <div class="nlp-block-meta">via "${c.connector}" · ${c.flip}</div>
+      </div>`).join("");
+  } else cw.style.display="none";
+ 
+  const nw=document.getElementById("nlpNegWrap");
+  if(a.negations.length){
+    nw.style.display="block";
+    document.getElementById("nlpNegs").innerHTML=a.negations.map(n=>`
+      <div class="nlp-block neg">
+        <div>"${n.original}"</div>
+        <div class="nlp-block-meta">${n.implied}</div>
+      </div>`).join("");
+  } else nw.style.display="none";
+ 
+  const dw=document.getElementById("nlpDistWrap");
+  if(a.distortions.length){
+    dw.style.display="block";
+    makePills(a.distortions,"pill-distortion","nlpDist");
+  } else dw.style.display="none";
+ 
+  const synData=[
+    {lbl:"Words",     val:a.syn.wordCount,  max:300,color:"#6da8ff"},
+    {lbl:"Avg sent",  val:a.syn.avgSentLen, max:40, color:"#7c3aed"},
+    {lbl:"Vocab %",   val:a.syn.ttr,        max:100,color:"#0ea5e9"},
+    {lbl:"Self-focus",val:a.syn.fpRatio,    max:30, color:"#f59e0b"},
+    {lbl:"Questions", val:a.syn.questions,  max:8,  color:"#10b981"},
+  ];
+  document.getElementById("nlpSyntax").innerHTML=synData.map(s=>`
+    <div class="syn-row">
+      <span class="syn-lbl">${s.lbl}</span>
+      <div class="syn-track">
+        <div class="syn-fill" style="width:${Math.min(100,Math.round(s.val/s.max*100))}%;background:${s.color}"></div>
+      </div>
+      <span class="syn-num">${s.val}</span>
+    </div>`).join("");
+ 
+  document.getElementById("nlpTemporal").innerHTML=`
+    <div class="t-bar t-past"    style="flex:${a.temporal.past||1}"   >${a.temporal.past>15?`Past ${a.temporal.past}%`:""}</div>
+    <div class="t-bar t-present" style="flex:${a.temporal.present||1}">${a.temporal.present>15?`Now ${a.temporal.present}%`:""}</div>
+    <div class="t-bar t-future"  style="flex:${a.temporal.future||1}" >${a.temporal.future>15?`Future ${a.temporal.future}%`:""}</div>`;
+  document.getElementById("nlpTemporalLeg").innerHTML=`
+    <span class="t-leg" style="color:#7c3aed">■ Past ${a.temporal.past}%</span>
+    <span class="t-leg" style="color:#6da8ff">■ Present ${a.temporal.present}%</span>
+    <span class="t-leg" style="color:#0ea5e9">■ Future ${a.temporal.future}%</span>`;
+ 
+  document.getElementById("nlpInsight").textContent=a.insight;
+}
+ 
+// ── Live preview (debounced 600ms) ────────────────────────────
+let liveTimer=null;
+document.getElementById("topNote").addEventListener("input",()=>{
+  clearTimeout(liveTimer);
+  liveTimer=setTimeout(()=>{
+    const text=document.getElementById("topNote").value.trim();
+    if(text.length<15){document.getElementById("nlpPanel").classList.remove("show");return;}
+    const sleepH  =parseInt(document.getElementById("sleepH").textContent);
+    const totalExM=parseInt(document.getElementById("exH").textContent)*60+parseInt(document.getElementById("exM").textContent);
+    const a=analyzeJournal(text,sleepH,totalExM);
+    if(a) renderNLP(a);
+  },600);
+});
+ 
+// ── Mood (original spans, fixed) ─────────────────────────────
+let selectedMood=null;
+document.querySelectorAll("#moodRow span").forEach(s=>{
+  s.addEventListener("click",()=>{
+    document.querySelectorAll("#moodRow span").forEach(x=>x.classList.remove("active"));
+    s.classList.add("active");
+    selectedMood=parseInt(s.dataset.i);
+  });
+});
+ 
+// ── Spinners ─────────────────────────────────────────────────
+document.querySelectorAll(".updown-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    const el=document.getElementById(btn.dataset.for);
+    let val=parseInt(el.textContent);
+    if(btn.dataset.dir==="up") val++; else val--;
+    if(btn.dataset.for.endsWith("M")){if(val>59)val=0;if(val<0)val=59;}
+    else if(val<0) val=0;
+    el.textContent=val;
+    const text=document.getElementById("topNote").value.trim();
+    if(text.length>=15){
+      const sleepH  =parseInt(document.getElementById("sleepH").textContent);
+      const totalExM=parseInt(document.getElementById("exH").textContent)*60+parseInt(document.getElementById("exM").textContent);
+      const a=analyzeJournal(text,sleepH,totalExM);
+      if(a) renderNLP(a);
+    }
+  });
+});
+ 
+// ── Tag helpers ───────────────────────────────────────────────
+function createTagElement(text,container){
+  const el=document.createElement("div");
+  el.className="tag";
+  el.innerHTML=`<span>${text}</span><button type="button">✕</button>`;
+  el.querySelector("button").onclick=()=>el.remove();
   container.appendChild(el);
 }
 function getTags(container){
-  return Array.from(container.querySelectorAll(".tag span")).map(e => e.textContent);
+  return Array.from(container.querySelectorAll(".tag span")).map(e=>e.textContent);
 }
-
-/* ---- Mood ---- */
-document.querySelectorAll("#moodRow span").forEach(s=>{
-  s.onclick = ()=>{
-    document.querySelectorAll("#moodRow span").forEach(x=>x.classList.remove("active"));
-    s.classList.add("active");
-    selectedMood = parseInt(s.dataset.i);
-  };
+ 
+document.getElementById("addChallengeBtn").addEventListener("click",()=>{
+  const inp=document.getElementById("challengeInput");
+  if(!inp.value.trim()) return;
+  createTagElement(inp.value.trim(),document.getElementById("challengeTags"));
+  inp.value="";
 });
-
-/* ---- Up/Down ---- */
-document.querySelectorAll(".updown-btn").forEach(btn=>{
-  btn.onclick = ()=>{
-    let id = btn.dataset.for;
-    let el = document.getElementById(id);
-    let val = parseInt(el.textContent);
-    if(btn.dataset.dir === "up") val++;
-    else val--;
-    if(id.endsWith("M")){
-      if(val > 59) val = 0;
-      if(val < 0) val = 59;
-    } else if(val < 0) val = 0;
-    el.textContent = val;
-  };
+document.getElementById("addWinBtn").addEventListener("click",()=>{
+  const inp=document.getElementById("winInput");
+  if(!inp.value.trim()) return;
+  createTagElement(inp.value.trim(),document.getElementById("winTags"));
+  inp.value="";
 });
-
-/* ---- Add Tags ---- */
-addChallengeBtn.onclick = ()=>{
-  if(!challengeInput.value.trim()) return;
-  createTagElement(challengeInput.value.trim(), challengeTags);
-  challengeInput.value = '';
-};
-addWinBtn.onclick = ()=>{
-  if(!winInput.value.trim()) return;
-  createTagElement(winInput.value.trim(), winTags);
-  winInput.value = '';
-};
-addNoteBtn.onclick = ()=>{
-  if(!noteInput.value.trim()) return;
-  createTagElement(noteInput.value.trim(), noteTags);
-  noteInput.value = '';
-};
-
-//stress detection
-const stressWords = {
-
-mild:["worried","concerned","nervous","uneasy"],
-
-moderate:["stressed","anxious","overwhelmed","frustrated"],
-
-severe:["panic","hopeless","exhausted","burnout","depressed"]
-
-}
-//stress intensity function
-function detectStressLevel(text){
-
-text = text.toLowerCase()
-
-for(let word of stressWords.severe){
-if(text.includes(word)) return "severe"
-}
-
-for(let word of stressWords.moderate){
-if(text.includes(word)) return "moderate"
-}
-
-for(let word of stressWords.mild){
-if(text.includes(word)) return "mild"
-}
-
-return "none"
-
-}
-//category detection
-function detectCategory(topics){
-
-const categories = {
-
-school:["exam","assignment","class","teacher","project","college"],
-
-relationships:["friend","family","mom","dad","boyfriend","girlfriend"],
-
-health:["sleep","diet","exercise","sick","tired"],
-
-work:["job","meeting","deadline","boss"]
-
-}
-
-let detected = []
-
-topics.forEach(topic=>{
-
-Object.keys(categories).forEach(cat=>{
-
-if(categories[cat].some(word=>topic.toLowerCase().includes(word))){
-detected.push(cat)
-}
-
-})
-
-})
-
-return detected
-
-}
-
-// AFINN SENTIMENT LEXICON
-const AFINN = {
-happy:3,
-good:2,
-great:3,
-excellent:4,
-amazing:4,
-love:3,
-hopeful:2,
-optimistic:2,
-motivated:2,
-confident:2,
-relieved:2,
-proud:2,
-calm:1,
-peaceful:2,
-joy:3,
-excited:3,
-delighted:3,
-satisfied:2,
-success:3,
-successful:3,
-win:3,
-won:3,
-passed:2,
-progress:2,
-better:1,
-improve:2,
-
-sad:-2,
-bad:-2,
-terrible:-4,
-awful:-4,
-angry:-3,
-mad:-2,
-frustrated:-2,
-depressed:-4,
-tired:-1,
-exhausted:-2,
-stressed:-2,
-stress:-2,
-anxious:-2,
-nervous:-2,
-worried:-2,
-fear:-2,
-failure:-3,
-fail:-3,
-failed:-3,
-mistake:-2,
-problem:-2,
-issue:-1,
-sick:-2,
-hurt:-2,
-pain:-2,
-lonely:-2,
-upset:-2,
-disappointed:-2,
-hopeless:-3
-}
-//stemming or lemmatization
-function normalizeWord(word){
-
-word = word.toLowerCase()
-
-if(word.endsWith("ing")){
-return word.slice(0,-3)
-}
-
-if(word.endsWith("ed")){
-return word.slice(0,-2)
-}
-
-if(word.endsWith("es")){
-return word.slice(0,-2)
-}
-
-if(word.endsWith("s") && word.length > 3){
-return word.slice(0,-1)
-}
-
-return word
-}
-// window.normalizeWord = normalizeWord
-
-//nlp processing
-function analyzeJournal(text){
-
-const doc = nlp(text)
-
-// topic extraction
-const topics = doc.nouns().out("array")
-
-// category detection
-const categories = detectCategory(topics) || []
-
-// stress detection
-const stressLevel = detectStressLevel(text)
-
-// sentiment phrase detection
-const positivePhrases = [
-"doing well",
-"feel good",
-"went well",
-"doing great"
-]
-
-const negativePhrases = [
-"feel bad",
-"went wrong",
-"not doing well",
-"feel terrible"
-]
-
-// intensifiers
-const intensifiers = ["very","really","extremely","so"]
-
-// negations
-const negations = ["not","never","no","dont","didnt","isnt","wasnt","cant"]
-
-// contrast words
-const contrastWords = ["but","however","though","although"]
-
-let score = 0
-let cleanedText = text.toLowerCase()
-let processedText = cleanedText
-
-// contrast handling
-for(let word of contrastWords){
-
-if(processedText.includes(" " + word + " ")){
-
-const parts = processedText.split(" " + word + " ")
-processedText = parts[1]
-
-break
-}
-
-}
-
-// phrase sentiment
-negativePhrases.forEach(p=>{
-if(cleanedText.includes(p)) score -= 2
-})
-
-positivePhrases.forEach(p=>{
-if(cleanedText.includes(p)) score += 2
-})
-
-// tokenize text
-const words = processedText
-.replace(/[^\w\s]/g,"")
-.split(/\s+/)
-
-// sentiment scoring
-for(let i=0;i<words.length;i++){
-
-let currentWord = normalizeWord(words[i])
-
-const word = words[i]
-const prev1 = words[i-1] || ""
-const prev2 = words[i-2] || ""
-
-let multiplier = 1
-
-if(intensifiers.includes(prev1)) multiplier = 2
-
-const negated =
-negations.includes(prev1) || negations.includes(prev2)
-
-if(negated && AFINN[currentWord]){
-
-score -= AFINN[currentWord]
-continue
-
-}
-
-if(AFINN[currentWord]){
-
-score += AFINN[currentWord] * multiplier
-
-}
-
-}
-
-// final sentiment
-let sentiment = "neutral"
-
-if(score > 0) sentiment = "positive"
-if(score < 0) sentiment = "negative"
-
-// emotion detection
-const emotions = []
-
-if(text.includes("anxious") || text.includes("nervous"))
-emotions.push("anxiety")
-
-if(text.includes("sad") || text.includes("depressed"))
-emotions.push("sadness")
-
-if(text.includes("angry") || text.includes("mad"))
-emotions.push("anger")
-
-if(text.includes("happy") || text.includes("excited") || text.includes("hopeful"))
-emotions.push("joy")
-
-return {
-sentiment,
-score,
-topics,
-emotions,
-categories,
-stressLevel
-}
-
-}
-
-/* ---- SAVE ---- */
-saveBtn.onclick = async () => {
-
-  if (!currentUser) {
-    alert("User not logged in.");
-    return;
-  }
- const text = topNote.value
-const analysis = analyzeJournal(text)
-
-// stress trigger detection
-let trigger = null
-
-if (analysis.topics.includes("exam") && analysis.sentiment === "negative") {
-  trigger = "academic_stress"
-}
-
-if (analysis.emotions.includes("anxiety") && analysis.sentiment === "negative") {
-  trigger = "high_anxiety"
-}
- const entry = {
-
- title: (noteTitle.textContent.trim() === "Title" ? "Untitled" : noteTitle.textContent.trim()),
-  content: text,
-
-  mood: selectedMood,
-
-  sleepHours: parseInt(sleepH.textContent),
-  sleepMins: parseInt(sleepM.textContent),
-
-  exerciseHours: parseInt(exH.textContent),
-  exerciseMins: parseInt(exM.textContent),
-
-  challenges: getTags(challengeTags),
-  wins: getTags(winTags),
-  notes: getTags(noteTags),
-
-  sentiment: analysis.sentiment,
-  sentimentScore: analysis.score,
-  emotions: analysis.emotions,
-  topics: analysis.topics,
-  categories: analysis.categories || [],
-  stressLevel: analysis.stressLevel || "none",
-  trigger: trigger,
-
-  savedAt: new Date(),
-  userId: currentUser.uid
-}
-
+document.getElementById("addNoteBtn").addEventListener("click",()=>{
+  const inp=document.getElementById("noteInput");
+  if(!inp.value.trim()) return;
+  createTagElement(inp.value.trim(),document.getElementById("noteTags"));
+  inp.value="";
+});
+ 
+// ── SAVE ─────────────────────────────────────────────────────
+document.getElementById("saveBtn").addEventListener("click",async()=>{
+  if(!currentUser){alert("User not logged in.");return;}
+  const text =document.getElementById("topNote").value.trim();
+  const title=document.getElementById("noteTitle").value.trim()||"Untitled";
+  if(!text){alert("Please write something before saving!");return;}
+ 
+  const sleepH  =parseInt(document.getElementById("sleepH").textContent);
+  const sleepM  =parseInt(document.getElementById("sleepM").textContent);
+  const exH     =parseInt(document.getElementById("exH").textContent);
+  const exM     =parseInt(document.getElementById("exM").textContent);
+  const totalExM=exH*60+exM;
+ 
+  const a=analyzeJournal(text,sleepH,totalExM)||{};
+ 
+  const entry={
+    title, content:text, mood:selectedMood,
+    sleepHours:sleepH, sleepMins:sleepM,
+    exerciseHours:exH, exerciseMins:exM,
+    challenges:getTags(document.getElementById("challengeTags")),
+    wins:      getTags(document.getElementById("winTags")),
+    notes:     getTags(document.getElementById("noteTags")),
+    // ── Smart NLP fields ──
+    sentiment:            a.sentimentLabel        ||"neutral",
+    sentimentScore:       a.rawScore              ||0,
+    wellbeingScore:       a.wb                    ||50,
+    stressLevel:          a.stress                ||"none",
+    emotions:             a.emotions              ||[],
+    topics:               a.topics                ||[],
+    categories:           a.categories            ||[],
+    intents:              a.intent                ||"Reflecting",
+    cognitiveDistortions: a.distortions           ||[],
+    contradictions:       (a.contradictions||[]).map(c=>c.phrase),
+    negations:            (a.negations||[]).map(n=>n.original),
+    temporalFocus:        a.temporal              ||{},
+    syntaxMetrics:        a.syn                   ||{},
+    // ── compromise.js extracted data ──
+    extractedNouns:       a.nouns                 ||[],
+    extractedVerbs:       a.verbs                 ||[],
+    extractedPeople:      a.people                ||[],
+    extractedPlaces:      a.places                ||[],
+    trigger:              a.trigger               ||null,
+    savedAt:new Date(), userId:currentUser.uid,
+  };
+ 
+  const btn=document.getElementById("saveBtn");
+  btn.disabled=true; btn.textContent="Saving…";
   try {
-  await addDoc(collection(db, "users", currentUser.uid, "journal"), entry);
-
-
-    alert("Entry Saved!");
-    window.location.href = "journal.html";
-  } catch (error) {
-    console.error("Error saving entry:", error);
-    alert("Error saving entry.");
+    await addDoc(collection(db,"users",currentUser.uid,"journal"),entry);
+    btn.textContent="✓ Saved!";
+    btn.style.background="#2ecc71";
+    setTimeout(()=>{window.location.href="journal.html";},700);
+  } catch(err){
+    console.error(err);
+    alert("Error saving entry: "+err.message);
+    btn.disabled=false; btn.textContent="Save Entry";
+    btn.style.background="";
   }
-};
+});
 </script>
-
 </body>
 </html>
