@@ -871,6 +871,7 @@ function updateProgress(pct, msg) {
   }
 }
 
+// Replace your existing setStage with this "Safe" version
 function setStage(stage) {
   currentStage = stage;
   
@@ -885,23 +886,34 @@ function setStage(stage) {
   } else if (stage === 'processing') {
     document.getElementById('processingScreen').classList.remove('hidden');
     document.getElementById('headerTitle').textContent = '⚙️ Processing…';
-    ['step1', 'step2', 'step3'].forEach(id => {
-      document.getElementById(id).className = 'step pending';
-      document.getElementById(id).querySelector('span').textContent = '⏳';
-    });
   } else if (stage === 'results') {
     document.getElementById('resultsScreen').classList.remove('hidden');
     const shortName = currentFileName.length > 20 ? currentFileName.slice(0, 17) + '…' : currentFileName;
     document.getElementById('headerTitle').textContent = '📄 ' + shortName;
     
-    // ADDED SAFETY CHECK HERE:
-    if (currentResults && currentResults.wordCount) {
-      document.getElementById('headerSubtitle').textContent = 
-        `${currentResults.wordCount.toLocaleString()} words · ${currentResults.flashcards.length} cards`;
-    } else {
-      document.getElementById('headerSubtitle').textContent = 'Analysis Complete';
-    }
+    // SAFE CHECK: Ensure data exists before calling toLocaleString()
+    const count = (currentResults && currentResults.wordCount) ? currentResults.wordCount.toLocaleString() : "0";
+    const cards = (currentResults && currentResults.flashcards) ? currentResults.flashcards.length : "0";
+    document.getElementById('headerSubtitle').textContent = `${count} words · ${cards} cards`;
   }
+}
+
+// Also Update updateFlashcard to prevent "undefined" crashes
+function updateFlashcard() {
+  if (!currentResults || !currentResults.flashcards || currentResults.flashcards.length === 0) {
+    document.getElementById('flashcardFront').textContent = "Not enough content to generate cards.";
+    document.getElementById('flashcardBack').textContent = "Try a longer document!";
+    return;
+  }
+  
+  const card = currentResults.flashcards[currentCardIndex];
+  const total = currentResults.flashcards.length;
+  
+  document.getElementById('cardCounter').textContent = `${currentCardIndex + 1}/${total}`;
+  document.getElementById('cardProgress').style.width = `${((currentCardIndex + 1) / total) * 100}%`;
+  document.getElementById('cardTerm').textContent = card.term || "Concept";
+  document.getElementById('flashcardFront').textContent = card.front;
+  document.getElementById('flashcardBack').textContent = card.back;
 }
 function reset() {
   currentFileName = '';
