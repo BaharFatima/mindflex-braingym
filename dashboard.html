@@ -214,25 +214,38 @@
     .donut-legend-dot { width:11px; height:11px; border-radius:50%; flex-shrink:0; }
     .donut-legend-label { font-size:11px; font-weight:600; color:var(--c1); }
 
-.back-btn {
+    /* ── FLOATING NAV ── */
+    .bottom-nav {
       position: absolute;
-      top: 15px;
-      left: 15px;
-      font-size: 1.6rem;
-      cursor: pointer;
-      color: #003366;
-      font-weight: bold;
-      text-decoration: none;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 260px;
+      background: white;
+      border-radius: 50px;
+      border: 1.5px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 8px 14px;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0,119,182,0.13);
     }
+    .nav-item {
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; padding:5px; border-radius:50%;
+      transition:background 0.2s ease;
+      color: var(--muted);
+    }
+    .nav-item:hover { background:rgba(0,180,216,0.1); }
+    .nav-item.active { color:var(--c3); }
+    .nav-item svg { width:18px; height:18px; }
   </style>
 </head>
 <body>
 
   <!-- ── 320×460 FRAME ── -->
   <div class="app-frame">
-    <div class="left-header">
-        <a href="main.html" class="back-btn">←</a>
-        </div>
     <div class="app-scroll">
 
       <div class="header">
@@ -330,7 +343,24 @@
       </div><!-- end .content -->
     </div><!-- end .app-scroll -->
 
-  
+    <!-- FLOATING NAV — inside frame so it's absolute positioned -->
+    <nav class="bottom-nav">
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      </div>
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
+      <div class="nav-item active">
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
+      </div>
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 4v5h5"/><path d="M20 20v-5h-5"/><path d="M4 9a9 9 0 0114.65-3.65L20 9"/><path d="M20 15a9 9 0 01-14.65 3.65L4 15"/></svg>
+      </div>
+      <div class="nav-item">
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      </div>
+    </nav>
 
   </div><!-- end .app-frame -->
   </div><!-- end .app-frame -->
