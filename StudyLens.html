@@ -5,312 +5,1127 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>StudyLens — CV Study Module</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
   <style>
-    /* UI STYLES - PRESERVED EXACTLY */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Poppins', sans-serif; background: linear-gradient(180deg, #B3E5FC 0%, #E1F5FE 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-    .container { width: 320px; height: 640px; border-radius: 30px; background: linear-gradient(180deg, #BBDEFB 0%, #E3F2FD 100%); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); overflow: hidden; display: flex; flex-direction: column; }
-    .header { padding: 14px 16px 10px; color: #0D47A1; flex-shrink: 0; }
-    .back-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 4px; color: #1565C0; font-size: 13px; font-weight: 600; font-family: 'Poppins', sans-serif; padding: 4px 0; margin-bottom: 6px; }
-    .header-title { text-align: center; }
-    .header h2 { font-size: 18px; font-weight: 600; margin: 0; }
-    .header p { font-size: 11px; opacity: 0.8; margin-top: 4px; }
-    .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 0 16px 16px; }
-    .drop-zone { flex: 1; border: 2px dashed #90CAF9; border-radius: 20px; background: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.2s; }
-    .drop-zone:hover { border-color: #1E88E5; background: rgba(30, 136, 229, 0.05); }
-    .drop-zone-icon { font-size: 40px; }
-    .drop-zone-text { font-size: 13px; font-weight: 600; color: #1565C0; }
-    .choose-file-btn { padding: 9px 22px; border-radius: 14px; border: none; background: linear-gradient(135deg, #64B5F6, #1E88E5); color: white; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 4px; }
-    .error { background: rgba(229, 62, 62, 0.07); border: 1px solid rgba(229, 62, 62, 0.25); border-radius: 14px; padding: 10px; color: #C62828; font-size: 11px; margin-bottom: 10px; }
-    .processing { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
-    .progress-circle { position: relative; width: 88px; height: 88px; }
-    .progress-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #1565C0; }
-    .step { display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 12px; border: 1px solid #E3F2FD; background: #FFF; width: 100%; }
-    .step.done { background: rgba(30, 136, 229, 0.1); border-color: #90CAF9; font-weight: 600; color: #1565C0; }
-    .results-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
-    .scroll-area { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-bottom: 12px; }
-    .flashcard-container { flex: 1; display: flex; flex-direction: column; gap: 10px; }
-    .flashcard-progress { display: flex; align-items: center; gap: 8px; }
-    .flashcard-bar { flex: 1; height: 4px; background: #E3F2FD; border-radius: 2px; overflow: hidden; }
-    .flashcard-bar-fill { height: 100%; background: #1E88E5; width: 0%; transition: width 0.3s; }
-    .flashcard-3d { flex: 1; cursor: pointer; perspective: 1000px; }
-    .flashcard-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.5s; }
-    .flashcard-inner.flipped { transform: rotateY(180deg); }
-    .flashcard-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 20px; padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.06); border: 1px solid #E3F2FD; background: #FFF; }
-    .flashcard-back { transform: rotateY(180deg); background: linear-gradient(160deg, #E3F2FD, #FFFFFF); }
-    .flashcard-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; color: #1E88E5; }
-    .nav-btn { flex: 1; padding: 12px; border-radius: 14px; border: none; font-weight: 600; cursor: pointer; font-family: 'Poppins'; }
-    .nav-btn.primary { background: #1E88E5; color: white; }
-    .nav-btn.secondary { background: white; color: #1565C0; }
-    .card { background: #FFF; border-radius: 14px; padding: 12px; border: 1px solid #E3F2FD; }
-    .bottom-nav { height: 60px; background: #FFF; display: flex; justify-content: space-around; align-items: center; border-radius: 20px 20px 0 0; }
-    .nav-tab { background: none; border: none; cursor: pointer; font-size: 10px; color: #90CAF9; display: flex; flex-direction: column; align-items: center; }
-    .nav-tab.active { color: #1565C0; font-weight: 700; }
-    .hidden { display: none !important; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+     
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(180deg, #B3E5FC 0%, #E1F5FE 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      width: 320px;
+      height: 640px;
+      border-radius: 30px;
+      background: linear-gradient(180deg, #BBDEFB 0%, #E3F2FD 100%);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Header */
+    .header {
+      position: relative;
+      padding: 14px 16px 10px;
+      color: #0D47A1;
+      flex-shrink: 0;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      font-size: 1.6rem;
+      cursor: pointer;
+      color: #003366;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .header-title {
+      text-align: center;
+    }
+    
+    .header h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+    }
+    
+    .header p {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+    
+    /* Content area */
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 0 16px 16px;
+    }
+    
+    /* Upload screen */
+    .drop-zone {
+      flex: 1;
+      border: 2px dashed #90CAF9;
+      border-radius: 20px;
+      background: #FFFFFF;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .drop-zone:hover,
+    .drop-zone.drag-over {
+      border-color: #1E88E5;
+      background: rgba(30, 136, 229, 0.05);
+      transform: scale(1.01);
+    }
+    
+    .drop-zone-icon {
+      font-size: 40px;
+    }
+    
+    .drop-zone-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1565C0;
+      text-align: center;
+    }
+    
+    .drop-zone-hint {
+      font-size: 10px;
+      color: #90CAF9;
+      text-align: center;
+      line-height: 1.7;
+    }
+    
+    .choose-file-btn {
+      padding: 9px 22px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(135deg, #64B5F6, #1E88E5);
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      margin-top: 4px;
+    }
+    
+    .feature-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+    
+    .chip {
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: #FFFFFF;
+      border: 1px solid #90CAF9;
+      color: #1565C0;
+      font-size: 10px;
+      font-weight: 500;
+    }
+    
+    /* Error message */
+    .error {
+      background: rgba(229, 62, 62, 0.07);
+      border: 1px solid rgba(229, 62, 62, 0.25);
+      border-radius: 14px;
+      padding: 10px 14px;
+      color: #C62828;
+      font-size: 11px;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    
+    /* Processing screen */
+    .processing {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      padding: 0 24px;
+    }
+    
+    .progress-circle {
+      position: relative;
+      width: 88px;
+      height: 88px;
+    }
+    
+    .progress-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #1565C0;
+    }
+    
+    .progress-msg {
+      font-size: 12px;
+      color: #5C6BC0;
+      text-align: center;
+      line-height: 1.6;
+    }
+    
+    .dot-pulse {
+      display: flex;
+      gap: 7px;
+    }
+    
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #1E88E5;
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    
+    .dot:nth-child(2) { animation-delay: 0.18s; }
+    .dot:nth-child(3) { animation-delay: 0.36s; }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 0.2; transform: scale(0.7); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+    
+    .step-indicators {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+    }
+    
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 12px;
+      border: 1px solid;
+    }
+    
+    .step.done {
+      background: rgba(30, 136, 229, 0.1);
+      border-color: #90CAF9;
+    }
+    
+    .step.pending {
+      background: #FFFFFF;
+      border-color: #E3F2FD;
+    }
+    
+    .step-label {
+      font-size: 11px;
+    }
+    
+    .step.done .step-label {
+      color: #1565C0;
+      font-weight: 600;
+    }
+    
+    .step.pending .step-label {
+      color: #90CAF9;
+      font-weight: 400;
+    }
+    
+    /* Results screen */
+    .results-content {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-bottom: 12px;
+    }
+    
+    .scroll-area::-webkit-scrollbar {
+      width: 3px;
+    }
+    
+    .scroll-area::-webkit-scrollbar-thumb {
+      background: #90CAF9;
+      border-radius: 4px;
+    }
+    
+    /* Flashcard */
+    .flashcard-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0;
+      padding-bottom: 12px;
+    }
+    
+    .flashcard-progress {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .flashcard-counter {
+      font-size: 10px;
+      font-weight: 600;
+      color: #1565C0;
+      min-width: 30px;
+    }
+    
+    .flashcard-bar {
+      flex: 1;
+      height: 4px;
+      background: #E3F2FD;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    
+    .flashcard-bar-fill {
+      height: 100%;
+      background: linear-gradient(135deg, #64B5F6, #1E88E5);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+    
+    .flashcard-term {
+      font-size: 9px;
+      color: #90CAF9;
+      max-width: 60px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .flashcard-3d {
+      flex: 1;
+      cursor: pointer;
+      perspective: 1000px;
+      min-height: 0;
+    }
+    
+    .flashcard-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .flashcard-inner.flipped {
+      transform: rotateY(180deg);
+    }
+    
+    .flashcard-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    }
+    
+    .flashcard-front {
+      background: #FFFFFF;
+      border: 1px solid #E3F2FD;
+    }
+    
+    .flashcard-back {
+      background: linear-gradient(160deg, #E3F2FD, #FFFFFF);
+      border: 1.5px solid #90CAF9;
+      transform: rotateY(180deg);
+    }
+    
+    .flashcard-label {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+    
+    .flashcard-front .flashcard-label {
+      color: #1E88E5;
+    }
+    
+    .flashcard-back .flashcard-label {
+      color: #1565C0;
+    }
+    
+    .flashcard-text {
+      font-size: 12px;
+      color: #1A237E;
+      line-height: 1.7;
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    .flashcard-back .flashcard-text {
+      font-size: 11px;
+    }
+    
+    .flashcard-hint {
+      font-size: 9px;
+      color: #90CAF9;
+      text-align: center;
+    }
+    
+    .flashcard-nav {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .nav-btn {
+      flex: 1;
+      padding: 9px 0;
+      border-radius: 14px;
+      border: none;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    .nav-btn.primary {
+      background: linear-gradient(135deg, #64B5F6, #1E88E5);
+      color: white;
+    }
+    
+    .nav-btn.secondary {
+      background: #FFFFFF;
+      color: #1565C0;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    }
+    
+    .nav-btn.disabled {
+      background: #E3F2FD;
+      color: #90CAF9;
+      cursor: default;
+    }
+    
+    /* Cards */
+    .card {
+      background: #FFFFFF;
+      border-radius: 14px;
+      padding: 12px 14px;
+      border: 1px solid #E3F2FD;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    }
+    
+    .keypoint-card {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    
+    .keypoint-number {
+      min-width: 22px;
+      height: 22px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #64B5F6, #1E88E5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+    
+    .keypoint-text {
+      font-size: 12px;
+      color: #1A237E;
+      line-height: 1.65;
+    }
+    
+    .glossary-term {
+      font-size: 12px;
+      font-weight: 600;
+      color: #1E88E5;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .glossary-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #1E88E5;
+      flex-shrink: 0;
+    }
+    
+    .glossary-def {
+      font-size: 11px;
+      color: #5C6BC0;
+      line-height: 1.65;
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 1px solid #E3F2FD;
+      background: #FFFFFF;
+      font-size: 12px;
+      color: #1A237E;
+      font-family: 'Poppins', sans-serif;
+      outline: none;
+      margin-bottom: 8px;
+    }
+    
+    .summary-label {
+      font-size: 9px;
+      font-weight: 600;
+      color: #1E88E5;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    
+    .summary-text {
+      font-size: 12px;
+      color: #1A237E;
+      line-height: 1.8;
+      margin-bottom: 10px;
+    }
+    
+    .summary-text:last-child {
+      margin-bottom: 0;
+    }
+    
+    .new-doc-btn {
+      padding: 10px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(135deg, #64B5F6, #1E88E5);
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      width: 100%;
+      margin-top: 10px;
+    }
+    
+    /* Bottom nav */
+    .bottom-nav {
+      height: 58px;
+      background: #FFFFFF;
+      border-top: 1px solid #E3F2FD;
+      border-radius: 20px 20px 0 0;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.08);
+      flex-shrink: 0;
+    }
+    
+    .nav-tab {
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 4px 10px;
+      transition: transform 0.15s;
+    }
+    
+    .nav-tab.active {
+      transform: scale(1.15);
+    }
+    
+    .nav-tab-icon {
+      font-size: 20px;
+    }
+    
+    .nav-tab-label {
+      font-size: 9px;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      letter-spacing: 0.3px;
+    }
+    
+    .nav-tab .nav-tab-label {
+      color: #90CAF9;
+    }
+    
+    .nav-tab.active .nav-tab-label {
+      color: #1565C0;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+    
+    .fade-in {
+      animation: fadeUp 0.3s ease both;
+    }
+    
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   </style>
 </head>
 <body>
 
 <div class="container">
+  <!-- Header -->
   <div class="header">
-    <button class="back-btn" id="backBtn">← Back</button>
+    <a href="Studyzone.html" class="back-btn">←</a>
     <div class="header-title">
       <h2 id="headerTitle">📚 StudyLens</h2>
       <p id="headerSubtitle">Upload a doc to generate a study set</p>
     </div>
   </div>
 
+  <!-- Upload Screen -->
   <div class="content" id="uploadScreen">
     <div id="errorMsg" class="error hidden"></div>
+    
     <div class="drop-zone" id="dropZone">
-      <span class="drop-zone-icon">📂</span>
+      <span class="drop-zone-icon" id="dropIcon">📂</span>
       <p class="drop-zone-text">Tap to choose a file</p>
+      <p class="drop-zone-hint">PDF · DOCX · PNG · JPG · WEBP</p>
       <button class="choose-file-btn" id="chooseBtn">Choose File</button>
-      <input type="file" id="fileInput" accept=".pdf,.docx,image/*" style="display: none;">
+      <input type="file" id="fileInput" accept=".pdf,.docx,image/png,image/jpeg,image/webp,image/gif,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display: none;">
+    </div>
+    
+    <div class="feature-chips">
+      <span class="chip">🃏 Cards</span>
+      <span class="chip">📖 Glossary</span>
+      <span class="chip">✅ Key Points</span>
+      <span class="chip">📝 Summary</span>
     </div>
   </div>
 
+  <!-- Processing Screen -->
   <div class="content processing hidden" id="processingScreen">
     <div class="progress-circle">
-      <svg width="88" height="88" style="transform: rotate(-90deg);"><circle cx="44" cy="44" r="37" fill="none" stroke="#E3F2FD" stroke-width="6"/><circle id="progressCircle" cx="44" cy="44" r="37" fill="none" stroke="#1E88E5" stroke-width="6" stroke-dasharray="232.5" stroke-dashoffset="232.5"/></svg>
-      <div class="progress-text"><span id="progressPct">0%</span></div>
+      <svg width="88" height="88" style="transform: rotate(-90deg);">
+        <circle cx="44" cy="44" r="37" fill="none" stroke="#E3F2FD" stroke-width="6"/>
+        <circle id="progressCircle" cx="44" cy="44" r="37" fill="none" stroke="#1E88E5" stroke-width="6"
+          stroke-linecap="round"
+          stroke-dasharray="232.5"
+          stroke-dashoffset="232.5"
+          style="transition: stroke-dashoffset 0.4s ease"/>
+      </svg>
+      <div class="progress-text">
+        <span id="progressPct">0%</span>
+      </div>
     </div>
-    <p id="progressMsg" style="font-size: 12px; color: #5C6BC0; text-align: center;">Initializing...</p>
-    <div class="step pending" id="step1"><span>⏳</span><span style="font-size:11px">Extracting Content</span></div>
-    <div class="step pending" id="step2"><span>⏳</span><span style="font-size:11px">Analyzing with AI</span></div>
+    
+    <p class="progress-msg" id="progressMsg">Initializing...</p>
+    
+    <div class="dot-pulse">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    
+    <div class="step-indicators">
+      <div class="step pending" id="step1">
+        <span style="font-size: 12px;">⏳</span>
+        <span class="step-label">Extract text</span>
+      </div>
+      <div class="step pending" id="step2">
+        <span style="font-size: 12px;">⏳</span>
+        <span class="step-label">NLP analysis</span>
+      </div>
+      <div class="step pending" id="step3">
+        <span style="font-size: 12px;">⏳</span>
+        <span class="step-label">Build cards</span>
+      </div>
+    </div>
   </div>
 
+  <!-- Results Screen -->
   <div class="results-content hidden" id="resultsScreen">
+    <!-- Flashcards Tab -->
     <div class="content flashcard-container" id="flashcardsTab">
       <div class="flashcard-progress">
-        <span id="cardCounter" style="font-size:10px; font-weight:700; color:#1565C0">0/0</span>
-        <div class="flashcard-bar"><div class="flashcard-bar-fill" id="cardProgress"></div></div>
+        <span class="flashcard-counter" id="cardCounter">1/12</span>
+        <div class="flashcard-bar">
+          <div class="flashcard-bar-fill" id="cardProgress"></div>
+        </div>
+        <span class="flashcard-term" id="cardTerm">Term</span>
       </div>
+      
       <div class="flashcard-3d" id="flashcard3d">
         <div class="flashcard-inner" id="flashcardInner">
           <div class="flashcard-face flashcard-front">
-            <span class="flashcard-label" id="cardTerm">Flashcard</span>
-            <p id="flashcardFront" style="font-size:13px">Loading question...</p>
+            <span class="flashcard-label">Question</span>
+            <p class="flashcard-text" id="flashcardFront">Loading...</p>
+            <span class="flashcard-hint">tap to reveal ↓</span>
           </div>
           <div class="flashcard-face flashcard-back">
             <span class="flashcard-label">Answer</span>
-            <p id="flashcardBack" style="font-size:12px">Loading answer...</p>
+            <p class="flashcard-text" id="flashcardBack">Loading...</p>
+            <span class="flashcard-hint">tap to flip back ↑</span>
           </div>
         </div>
       </div>
-      <div style="display:flex; gap:8px">
-        <button class="nav-btn secondary" id="prevBtn">←</button>
+      
+      <div class="flashcard-nav">
+        <button class="nav-btn secondary" id="prevBtn">← Prev</button>
         <button class="nav-btn primary" id="flipBtn">Reveal</button>
-        <button class="nav-btn secondary" id="nextBtn">→</button>
+        <button class="nav-btn secondary" id="nextBtn">Next →</button>
       </div>
     </div>
+
+    <!-- Key Points Tab -->
     <div class="content scroll-area hidden" id="keypointsTab"></div>
-    <div class="content scroll-area hidden" id="glossaryTab"></div>
+
+    <!-- Glossary Tab -->
+    <div class="content hidden" id="glossaryTab" style="display: flex; flex-direction: column; overflow: hidden;">
+      <input type="text" class="search-input" id="searchInput" placeholder="Search terms…">
+      <div class="scroll-area" id="glossaryList"></div>
+    </div>
+
+    <!-- Summary Tab -->
     <div class="content scroll-area hidden" id="summaryTab"></div>
 
+    <!-- Bottom Navigation -->
     <div class="bottom-nav">
-      <button class="nav-tab active" data-tab="flashcards"><span>🃏</span><span>Cards</span></button>
-      <button class="nav-tab" data-tab="keypoints"><span>✅</span><span>Points</span></button>
-      <button class="nav-tab" data-tab="glossary"><span>📖</span><span>Glossary</span></button>
-      <button class="nav-tab" data-tab="summary"><span>📝</span><span>Summary</span></button>
+      <button class="nav-tab active" data-tab="flashcards">
+        <span class="nav-tab-icon">🃏</span>
+        <span class="nav-tab-label">Cards</span>
+      </button>
+      <button class="nav-tab" data-tab="keypoints">
+        <span class="nav-tab-icon">✅</span>
+        <span class="nav-tab-label">Points</span>
+      </button>
+      <button class="nav-tab" data-tab="glossary">
+        <span class="nav-tab-icon">📖</span>
+        <span class="nav-tab-label">Glossary</span>
+      </button>
+      <button class="nav-tab" data-tab="summary">
+        <span class="nav-tab-icon">📝</span>
+        <span class="nav-tab-label">Summary</span>
+      </button>
     </div>
   </div>
 </div>
 
+<!-- Load external libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+</script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 
 <script>
-  let currentResults = null;
-  let currentCardIndex = 0;
-  let isFlipped = false;
-  let currentFileName = "";
+// ═════════════════════════════════════════════════════════════════════════════
+//  STATE
+// ═════════════════════════════════════════════════════════════════════════════
 
-  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+let currentStage = 'upload'; // 'upload' | 'processing' | 'results'
+let currentFileName = '';
+let currentResults = null;
+let currentCardIndex = 0;
+let isFlipped = false;
 
-  // 1. CALLS THE VERCEL PROXY (Safe from leaking keys)
-  async function callAIEngine(text) {
-    const response = await fetch('/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: text })
+// ═════════════════════════════════════════════════════════════════════════════
+//  EXTRACTION
+// ═════════════════════════════════════════════════════════════════════════════
+
+async function extractFromPDF(file, onProgress) {
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  let text = '';
+  for (let i = 1; i <= Math.min(pdf.numPages, 40); i++) {
+    onProgress(10 + Math.floor((i / pdf.numPages) * 30), `Reading page ${i} of ${pdf.numPages}…`);
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    text += content.items.map(s => s.str).join(' ') + '\n\n';
+  }
+  if (text.trim().length < 80) {
+    throw new Error('This PDF looks scanned. Export a page as an image and upload it instead.');
+  }
+  return text.trim();
+}
+
+async function extractFromDocx(file, onProgress) {
+  onProgress(20, 'Reading Word document…');
+  const buf = await file.arrayBuffer();
+  const result = await mammoth.extractRawText({ arrayBuffer: buf });
+  if (!result.value || result.value.trim().length < 30) {
+    throw new Error('Could not read text from this Word document.');
+  }
+  return result.value.trim();
+}
+
+async function extractFromImage(file, onProgress) {
+  onProgress(15, 'Loading OCR engine…');
+  const worker = await Tesseract.createWorker('eng', 1, {
+    logger: m => {
+      if (m.status === 'recognizing text') {
+        onProgress(20 + Math.floor(m.progress * 35), `OCR ${Math.floor(m.progress * 100)}%…`);
+      }
+    }
+  });
+  const { data: { text } } = await worker.recognize(file);
+  await worker.terminate();
+  if (text.trim().length < 30) {
+    throw new Error('Could not extract text from this image.');
+  }
+  return text.trim();
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  ENHANCED NLP ENGINE — Much smarter algorithm, no AI needed
+// ═════════════════════════════════════════════════════════════════════════════
+
+async function processText(text) {
+  // We point this to our internal 'api/generate' script 
+  // Vercel handles the mapping automatically!
+  const response = await fetch('/api/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: text })
+  });
+
+  const data = await response.json();
+  return data; // This will now contain the AI's response safely
+}
+// ═════════════════════════════════════════════════════════════════════════
+//  UI HELPERS
+// ═════════════════════════════════════════════════════════════════════════════
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = '⚠️ ' + msg;
+  el.classList.remove('hidden');
+}
+
+function hideError() {
+  document.getElementById('errorMsg').classList.add('hidden');
+}
+
+function updateProgress(pct, msg) {
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressMsg').textContent = msg;
+  const circle = document.getElementById('progressCircle');
+  const circumference = 2 * Math.PI * 37;
+  const offset = circumference * (1 - pct / 100);
+  circle.style.strokeDashoffset = offset;
+  if (pct >= 50) {
+    document.getElementById('step1').className = 'step done';
+    document.getElementById('step1').querySelector('span').textContent = '✅';
+  }
+  if (pct >= 75) {
+    document.getElementById('step2').className = 'step done';
+    document.getElementById('step2').querySelector('span').textContent = '✅';
+  }
+  if (pct >= 95) {
+    document.getElementById('step3').className = 'step done';
+    document.getElementById('step3').querySelector('span').textContent = '✅';
+  }
+}
+
+function setStage(stage) {
+  currentStage = stage;
+  
+  document.getElementById('uploadScreen').classList.add('hidden');
+  document.getElementById('processingScreen').classList.add('hidden');
+  document.getElementById('resultsScreen').classList.add('hidden');
+  
+  if (stage === 'upload') {
+    document.getElementById('uploadScreen').classList.remove('hidden');
+    document.getElementById('headerTitle').textContent = '📚 StudyLens';
+    document.getElementById('headerSubtitle').textContent = 'Upload a doc to generate a study set';
+  } else if (stage === 'processing') {
+    document.getElementById('processingScreen').classList.remove('hidden');
+    document.getElementById('headerTitle').textContent = '⚙️ Processing…';
+    ['step1', 'step2', 'step3'].forEach(id => {
+      document.getElementById(id).className = 'step pending';
+      document.getElementById(id).querySelector('span').textContent = '⏳';
     });
+  } else if (stage === 'results') {
+    document.getElementById('resultsScreen').classList.remove('hidden');
+    const shortName = currentFileName.length > 20 ? currentFileName.slice(0, 17) + '…' : currentFileName;
+    document.getElementById('headerTitle').textContent = '📄 ' + shortName;
     
-    if (!response.ok) throw new Error("AI Engine unreachable. Check Vercel logs.");
-    
-    const rawData = await response.json();
-    
-    // Extract the text from Gemini response structure
-    let aiText = rawData.candidates[0].content.parts[0].text;
-    
-    // Clean up JSON if Gemini wraps it in markdown blocks
-    aiText = aiText.replace(/```json/g, '').replace(/```/g, '').trim();
-    
-    return JSON.parse(aiText);
+    // ADDED SAFETY CHECK HERE:
+    if (currentResults && currentResults.wordCount) {
+      document.getElementById('headerSubtitle').textContent = 
+        `${currentResults.wordCount.toLocaleString()} words · ${currentResults.flashcards.length} cards`;
+    } else {
+      document.getElementById('headerSubtitle').textContent = 'Analysis Complete';
+    }
+  }
+}
+function reset() {
+  currentFileName = '';
+  currentResults = null;
+  currentCardIndex = 0;
+  isFlipped = false;
+  hideError();
+  document.getElementById('fileInput').value = '';
+  setStage('upload');
+}
+
+function updateFlashcard() {
+  const card = currentResults.flashcards[currentCardIndex];
+  const total = currentResults.flashcards.length;
+  document.getElementById('cardCounter').textContent = `${currentCardIndex + 1}/${total}`;
+  document.getElementById('cardProgress').style.width = `${((currentCardIndex + 1) / total) * 100}%`;
+  document.getElementById('cardTerm').textContent = card.term;
+  document.getElementById('flashcardFront').textContent = card.front;
+  document.getElementById('flashcardBack').textContent = card.back;
+  document.getElementById('prevBtn').className = currentCardIndex === 0 ? 'nav-btn disabled' : 'nav-btn secondary';
+  document.getElementById('nextBtn').className = currentCardIndex === total - 1 ? 'nav-btn disabled' : 'nav-btn secondary';
+  isFlipped = false;
+  document.getElementById('flashcardInner').classList.remove('flipped');
+  document.getElementById('flipBtn').textContent = 'Reveal';
+}
+
+function renderKeyPoints() {
+  const container = document.getElementById('keypointsTab');
+  container.innerHTML = '';
+  currentResults.keyPoints.forEach((pt, i) => {
+    const div = document.createElement('div');
+    div.className = 'card keypoint-card fade-in';
+    div.innerHTML = `
+      <div class="keypoint-number">${i + 1}</div>
+      <p class="keypoint-text">${pt}</p>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function renderGlossary(filter = '') {
+  const container = document.getElementById('glossaryList');
+  container.innerHTML = '';
+  const filtered = currentResults.glossary.filter(g =>
+    g.term.toLowerCase().includes(filter.toLowerCase()) ||
+    g.definition.toLowerCase().includes(filter.toLowerCase())
+  );
+  if (filtered.length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:#90CAF9;font-size:12px;padding-top:20px;">No matching terms.</p>';
+    return;
+  }
+  filtered.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'card fade-in';
+    div.innerHTML = `
+      <div class="glossary-term">
+        <span class="glossary-dot"></span>
+        ${item.term}
+      </div>
+      <p class="glossary-def">${item.definition}</p>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function renderSummary() {
+  const container = document.getElementById('summaryTab');
+  const paragraphs = currentResults.summary.split('\n\n');
+  container.innerHTML = `
+    <div class="card fade-in">
+      <p class="summary-label">📝 Document Summary</p>
+      ${paragraphs.map(p => `<p class="summary-text">${p}</p>`).join('')}
+    </div>
+    <button class="new-doc-btn" onclick="reset()">+ Scan New Document</button>
+  `;
+}
+
+function switchTab(tabName) {
+  ['flashcardsTab', 'keypointsTab', 'glossaryTab', 'summaryTab'].forEach(id => {
+    document.getElementById(id).classList.add('hidden');
+  });
+  document.getElementById(tabName + 'Tab').classList.remove('hidden');
+  document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+  document.querySelector(`.nav-tab[data-tab="${tabName}"]`).classList.add('active');
+  if (tabName === 'flashcards') {
+    isFlipped = false;
+    document.getElementById('flashcardInner').classList.remove('flipped');
+    document.getElementById('flipBtn').textContent = 'Reveal';
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  FILE PROCESSING
+// ═════════════════════════════════════════════════════════════════════════════
+
+async function processFile(file) {
+  if (!file) return;
+  
+  const isPDF = file.type === 'application/pdf';
+  const isDocx = file.name.toLowerCase().endsWith('.docx') || file.type.includes('wordprocessingml');
+  const isImg = file.type.startsWith('image/');
+  
+  if (!isPDF && !isDocx && !isImg) {
+    showError('Please upload a PDF, Word document (.docx), or an image.');
+    return;
   }
 
-  async function processFile(file) {
-    if (!file) return;
-    document.getElementById('errorMsg').classList.add('hidden');
-    setStage('processing');
-    currentFileName = file.name;
+  currentFileName = file.name;
+  hideError();
+  setStage('processing');
 
-    try {
-      let extractedText = '';
-      updateProgress(10, 'Extracting content...');
-      
-      if (file.type === 'application/pdf') {
-        const buf = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({data: buf}).promise;
-        for(let i=1; i<=Math.min(pdf.numPages, 10); i++) {
-          const page = await pdf.getPage(i);
-          const content = await page.getTextContent();
-          extractedText += content.items.map(s => s.str).join(' ') + '\n';
-        }
-      } else if (file.name.endsWith('.docx')) {
-        const buf = await file.arrayBuffer();
-        const res = await mammoth.extractRawText({arrayBuffer: buf});
-        extractedText = res.value;
-      } else {
-        const worker = await Tesseract.createWorker('eng');
-        const res = await worker.recognize(file);
-        extractedText = res.data.text;
-        await worker.terminate();
-      }
+  // 1. Move the 'text' declaration HERE so it's accessible everywhere
+  let extractedText = ''; 
 
-      document.getElementById('step1').className = 'step done';
-      document.getElementById('step1').querySelector('span').textContent = '✅';
-      
-      updateProgress(60, 'Analyzing with AI Engine...');
-      
-      // CRITICAL FIX: Wait for the result before proceeding
-      currentResults = await callAIEngine(extractedText);
-      
-      document.getElementById('step2').className = 'step done';
-      document.getElementById('step2').querySelector('span').textContent = '✅';
-      updateProgress(100, 'Complete!');
+  try {
+    if (isPDF) {
+      updateProgress(5, 'Loading PDF engine…');
+      extractedText = await extractFromPDF(file, updateProgress);
+    } else if (isDocx) {
+      updateProgress(5, 'Loading DOCX parser…');
+      extractedText = await extractFromDocx(file, updateProgress);
+    } else {
+      updateProgress(5, 'Loading OCR engine…');
+      extractedText = await extractFromImage(file, updateProgress);
+    }
 
+    updateProgress(65, 'Analyzing document');
+    
+    // 2. Pass 'extractedText' to your AI function
+    const data = await processText(extractedText);
+    
+    if (data) {
+      updateProgress(95, 'Building your study set…');
+      currentResults = data;
+      updateProgress(100, 'Done!');
+      
       setTimeout(() => {
         setStage('results');
-        updateFlashcard(); // Now safe to call
+        updateFlashcard();
         renderKeyPoints();
         renderGlossary();
         renderSummary();
-      }, 400);
-
-    } catch (e) {
-      console.error(e);
-      showError("Analysis failed: " + e.message);
-      setStage('upload');
+        switchTab('flashcards');
+      }, 300);
     }
-  }
-
-  function setStage(stage) {
-    document.getElementById('uploadScreen').classList.toggle('hidden', stage !== 'upload');
-    document.getElementById('processingScreen').classList.toggle('hidden', stage !== 'processing');
-    document.getElementById('resultsScreen').classList.toggle('hidden', stage !== 'results');
-    
-    if (stage === 'results' && currentResults) {
-      const wordCount = currentResults.wordCount || 0;
-      const cardCount = currentResults.flashcards ? currentResults.flashcards.length : 0;
-      document.getElementById('headerTitle').textContent = currentFileName;
-      document.getElementById('headerSubtitle').textContent = `${wordCount.toLocaleString()} words · ${cardCount} cards`;
-    }
-  }
-
-  function updateFlashcard() {
-    // CRASH GUARD: Check if flashcards exist
-    if (!currentResults || !currentResults.flashcards || currentResults.flashcards.length === 0) {
-      document.getElementById('flashcardFront').textContent = "No flashcards generated.";
-      document.getElementById('flashcardBack').textContent = "Try a longer document.";
-      return;
-    }
-
-    const card = currentResults.flashcards[currentCardIndex];
-    document.getElementById('flashcardFront').textContent = card.front;
-    document.getElementById('flashcardBack').textContent = card.back;
-    document.getElementById('cardTerm').textContent = card.term || "Concept";
-    document.getElementById('cardCounter').textContent = `${currentCardIndex + 1}/${currentResults.flashcards.length}`;
-    document.getElementById('cardProgress').style.width = `${((currentCardIndex + 1) / currentResults.flashcards.length) * 100}%`;
-  }
-
-  function renderKeyPoints() {
-    const container = document.getElementById('keypointsTab');
-    if (!currentResults.keyPoints) return;
-    container.innerHTML = currentResults.keyPoints.map((p, i) => `
-      <div class="card"><small style="color:#1E88E5; font-weight:700">POINT ${i+1}</small><p style="font-size:12px; margin-top:4px;">${p}</p></div>
-    `).join('');
-  }
-
-  function renderGlossary() {
-    const container = document.getElementById('glossaryTab');
-    if (!currentResults.glossary) return;
-    container.innerHTML = currentResults.glossary.map(g => `
-      <div class="card"><b style="color:#1E88E5">${g.term}</b><p style="font-size:11px; color:#5C6BC0; margin-top:4px;">${g.definition}</p></div>
-    `).join('');
-  }
-
-  function renderSummary() {
-    document.getElementById('summaryTab').innerHTML = `<div class="card"><p style="font-size:12px; line-height:1.6">${currentResults.summary || 'No summary available.'}</p></div>`;
-  }
-
-  function updateProgress(pct, msg) {
-    document.getElementById('progressPct').textContent = pct + '%';
-    document.getElementById('progressMsg').textContent = msg;
-    document.getElementById('progressCircle').style.strokeDashoffset = 232.5 * (1 - pct/100);
-  }
-
-  function showError(m) {
-    const e = document.getElementById('errorMsg');
-    e.textContent = "⚠️ " + m;
-    e.classList.remove('hidden');
-  }
-
-  // EVENT LISTENERS
-  document.getElementById('fileInput').onchange = (e) => processFile(e.target.files[0]);
-  document.getElementById('chooseBtn').onclick = () => document.getElementById('fileInput').click();
-  document.getElementById('dropZone').onclick = () => document.getElementById('fileInput').click();
-  
-  document.getElementById('flipBtn').onclick = () => {
-    isFlipped = !isFlipped;
-    document.getElementById('flashcardInner').classList.toggle('flipped');
-    document.getElementById('flipBtn').textContent = isFlipped ? 'Question' : 'Reveal';
-  };
-
-  document.getElementById('nextBtn').onclick = () => {
-    if(currentCardIndex < currentResults.flashcards.length - 1) {
-      currentCardIndex++;
-      isFlipped = false;
-      document.getElementById('flashcardInner').classList.remove('flipped');
-      document.getElementById('flipBtn').textContent = 'Reveal';
-      updateFlashcard();
-    }
-  };
-
-  document.getElementById('prevBtn').onclick = () => {
-    if(currentCardIndex > 0) {
-      currentCardIndex--;
-      isFlipped = false;
-      document.getElementById('flashcardInner').classList.remove('flipped');
-      document.getElementById('flipBtn').textContent = 'Reveal';
-      updateFlashcard();
-    }
-  };
-
-  document.querySelectorAll('.nav-tab').forEach(t => t.onclick = () => {
-    document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
-    t.classList.add('active');
-    ['flashcards','keypoints','glossary','summary'].forEach(id => {
-      document.getElementById(id+'Tab').classList.toggle('hidden', id !== t.dataset.tab);
-    });
-  });
-
-  document.getElementById('backBtn').onclick = () => {
+  } catch (err) {
+    console.error(err);
+    showError("Could not process file: " + err.message);
     setStage('upload');
-    currentResults = null;
-    currentCardIndex = 0;
-  };
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  EVENT LISTENERS
+// ═════════════════════════════════════════════════════════════════════════════
+
+document.getElementById('chooseBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('fileInput').click();
+});
+
+document.getElementById('dropZone').addEventListener('click', () => {
+  document.getElementById('fileInput').click();
+});
+
+document.getElementById('fileInput').addEventListener('change', (e) => {
+  processFile(e.target.files[0]);
+});
+
+const dropZone = document.getElementById('dropZone');
+const dropIcon = document.getElementById('dropIcon');
+
+dropZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  dropZone.classList.add('drag-over');
+  dropIcon.textContent = '⬇️';
+});
+
+dropZone.addEventListener('dragleave', () => {
+  dropZone.classList.remove('drag-over');
+  dropIcon.textContent = '📂';
+});
+
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  dropIcon.textContent = '📂';
+  processFile(e.dataTransfer.files[0]);
+});
+
+document.getElementById('flashcard3d').addEventListener('click', () => {
+  isFlipped = !isFlipped;
+  document.getElementById('flashcardInner').classList.toggle('flipped');
+  document.getElementById('flipBtn').textContent = isFlipped ? 'Question' : 'Reveal';
+});
+
+document.getElementById('flipBtn').addEventListener('click', () => {
+  isFlipped = !isFlipped;
+  document.getElementById('flashcardInner').classList.toggle('flipped');
+  document.getElementById('flipBtn').textContent = isFlipped ? 'Question' : 'Reveal';
+});
+
+document.getElementById('prevBtn').addEventListener('click', () => {
+  if (currentCardIndex > 0) {
+    currentCardIndex--;
+    updateFlashcard();
+  }
+});
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  if (currentCardIndex < currentResults.flashcards.length - 1) {
+    currentCardIndex++;
+    updateFlashcard();
+  }
+});
+
+document.querySelectorAll('.nav-tab').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  renderGlossary(e.target.value);
+});
 </script>
+
 </body>
 </html>
