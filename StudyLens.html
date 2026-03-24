@@ -825,28 +825,17 @@ async function extractFromImage(file, onProgress) {
 // ═════════════════════════════════════════════════════════════════════════════
 
 async function processText(text) {
+  // We point this to our internal 'api/generate' script 
+  // Vercel handles the mapping automatically!
   const response = await fetch('/api/generate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text: text })
   });
 
-  if (!response.ok) {
-    const err = await response.json();
-    throw new Error(err.error || "API call failed");
-  }
-
   const data = await response.json();
-
-  // Validate the shape we need
-  if (!data.flashcards || !Array.isArray(data.flashcards) || data.flashcards.length === 0) {
-    console.error("Bad response from API:", data);
-    throw new Error("AI did not return valid flashcards. Check Vercel function logs.");
-  }
-
-  return data;
+  return data; // This will now contain the AI's response safely
 }
-
 // ═════════════════════════════════════════════════════════════════════════
 //  UI HELPERS
 // ═════════════════════════════════════════════════════════════════════════════
@@ -884,11 +873,9 @@ function updateProgress(pct, msg) {
 
 function setStage(stage) {
   currentStage = stage;
-  
   document.getElementById('uploadScreen').classList.add('hidden');
   document.getElementById('processingScreen').classList.add('hidden');
   document.getElementById('resultsScreen').classList.add('hidden');
-  
   if (stage === 'upload') {
     document.getElementById('uploadScreen').classList.remove('hidden');
     document.getElementById('headerTitle').textContent = '📚 StudyLens';
@@ -904,16 +891,11 @@ function setStage(stage) {
     document.getElementById('resultsScreen').classList.remove('hidden');
     const shortName = currentFileName.length > 20 ? currentFileName.slice(0, 17) + '…' : currentFileName;
     document.getElementById('headerTitle').textContent = '📄 ' + shortName;
-    
-    // ADDED SAFETY CHECK HERE:
-    if (currentResults && currentResults.wordCount) {
-      document.getElementById('headerSubtitle').textContent = 
-        `${currentResults.wordCount.toLocaleString()} words · ${currentResults.flashcards.length} cards`;
-    } else {
-      document.getElementById('headerSubtitle').textContent = 'Analysis Complete';
-    }
+    document.getElementById('headerSubtitle').textContent = 
+      `${currentResults.wordCount.toLocaleString()} words · ${currentResults.flashcards.length} cards`;
   }
 }
+
 function reset() {
   currentFileName = '';
   currentResults = null;
@@ -1009,62 +991,43 @@ function switchTab(tabName) {
 // ═════════════════════════════════════════════════════════════════════════════
 
 async function processFile(file) {
-  if (!file) return;
+  // ... existing code ...
   
-  const isPDF = file.type === 'application/pdf';
-  const isDocx = file.name.toLowerCase().endsWith('.docx') || file.type.includes('wordprocessingml');
-  const isImg = file.type.startsWith('image/');
-  
-  if (!isPDF && !isDocx && !isImg) {
-    showError('Please upload a PDF, Word document (.docx), or an image.');
-    return;
-  }
-
-  currentFileName = file.name;
-  hideError();
-  setStage('processing');
-
-  // 1. Move the 'text' declaration HERE so it's accessible everywhere
-  let extractedText = ''; 
-
   try {
+    let text = '';
+    
     if (isPDF) {
       updateProgress(5, 'Loading PDF engine…');
-      extractedText = await extractFromPDF(file, updateProgress);
+      text = await extractFromPDF(file, updateProgress);
     } else if (isDocx) {
       updateProgress(5, 'Loading DOCX parser…');
-      extractedText = await extractFromDocx(file, updateProgress);
+      text = await extractFromDocx(file, updateProgress);
     } else {
       updateProgress(5, 'Loading OCR engine…');
-      extractedText = await extractFromImage(file, updateProgress);
+      text = await extractFromImage(file, updateProgress);
     }
-
-    updateProgress(65, 'Analyzing document');
     
-    // 2. Pass 'extractedText' to your AI function
-    const data = await processText(extractedText);
+    updateProgress(65, 'Analyzing with AI…');
+    await new Promise(r => setTimeout(r, 100));
     
-    if (data) {
-      updateProgress(95, 'Building your study set…');
-      currentResults = data;
-      updateProgress(100, 'Done!');
-      
-      setTimeout(() => {
-        setStage('results');
-        updateFlashcard();
-        renderKeyPoints();
-        renderGlossary();
-        renderSummary();
-        switchTab('flashcards');
-      }, 300);
+    // THIS IS THE IMPORTANT PART - ADD ERROR HANDLING
+    const data = await processText(text);
+    
+    // VALIDATE the response
+    if (!data || !data.flashcards || !Array.isArray(data.flashcards) || data.flashcards.length === 0) {
+      throw new Error('AI returned invalid data. Please try again.');
     }
+    
+    updateProgress(95, 'Building your study set…');
+    await new Promise(r => setTimeout(r, 80));
+    
+    currentResults = data;
+    // ... rest of code ...
   } catch (err) {
-    console.error(err);
-    showError("Could not process file: " + err.message);
+    showError(err.message);
     setStage('upload');
   }
 }
-
 // ═════════════════════════════════════════════════════════════════════════════
 //  EVENT LISTENERS
 // ═════════════════════════════════════════════════════════════════════════════
