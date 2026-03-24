@@ -7,81 +7,100 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/compromise@14.14.2/builds/compromise.js"></script>
 
 <style>
   *{box-sizing:border-box;margin:0;padding:0;font-family:"Poppins",sans-serif}
   body{height:100%;background:linear-gradient(135deg,#d8eaff,#a6ccff);display:flex;align-items:center;justify-content:center}
   .container{width:320px;height:640px;background:#f8fbff;border-radius:20px;box-shadow:0 18px 40px rgba(0,70,160,0.12);overflow:hidden;position:relative;display:flex;flex-direction:column}
 
-  header{
-    height:56px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#0f2b45;
-    font-weight:700;
-    position:relative;
-  }
-
-  /* Back button */
-  .back-btn{
-    position:absolute;
-    left:14px;
-    font-size:22px;
-    cursor:pointer;
-    color:#0f2b45;
-    font-weight:bold;
-  }
+  header{height:56px;display:flex;align-items:center;justify-content:center;color:#0f2b45;font-weight:700;position:relative;}
+  .back-btn{position:absolute;left:14px;font-size:22px;cursor:pointer;color:#0f2b45;font-weight:bold;}
 
   main{flex:1;overflow:auto;padding:14px}
 
   .list-title{font-size:18px;margin-bottom:12px;color:#0f2b45;font-weight:700;text-align:center}
   .entries{display:flex;flex-direction:column;gap:10px}
   .entry-card{background:#e6f4ff;border-radius:12px;padding:12px;box-shadow:0 6px 14px rgba(0,0,0,0.03)}
-  .entry-top{display:flex;justify-content:space-between;align-items:center}
+  .entry-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px}
   .entry-title{font-weight:700;color:#0f2b45}
   .entry-date{font-size:12px;color:#2e5a78}
-  .entry-snippet{margin-top:8px;color:#234;opacity:.9}
-
-  .entry-actions{display:flex;gap:8px;margin-top:10px}
-  .small-btn{padding:6px 8px;border-radius:8px;border:none;background:rgba(109,168,255,0.15);color:#6da8ff;cursor:pointer}
+  .entry-snippet{margin-top:8px;color:#234;opacity:.9;font-size:13px;line-height:1.5}
+  .entry-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+  .small-btn{padding:6px 8px;border-radius:8px;border:none;background:rgba(109,168,255,0.15);color:#6da8ff;cursor:pointer;font-size:12px}
+  .entry-sentiment{font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;background:rgba(109,168,255,.1);color:#1a5fc0}
 
   .empty{color:#4b708f;text-align:center;margin-top:40px;opacity:.8}
 
-  /* Floating Add Button */
-  .fab {
-    position:absolute;
-    bottom:18px;
-    right:18px;
-    width:56px;
-    height:56px;
-    border-radius:50%;
-    background:#5bb0ff;
-    color:white;
-    font-size:30px;
-    border:none;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-    box-shadow:0 6px 18px rgba(0,0,0,0.18);
-  }
-
-  /* Clear All */
-  .top-right {
-    position:absolute;
-    top:12px;
-    right:12px;
-  }
+  .fab{position:absolute;bottom:18px;right:18px;width:56px;height:56px;border-radius:50%;background:#5bb0ff;color:white;font-size:30px;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.18);}
+  .top-right{position:absolute;top:12px;right:12px;}
   .clear-btn{padding:8px 10px;border-radius:10px;border:none;background:#ff8b8b;color:white;cursor:pointer}
 
-  /* scrollbar */
   main::-webkit-scrollbar{width:10px}
   main::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.12);border-radius:10px}
+
+  /* ── CHART CARDS ─────────────────────────────────────────── */
+  .chart-card{
+    background:#fff; border-radius:14px; padding:12px 12px 10px;
+    margin-bottom:12px; box-shadow:0 4px 16px rgba(0,70,160,0.07);
+  }
+  .chart-title{
+    font-size:12px; font-weight:700; text-transform:uppercase;
+    letter-spacing:.06em; color:#6da8ff; margin-bottom:8px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .chart-title::before{
+    content:''; display:inline-block; width:6px; height:6px;
+    border-radius:50%; background:#6da8ff;
+  }
+
+  /* ── SUMMARY CARD ────────────────────────────────────────── */
+  .summary-card{
+    background:#fff; border-radius:14px; padding:12px; margin-bottom:12px;
+    box-shadow:0 4px 16px rgba(0,70,160,0.07); font-size:13px; color:#0f2b45;
+  }
+  .summary-title{
+    font-size:12px; font-weight:700; text-transform:uppercase;
+    letter-spacing:.06em; color:#6da8ff; margin-bottom:10px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .summary-title::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#6da8ff;}
+  .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+  .summary-stat{background:#e6f4ff;border-radius:10px;padding:8px 10px;text-align:center}
+  .summary-stat-val{font-size:20px;font-weight:800;color:#0f2b45;line-height:1;margin-bottom:3px}
+  .summary-stat-lbl{font-size:10px;color:#5a80a0;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+  .summary-stat.pos .summary-stat-val{color:#2ecc71}
+  .summary-stat.neg .summary-stat-val{color:#e74c3c}
+  .summary-stat.neu .summary-stat-val{color:#6da8ff}
+  .emotion-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+  .emotion-pill{background:rgba(109,168,255,.15);color:#1a5fc0;padding:3px 9px;border-radius:20px;font-size:.7rem;font-weight:700}
+
+  /* ── KEYWORD CARD ────────────────────────────────────────── */
+  .keyword-card{
+    background:#fff; border-radius:14px; padding:12px; margin-bottom:12px;
+    box-shadow:0 4px 16px rgba(0,70,160,0.07);
+  }
+  .keyword-cloud{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .kw-tag{
+    padding:4px 10px; border-radius:20px; font-size:.72rem; font-weight:700;
+    color:#fff; cursor:default;
+  }
+
+  /* ── INSIGHTS CARD ───────────────────────────────────────── */
+  .insights-card{
+    background:#fff; border-radius:14px; padding:12px; margin-bottom:12px;
+    box-shadow:0 4px 16px rgba(0,70,160,0.07); font-size:13px; color:#0f2b45;
+  }
+  .insight-item{
+    display:flex; gap:8px; align-items:flex-start;
+    padding:7px 0; border-bottom:1px solid rgba(109,168,255,.1);
+    font-size:12px; line-height:1.5; color:#2a4a6a;
+  }
+  .insight-item:last-child{border-bottom:none}
+  .insight-icon{font-size:14px;flex-shrink:0;margin-top:1px}
 </style>
 </head>
 <body>
-
 <div class="container">
 
   <header>
@@ -90,45 +109,49 @@
   </header>
 
   <main>
-    <div class="list-title">Saved Entries</div>
-     <div id="insightsBox" style="
-       background:#fff;
-       border-radius:10px;
-       padding:10px;
-       margin-bottom:12px;
-       font-size:13px;
-       color:#0f2b45;
-       box-shadow:0 4px 10px rgba(0,0,0,0.05)">
-     </div>
-    <canvas id="moodChart" height="120"></canvas>
-    <canvas id="stressChart" height="120"></canvas>
-    <div id="weeklySummary" style="
-      background:#ffffff; 
-      border-radius:10px;
-      padding:10px;
-      margin-bottom:12px;
-      font-size:13px;
-      color:#0f2b45;
-      box-shadow:0 4px 10px rgba(0,0,0,0.05)">
-     </div>
-    <div class="entries" id="entries"></div>
 
+    <div class="chart-card">
+      <div class="chart-title">Mood Trend</div>
+      <canvas id="moodChart" height="110"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Stress Sources</div>
+      <canvas id="stressChart" height="110"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Emotion Distribution</div>
+      <canvas id="emotionChart" height="130"></canvas>
+    </div>
+
+    <!-- Key themes extracted by compromise.js TF-IDF -->
+    <div class="keyword-card" id="keywordCard">
+      <div class="chart-title">Key Themes <span style="font-size:.6rem;color:#aaa;text-transform:none;letter-spacing:0">(compromise.js)</span></div>
+      <div class="keyword-cloud" id="keywordCloud"></div>
+    </div>
+
+    <div class="summary-card" id="weeklySummary"></div>
+    <div class="insights-card" id="insightsBox"></div>
+
+    <div class="list-title">Saved Entries</div>
+    <div class="entries" id="entries"></div>
     <div class="empty" id="emptyMsg">No saved entries yet. Tap + to add one.</div>
+
   </main>
 
   <div class="top-right">
     <button class="clear-btn" id="clearAllBtn">Clear All</button>
   </div>
-
-  <button class="fab" id="fabAdd" title="New entry">+</button>
+  <button class="fab" id="fabAdd">+</button>
 </div>
+
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
- 
-   const firebaseConfig = {
+const firebaseConfig = {
   apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
   authDomain: "mindflex-b2a0c.firebaseapp.com",
   projectId: "mindflex-b2a0c",
@@ -137,502 +160,428 @@
   appId: "1:148676867562:web:3365a72b6fa6b3751cee93",
   measurementId: "G-Q2T6HD3S0E"
 };
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.firestore();
 
-  firebase.initializeApp(firebaseConfig);
+let allEntries = [];
+let moodInst=null, stressInst=null, emotionInst=null;
 
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+auth.onAuthStateChanged(async user => {
+  if (user) loadEntries(user.uid);
+  else window.location.href = "login.html";
+});
 
-  let allEntries = []
-  const entriesEl = document.getElementById('entries');
-  const emptyMsg = document.getElementById('emptyMsg');
-  const fab = document.getElementById('fabAdd');
-  const clearAllBtn = document.getElementById('clearAllBtn');
+// ── Sentiment label → number ──────────────────────────────────
+// Handles old labels ("positive","negative","neutral") AND
+// new rich labels ("Very Positive", "Slightly Negative", etc.)
+function sentimentToScore(label) {
+  if (!label) return 0;
+  const l = label.toLowerCase();
+  if (l.includes("very pos"))      return  2;
+  if (l.includes("slightly pos"))  return  0.5;
+  if (l === "positive" || (l.includes("pos") && !l.includes("slightly"))) return 1;
+  if (l.includes("very neg"))      return -2;
+  if (l.includes("slightly neg"))  return -0.5;
+  if (l === "negative" || (l.includes("neg") && !l.includes("slightly"))) return -1;
+  return 0;
+}
 
-  // Wait for login
-  auth.onAuthStateChanged(async (user) => {
-    if (user) {
-      loadEntries(user.uid);
-    } else {
-      window.location.href = "login.html"; // or wherever your login is
+function scoreToColor(score, alpha=1) {
+  if (score >= 1.5)  return `rgba(46,204,113,${alpha})`;
+  if (score >= 0.3)  return `rgba(109,168,255,${alpha})`;
+  if (score >= -0.3) return `rgba(160,180,200,${alpha})`;
+  if (score >= -1.5) return `rgba(230,150,50,${alpha})`;
+  return `rgba(231,76,60,${alpha})`;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  compromise.js  TF-IDF keyword extractor
+//  Runs over ALL entry contents, extracts nouns via POS tagging,
+//  scores them by TF-IDF, returns top keywords with weights
+// ════════════════════════════════════════════════════════════════
+function computeKeywords(entries) {
+  const stopwords = new Set([
+    "i","me","my","we","our","you","your","he","she","they","it","its",
+    "the","a","an","this","that","these","those","is","are","was","were",
+    "be","been","being","have","has","had","do","does","did","will","would",
+    "could","should","may","might","shall","can","just","really","very",
+    "so","also","too","then","now","day","time","thing","way","lot","bit",
+    "today","yesterday","tomorrow","week","month","year","morning","night",
+    "got","get","go","going","come","came","came","feel","felt","know",
+    "think","thought","want","need","make","made","see","look","say","said",
+    "back","good","great","well","little","much","many","more","some",
+  ]);
+
+  // Build corpus: one "document" per entry using compromise noun extraction
+  const documents = entries.map(e => {
+    if (!e.content) return [];
+    try {
+      return nlp(e.content)
+        .nouns()
+        .not("#Pronoun")
+        .out("array")
+        .map(w => w.toLowerCase().trim().replace(/[^a-z]/g,""))
+        .filter(w => w.length > 2 && !stopwords.has(w));
+    } catch(err) {
+      return e.content.toLowerCase().split(/\s+/)
+        .filter(w => w.length > 3 && !stopwords.has(w));
     }
   });
-//detect category
-function detectCategory(topics){
 
-const categories = {
-
-school:["exam","assignment","class","teacher","project","college"],
-
-relationships:["friend","family","mom","dad","boyfriend","girlfriend"],
-
-health:["sleep","diet","exercise","sick","tired"],
-
-work:["job","meeting","deadline","boss"]
-
-}
-
-let detected = []
-
-topics.forEach(topic=>{
-
-Object.keys(categories).forEach(cat=>{
-
-if(categories[cat].some(word=>topic.includes(word))){
-detected.push(cat)
-}
-
-})
-
-})
-
-return detected
-
-}
-
-//analysis function
-function analyzeJournal(text){
-
-  const doc = nlp(text)
-
-  // extract topics (nouns)
-  const topics = doc.nouns().out("array")
-
-  //category detection
-  categories = detectCategory(topics) || []
-
-  // sentiment detection
-  const positiveWords = ["happy","great","good","productive","excited"]
-const negativeWords = ["sad","anxious","stress","angry","tired"]
-
-const negations = ["not","never","no","dont","didnt","isnt","wasnt","cant"]
-
-let score = 0
-
-const words = text.toLowerCase().split(/\s+/)
-
-for (let i = 0; i < words.length; i++) {
-
-    let word = words[i]
-    let prev = words[i-1] || ""
-
-    // NEGATION LOGIC
-    if (negations.includes(prev)) {
-
-        if (positiveWords.includes(word)) {
-            score--
-            continue
-        }
-
-        if (negativeWords.includes(word)) {
-            score++
-            continue
-        }
-    }
-
-    // NORMAL SENTIMENT
-    if (positiveWords.includes(word)) score++
-    if (negativeWords.includes(word)) score--
-}
-}
-
-//function insights
-function generateInsights(data){
-
-let insights = []
-
-if(data.maxNegativeStreak >= 3){
-insights.push("Repeated negative mood detected for several entries.")
-}
-
-if(data.anxietyCount >= 3){
-insights.push("Frequent anxiety signals found in recent journal entries.")
-}
-
-if(data.sleepLowNegative >= 2){
-insights.push("Low sleep appears correlated with negative mood.")
-}
-
-if(insights.length === 0){
-insights.push("No major behavioral patterns detected yet.")
-}
-
-document.getElementById("insightsBox").innerHTML =
-"<b>Behavior Insights</b><br>" + insights.join("<br>")
-
-}
-
-//analyze entries
-function analyzeEntries(entries){
-
-let anxietyCount = 0
-let negativeStreak = 0
-let maxNegativeStreak = 0
-let sleepLowNegative = 0
-
-entries.forEach(entry => {
-
-if(entry.sentiment === "negative"){
-negativeStreak++
-maxNegativeStreak = Math.max(maxNegativeStreak, negativeStreak)
-}else{
-negativeStreak = 0
-}
-
-if(entry.emotions && entry.emotions.includes("anxiety")){
-anxietyCount++
-}
-
-if(entry.sleepHours <= 5 && entry.sentiment === "negative"){
-sleepLowNegative++
-}
-
-})
-
-generateInsights({
-anxietyCount,
-maxNegativeStreak,
-sleepLowNegative
-})
-
-}
-
-//tf-idf function
-/* function computeTFIDF(entries){
-
-let documents = []
-
-entries.forEach(e=>{
-if(!e.content) return
-
-const words = e.content
-.toLowerCase()
-.replace(/[^\w\s]/g,"")
-.split(/\s+/)
-
-documents.push(words)
-})
-
-let termFreq = {}
-let docFreq = {}
-let totalDocs = documents.length
-
-documents.forEach(doc=>{
-
-let seen = new Set()
-
-doc.forEach(word=>{
-
-termFreq[word] = (termFreq[word] || 0) + 1
-
-if(!seen.has(word)){
-docFreq[word] = (docFreq[word] || 0) + 1
-seen.add(word)
-}
-
-})
-
-})
-
-let tfidfScores = {}
-
-Object.keys(termFreq).forEach(word=>{
-
-let tf = termFreq[word]
-let idf = Math.log(totalDocs / (1 + docFreq[word]))
-
-tfidfScores[word] = tf * idf
-
-})
-
-return Object.entries(tfidfScores)
-.sort((a,b)=>b[1]-a[1])
-.slice(0,5)
-
-} */
-
-//load entries
-  async function loadEntries(uid) {
-    allEntries = []
-    entriesEl.innerHTML = "";
-
-    const snapshot = await db
-      .collection("users")
-      .doc(uid)
-      .collection("journal")
-      .orderBy("savedAt", "desc")
-      .get();
-
-    if (snapshot.empty) {
-      emptyMsg.style.display = "block";
-      return;
-    }
-
-    emptyMsg.style.display = "none";
-
-    snapshot.forEach(doc => {
-   const data = doc.data();
-   allEntries.push(data)
-   const docId = doc.id;
-
-      const card = document.createElement('div');
-      card.className = 'entry-card';
-
-      const top = document.createElement('div');
-      top.className = 'entry-top';
-      top.innerHTML = `
-  <div class="entry-title">${escapeHtml(data.title || "Untitled")}</div>
-  <div class="entry-date">
-    ${data.savedAt ? data.savedAt.toDate().toLocaleString() : ""}
-  </div>
-`;
-
-      const snippet = document.createElement('div');
-      snippet.className = 'entry-snippet';
-      snippet.textContent = (data.content || "").slice(0, 160);
-
-      const actions = document.createElement('div');
-      actions.className = 'entry-actions';
-
-      // DELETE BUTTON
-      const delBtn = document.createElement('button');
-      delBtn.className = 'small-btn';
-      delBtn.textContent = 'Delete';
-      delBtn.onclick = async () => {
-        if (!confirm("Delete this entry?")) return;
-
-        await db
-          .collection("users")
-          .doc(auth.currentUser.uid)
-          .collection("journal")
-          .doc(docId)
-          .delete();
-
-        loadEntries(auth.currentUser.uid);
-      };
-
-      actions.appendChild(delBtn);
-
-      card.appendChild(top);
-      card.appendChild(snippet);
-      card.appendChild(actions);
-
-      entriesEl.appendChild(card);
+  const totalDocs = documents.length || 1;
+
+  // Term frequency across all docs combined
+  const tf = {};
+  // Document frequency (how many docs contain this term)
+  const df = {};
+
+  documents.forEach(doc => {
+    const seen = new Set();
+    doc.forEach(word => {
+      tf[word] = (tf[word] || 0) + 1;
+      if (!seen.has(word)) {
+        df[word] = (df[word] || 0) + 1;
+        seen.add(word);
+      }
     });
-    drawMoodChart()
-    const recent = allEntries.slice(0,7)
+  });
 
-    drawStressChart()
-    generateWeeklySummary(allEntries)
+  // TF-IDF score
+  const scores = {};
+  Object.keys(tf).forEach(word => {
+    const idf = Math.log((totalDocs + 1) / (df[word] + 1)) + 1;
+    scores[word] = tf[word] * idf;
+  });
 
-    const topKeywords = computeTFIDF(allEntries)
-
-const keywordBox = document.getElementById("keywordInsights")
-
-if(keywordBox){
-keywordBox.innerHTML =
-"<b>Key Themes</b><br>" +
-topKeywords.map(k => "• " + k[0]).join("<br>")
+  return Object.entries(scores)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 15);
 }
+
+function renderKeywords(keywords) {
+  const cloud = document.getElementById("keywordCloud");
+  cloud.innerHTML = "";
+  if (!keywords.length) {
+    document.getElementById("keywordCard").style.display = "none";
+    return;
   }
 
+  const maxScore = keywords[0][1];
+  const palette = [
+    "#3b82f6","#7c3aed","#0ea5e9","#10b981",
+    "#f59e0b","#e74c3c","#ec4899","#06b6d4",
+    "#8b5cf6","#059669","#d97706","#be123c",
+    "#0284c7","#7e22ce","#047857",
+  ];
 
-//stress chart 
-function drawStressChart(){
-
-if(allEntries.length === 0) return
-
-let categoryCounts = {
-school:0,
-relationships:0,
-health:0,
-work:0
+  keywords.forEach(([word, score], i) => {
+    const weight = score / maxScore; // 0-1
+    const size   = Math.round(10 + weight * 6); // 10-16px
+    const tag    = document.createElement("span");
+    tag.className = "kw-tag";
+    tag.textContent = word;
+    tag.style.background = palette[i % palette.length];
+    tag.style.fontSize   = size + "px";
+    tag.style.opacity    = 0.65 + weight * 0.35;
+    cloud.appendChild(tag);
+  });
 }
 
-allEntries.forEach(entry=>{
+// ── Load entries ──────────────────────────────────────────────
+async function loadEntries(uid) {
+  allEntries = [];
+  document.getElementById("entries").innerHTML = "";
 
-// only count negative emotional entries
-if(entry.sentiment !== "negative") return
+  const snapshot = await db
+    .collection("users").doc(uid)
+    .collection("journal")
+    .orderBy("savedAt","desc")
+    .get();
 
-if(!entry.categories) return
+  if (snapshot.empty) {
+    document.getElementById("emptyMsg").style.display = "block";
+    return;
+  }
+  document.getElementById("emptyMsg").style.display = "none";
 
-entry.categories.forEach(cat=>{
-if(categoryCounts[cat] !== undefined){
-categoryCounts[cat]++
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    allEntries.push(data);
+    const docId = doc.id;
+    const score = sentimentToScore(data.sentiment);
+
+    const card = document.createElement("div");
+    card.className = "entry-card";
+    card.style.borderLeft = `4px solid ${scoreToColor(score)}`;
+
+    card.innerHTML = `
+      <div class="entry-top">
+        <div class="entry-title">${escapeHtml(data.title||"Untitled")}</div>
+        <div class="entry-date">${data.savedAt?data.savedAt.toDate().toLocaleString():""}</div>
+      </div>
+      <div class="entry-snippet">${escapeHtml((data.content||"").slice(0,160))}</div>
+      <div class="entry-actions">
+        <button class="small-btn" data-id="${docId}">Delete</button>
+        <span class="entry-sentiment" style="color:${scoreToColor(score)}">${data.sentiment||"—"}</span>
+      </div>`;
+
+    card.querySelector("button").onclick = async () => {
+      if (!confirm("Delete this entry?")) return;
+      await db.collection("users").doc(auth.currentUser.uid)
+               .collection("journal").doc(docId).delete();
+      loadEntries(auth.currentUser.uid);
+    };
+    document.getElementById("entries").appendChild(card);
+  });
+
+  drawMoodChart();
+  drawStressChart();
+  drawEmotionChart();
+  // compromise.js TF-IDF keyword extraction
+  const keywords = computeKeywords(allEntries);
+  renderKeywords(keywords);
+  generateWeeklySummary(allEntries);
+  generateInsights(allEntries);
 }
-})
 
-})
+// ── CHART 1: Mood Trend ───────────────────────────────────────
+function drawMoodChart() {
+  if (!allEntries.length) return;
+  if (moodInst) moodInst.destroy();
 
-const ctx = document.getElementById("stressChart")
+  const ordered = [...allEntries].reverse();
+  const scores  = ordered.map(e => sentimentToScore(e.sentiment));
+  const labels  = ordered.map((_,i) => "E"+(i+1));
+  const ptColors = scores.map(s => scoreToColor(s));
 
-new Chart(ctx,{
-type:"bar",
-data:{
-labels:Object.keys(categoryCounts),
-datasets:[{
-label:"Stress Sources",
-data:Object.values(categoryCounts)
-}]
-},
-options:{
-plugins:{
-legend:{display:false}
+  moodInst = new Chart(document.getElementById("moodChart"), {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        data: scores,
+        tension: 0.4,
+        borderColor: "#6da8ff",
+        borderWidth: 2.5,
+        pointBackgroundColor: ptColors,
+        pointBorderColor: "#fff",
+        pointBorderWidth: 2,
+        pointRadius: 6,
+        fill: true,
+        backgroundColor: "rgba(109,168,255,0.08)",
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const s=ctx.raw;
+              if(s>=1.5) return "Very Positive";
+              if(s>=0.3) return "Positive";
+              if(s>=-0.3) return "Neutral";
+              if(s>=-1.5) return "Negative";
+              return "Very Negative";
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          min:-2, max:2,
+          ticks: {
+            stepSize:1, color:"#789", font:{size:10},
+            callback: v=>({2:"Very +",1:"Pos",0:"Neutral","-1":"Neg","-2":"Very -"}[v]||"")
+          },
+          grid:{color:"rgba(109,168,255,0.08)"}
+        },
+        x: { ticks:{color:"#789",font:{size:10}}, grid:{display:false} }
+      }
+    }
+  });
 }
-}
-})
 
-}
-  //mood chart
-  function drawMoodChart(){
+// ── CHART 2: Stress Sources ───────────────────────────────────
+function drawStressChart() {
+  if (!allEntries.length) return;
+  if (stressInst) stressInst.destroy();
 
-if(allEntries.length === 0) return
+  const counts = { Academic:0, Work:0, Relationships:0, Health:0, Finances:0, Growth:0 };
 
-let sentimentData = []
+  allEntries.forEach(e => {
+    if (sentimentToScore(e.sentiment) >= 0) return;
+    const cats = e.categories || e.topics || [];
+    cats.forEach(c => {
+      const key = Object.keys(counts).find(k => k.toLowerCase() === c.toLowerCase());
+      if (key) counts[key]++;
+    });
+  });
 
-allEntries.forEach(entry=>{
+  const labels = Object.keys(counts).filter(k=>counts[k]>0);
+  const data   = labels.map(k=>counts[k]);
 
-if(entry.sentiment === "positive") sentimentData.push(1)
-else if(entry.sentiment === "neutral") sentimentData.push(0)
-else if(entry.sentiment === "negative") sentimentData.push(-1)
-else sentimentData.push(0)
-
-})
-
-const ctx = document.getElementById("moodChart")
-
-new Chart(ctx,{
-type:"line",
-data:{
-labels: sentimentData.map((_,i)=>"Entry "+(i+1)),
-datasets:[{
-label:"Mood Trend",
-data: sentimentData,
-tension:0.4
-}]
-},
-options:{
-responsive:true,
-plugins:{
-legend:{display:false}
-},
-scales:{
-y:{
-min:-1,
-max:1,
-ticks:{
-stepSize:1,
-callback:function(value){
-
-if(value === 1) return "Positive"
-if(value === 0) return "Neutral"
-if(value === -1) return "Negative"
-
-return value
-
-}
-}
-}
-}
-}
-})
-
-}
-  function escapeHtml(s) {
-    return (s + '').replace(/[&<>"']/g, c => (
-      {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]
-    ));
+  if (!data.length) {
+    document.getElementById("stressChart").closest(".chart-card").style.display="none";
+    return;
   }
 
-  fab.onclick = () => {
-    window.location.href = "journal-create.html";
-  };
+  const palette = ["#e74c3c","#f39c12","#9b59b6","#3498db","#1abc9c","#e67e22"];
 
-  clearAllBtn.onclick = async () => {
-    if (!confirm("Clear ALL entries?")) return;
-
-    const snapshot = await db
-      .collection("users")
-      .doc(auth.currentUser.uid)
-      .collection("journal")
-      .get();
-
-    const batch = db.batch();
-
-    snapshot.forEach(doc => {
-      batch.delete(doc.ref);
-    });
-
-    await batch.commit();
-
-    loadEntries(auth.currentUser.uid);
-  };
-
-  //detection of frequent mood
-  function detectFrequentEmotion(entries){
-
-let emotionCount = {}
-
-entries.forEach(e=>{
-(e.emotions || []).forEach(em=>{
-emotionCount[em] = (emotionCount[em] || 0) + 1
-})
-})
-
-return emotionCount
-
+  stressInst = new Chart(document.getElementById("stressChart"), {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: labels.map((_,i)=>palette[i%palette.length]+"cc"),
+        borderColor:      labels.map((_,i)=>palette[i%palette.length]),
+        borderWidth: 1.5,
+        borderRadius: 7,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend:{display:false} },
+      scales: {
+        y: { beginAtZero:true, ticks:{stepSize:1,color:"#789",font:{size:10}}, grid:{color:"rgba(109,168,255,0.08)"} },
+        x: { ticks:{color:"#789",font:{size:10}}, grid:{display:false} }
+      }
+    }
+  });
 }
 
-//weekly mood dashboard
-function generateWeeklySummary(entries){
+// ── CHART 3: Emotion Distribution ─────────────────────────────
+function drawEmotionChart() {
+  if (!allEntries.length) return;
+  if (emotionInst) emotionInst.destroy();
 
-const now = new Date()
-const oneWeekAgo = new Date()
-oneWeekAgo.setDate(now.getDate() - 7)
+  const counts = {};
+  allEntries.forEach(e => {
+    (e.emotions||[]).forEach(em => { counts[em]=(counts[em]||0)+1; });
+  });
 
-let weeklyEntries = entries.filter(e=>{
-if(!e.savedAt) return false
-return e.savedAt.toDate() >= oneWeekAgo
-})
+  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  if (!sorted.length) {
+    document.getElementById("emotionChart").closest(".chart-card").style.display="none";
+    return;
+  }
 
-let positive = 0
-let negative = 0
-let neutral = 0
+  const palette=["#6da8ff","#7c3aed","#0ea5e9","#10b981","#f59e0b","#e74c3c","#ec4899","#06b6d4"];
 
-let emotionCount = {}
-
-weeklyEntries.forEach(e=>{
-
-if(e.sentiment === "positive") positive++
-if(e.sentiment === "negative") negative++
-if(e.sentiment === "neutral") neutral++
-
-(e.emotions || []).forEach(em=>{
-emotionCount[em] = (emotionCount[em] || 0) + 1
-})
-
-})
-
-let topEmotion = "none"
-
-let max = 0
-
-Object.entries(emotionCount).forEach(([emotion,count])=>{
-if(count > max){
-max = count
-topEmotion = emotion
-}
-})
-
-document.getElementById("weeklySummary").innerHTML =
-`<b>Weekly Mood Summary</b><br>
-Positive entries: ${positive}<br>
-Neutral entries: ${neutral}<br>
-Negative entries: ${negative}<br>
-Most frequent emotion: ${topEmotion}`
+  emotionInst = new Chart(document.getElementById("emotionChart"), {
+    type: "doughnut",
+    data: {
+      labels: sorted.map(([e])=>e),
+      datasets: [{
+        data: sorted.map(([,v])=>v),
+        backgroundColor: palette.map(c=>c+"cc"),
+        borderColor: palette,
+        borderWidth: 2,
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: "62%",
+      plugins: {
+        legend: {
+          display: true, position:"bottom",
+          labels:{font:{size:10,family:"Poppins"},color:"#0f2b45",boxWidth:10,padding:8}
+        }
+      }
+    }
+  });
 }
 
+// ── Weekly Summary ────────────────────────────────────────────
+function generateWeeklySummary(entries) {
+  const now=new Date(), weekAgo=new Date();
+  weekAgo.setDate(now.getDate()-7);
+  const weekly=entries.filter(e=>e.savedAt&&e.savedAt.toDate()>=weekAgo);
+
+  let pos=0,neg=0,neu=0;
+  const emotionCount={};
+  let totalWbi=0,wbiCount=0;
+
+  weekly.forEach(e=>{
+    const s=sentimentToScore(e.sentiment);
+    if(s>0.2) pos++; else if(s<-0.2) neg++; else neu++;
+    if(typeof e.wellbeingScore==="number"){totalWbi+=e.wellbeingScore;wbiCount++;}
+    (e.emotions||[]).forEach(em=>{emotionCount[em]=(emotionCount[em]||0)+1;});
+  });
+
+  const topEmotions=Object.entries(emotionCount).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([e])=>e);
+  const avgWbi=wbiCount?Math.round(totalWbi/wbiCount):null;
+
+  document.getElementById("weeklySummary").innerHTML=`
+    <div class="summary-title">Weekly Mood Summary</div>
+    <div class="summary-grid">
+      <div class="summary-stat pos"><div class="summary-stat-val">${pos}</div><div class="summary-stat-lbl">Positive</div></div>
+      <div class="summary-stat neg"><div class="summary-stat-val">${neg}</div><div class="summary-stat-lbl">Negative</div></div>
+      <div class="summary-stat neu"><div class="summary-stat-val">${neu}</div><div class="summary-stat-lbl">Neutral</div></div>
+      <div class="summary-stat"><div class="summary-stat-val">${avgWbi!==null?avgWbi+"/100":"—"}</div><div class="summary-stat-lbl">Avg WBI</div></div>
+    </div>
+    ${topEmotions.length?`
+      <div style="font-size:11px;font-weight:700;color:#789;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Top Emotions</div>
+      <div class="emotion-pills">${topEmotions.map(e=>`<span class="emotion-pill">${e}</span>`).join("")}</div>`:""}`;
+}
+
+// ── Behavior Insights ─────────────────────────────────────────
+function generateInsights(entries) {
+  const insights=[];
+
+  let negStreak=0,maxStreak=0;
+  [...entries].reverse().forEach(e=>{
+    if(sentimentToScore(e.sentiment)<-0.2){negStreak++;maxStreak=Math.max(maxStreak,negStreak);}
+    else negStreak=0;
+  });
+  if(maxStreak>=3) insights.push({icon:"📉",text:`${maxStreak} consecutive negative entries detected. Consider reviewing what's been weighing on you.`});
+
+  const anxCount=entries.filter(e=>(e.emotions||[]).includes("anxiety")).length;
+  if(anxCount>=2) insights.push({icon:"😰",text:`Anxiety appeared in ${anxCount} entries. Grounding techniques like deep breathing may help.`});
+
+  const sleepNeg=entries.filter(e=>e.sleepHours<=5&&sentimentToScore(e.sentiment)<-0.2).length;
+  if(sleepNeg>=2) insights.push({icon:"😴",text:`Low sleep (≤5hrs) correlated with negative mood in ${sleepNeg} entries.`});
+
+  const burnout=entries.filter(e=>(e.emotions||[]).includes("burnout")).length;
+  if(burnout>=2) insights.push({icon:"🥱",text:`Burnout signals in ${burnout} entries. Rest and recovery are priorities.`});
+
+  const distEntries=entries.filter(e=>(e.cognitiveDistortions||[]).length>0);
+  if(distEntries.length>=2){
+    const top=[...new Set(distEntries.flatMap(e=>e.cognitiveDistortions||[]))].slice(0,2).join(", ");
+    insights.push({icon:"🧠",text:`Recurring thought patterns: ${top}. Awareness is the first step to reframing.`});
+  }
+
+  let posStreak=0,maxPos=0;
+  [...entries].reverse().forEach(e=>{
+    if(sentimentToScore(e.sentiment)>0.2){posStreak++;maxPos=Math.max(maxPos,posStreak);}
+    else posStreak=0;
+  });
+  if(maxPos>=3) insights.push({icon:"🌟",text:`${maxPos} positive entries in a row! Keep up what's working.`});
+
+  if(!insights.length) insights.push({icon:"📖",text:"Keep journaling — patterns will emerge over time."});
+
+  document.getElementById("insightsBox").innerHTML=`
+    <div class="summary-title">Behavior Insights</div>
+    ${insights.map(i=>`<div class="insight-item"><span class="insight-icon">${i.icon}</span><span>${i.text}</span></div>`).join("")}`;
+}
+
+function escapeHtml(s) {
+  return (s+"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+document.getElementById("fabAdd").onclick=()=>{window.location.href="journal-create.html";};
+document.getElementById("clearAllBtn").onclick=async()=>{
+  if(!confirm("Clear ALL entries?")) return;
+  const snap=await db.collection("users").doc(auth.currentUser.uid).collection("journal").get();
+  const batch=db.batch();
+  snap.forEach(d=>batch.delete(d.ref));
+  await batch.commit();
+  loadEntries(auth.currentUser.uid);
+};
 </script>
-
 </body>
 </html>
