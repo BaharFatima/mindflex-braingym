@@ -58,6 +58,8 @@ export async function fetchSessions(days = 7) {
       console.warn("fetchSessions: no user logged in, returning []");
       return [];
     }
+  
+  
 
     // 2. Calculate the start date (today minus X days)
     const since = new Date();
@@ -82,8 +84,14 @@ export async function fetchSessions(days = 7) {
 
   return {
     id: doc.id,
-    ...data,
-    timestamp: data.timestamp.toDate()
+    timestamp: data.timestamp.toDate(),
+
+    // ✅ FIXED FIELD MAPPING
+    session_duration: data.duration,
+    switch_count: data.switchCount || data.distractionDetected || 0,
+
+    // ✅ Convert focusScore → distraction_label
+    distraction_label: data.focusScore < 50 ? 1 : 0
   };
 });
 
