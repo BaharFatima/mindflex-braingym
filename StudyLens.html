@@ -825,16 +825,27 @@ async function extractFromImage(file, onProgress) {
 // ═════════════════════════════════════════════════════════════════════════════
 
 async function processText(text) {
-  // We point this to our internal 'api/generate' script 
-  // Vercel handles the mapping automatically!
   const response = await fetch('/api/generate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text: text })
   });
 
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.error || "API call failed");
+  }
+
   const data = await response.json();
-  return data; // This will now contain the AI's response safely
+
+  // Validate the shape we need
+  if (!data.flashcards || !Array.isArray(data.flashcards) || data.flashcards.length === 0) {
+    console.error("Bad response from API:", data);
+    throw new Error("AI did not return valid flashcards. Check Vercel function logs.");
+  }
+
+  return data;
+}
 }
 // ═════════════════════════════════════════════════════════════════════════
 //  UI HELPERS
