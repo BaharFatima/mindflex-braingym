@@ -891,8 +891,9 @@ function setStage(stage) {
     document.getElementById('resultsScreen').classList.remove('hidden');
     const shortName = currentFileName.length > 20 ? currentFileName.slice(0, 17) + '…' : currentFileName;
     document.getElementById('headerTitle').textContent = '📄 ' + shortName;
-    document.getElementById('headerSubtitle').textContent = 
-      `${currentResults.wordCount.toLocaleString()} words · ${currentResults.flashcards.length} cards`;
+    const wordCount = currentResults.wordCount ?? currentResults.text?.split(/\s+/).length ?? 0;
+document.getElementById('headerSubtitle').textContent = 
+  `${wordCount.toLocaleString()} words · ${(currentResults.flashcards?.length ?? 0)} cards`;
   }
 }
 
