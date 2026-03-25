@@ -397,8 +397,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
 
-
-/* ─── 🔧 REPLACE WITH YOUR FIREBASE CONFIG ─── */
 const firebaseConfig = {
   apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
   authDomain: "mindflex-b2a0c.firebaseapp.com",
@@ -408,13 +406,11 @@ const firebaseConfig = {
   appId: "1:148676867562:web:3365a72b6fa6b3751cee93",
   measurementId: "G-Q2T6HD3S0E"
 };
-/* ─────────────────────────────────────────────── */
 
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
+const app  = initializeApp(firebaseConfig);
+const db   = getFirestore(app);
 const auth = getAuth();
 
-/* ───── HELPERS ───── */
 const DAY_LABELS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
 function timeAgo(ts) {
@@ -435,101 +431,6 @@ function motivationalText(avgMin, streak) {
   return `🚀 Every session counts. Start your streak today!`;
 }
 
-/* ═══════════════════════════════════════
-   LOAD ALL DATA
-   Expects Firestore collections:
-     sessions  — { userId, activityName, durationMinutes, timestamp }
-     achievements — { name, emoji, earnedAt }
-══════════════════════════════════════ */
-window.loadAll = async function () {
-  await Promise.all([loadChart(), loadAchievements(), loadActivity()]);
-};
-
-async function loadChart() {
-  const chartEl = document.getElementById("bar-chart");
-
-  // 🔒 Safety check
-  if (!auth.currentUser) {
-    console.error("User not ready");
-    return;
-  }
-
-  chartEl.innerHTML = "Loading...";
-
-  try {
-    const snap = await getDocs(
-      query(
-        collection(db, "users", auth.currentUser.uid, "sessions"),
-        orderBy("timestamp","desc"),
-        limit(200)
-      )
-    );
-
-    const sessions = snap.docs.map(d => d.data());
-
-    // ❗ Empty data case
-    if (!sessions.length) {
-      chartEl.innerHTML = "No data yet";
-      return;
-    }
-
-    const buckets = Array(7).fill(0);
-    let totalMin = 0, totalSessions = 0, bestDay = 0;
-
-    // ✅ Get current week start (Sunday)
-    const now = new Date();
-    const weekStart = new Date(now);
-    weekStart.setDate(now.getDate() - now.getDay());
-    weekStart.setHours(0,0,0,0);
-
-    sessions.forEach(s => {
-      const d = s.timestamp?.toDate ? s.timestamp.toDate() : new Date(s.timestamp);
-
-      totalMin += (s.durationMinutes || 0);
-      totalSessions++;
-
-      // ✅ Only count THIS WEEK
-      if (d >= weekStart) {
-        const dayIdx = d.getDay();
-        buckets[dayIdx] += (s.durationMinutes || 0);
-
-        if (buckets[dayIdx] > bestDay) bestDay = buckets[dayIdx];
-      }
-    });
-
-    console.log("Sessions:", sessions);
-
-    // ✅ Render chart
-    chartEl.innerHTML = "";
-
-    const maxVal = Math.max(...buckets, 1);
-
-    buckets.forEach((val, i) => {
-      const height = Math.max(10, (val / maxVal) * 100);
-
-      const bar = document.createElement("div");
-      bar.style.width = "12%";
-      bar.style.height = height + "%";
-      bar.style.background = "#3b6fd4";
-      bar.style.display = "inline-block";
-      bar.style.margin = "2px";
-
-      chartEl.appendChild(bar);
-    });
-
-    // ✅ Update stats
-    document.getElementById("stat-total-min").textContent = totalMin;
-    document.getElementById("stat-sessions").textContent = totalSessions;
-    document.getElementById("stat-best-day").textContent = bestDay;
-    document.getElementById("stat-avg").textContent =
-      totalSessions ? Math.round(totalMin / totalSessions) : 0;
-
-  } catch (e) {
-    console.error(e);
-    chartEl.innerHTML = "Error loading data";
-  }
-}
-
 function computeStreak(sessions) {
   if (!sessions.length) return 0;
   const days = new Set(sessions.map(s => {
@@ -546,13 +447,87 @@ function computeStreak(sessions) {
   return streak;
 }
 
+window.loadAll = async function () {
+  if (!auth.currentUser) return;
+
+  const snap = await getDocs(
+    query(
+      collection(db, "users", auth.currentUser.uid, "sessions"),
+      orderBy("timestamp", "desc"),
+      limit(200)
+    )
+  );
+  const sessions = snap.docs.map(d => d.data());
+
+  await Promise.all([
+    loadChart(sessions),
+    loadAchievements(),
+    loadActivity(sessions)
+  ]);
+};
+
+async function loadChart(sessions) {
+  const chartEl = document.getElementById("bar-chart");
+  chartEl.innerHTML = "";
+
+  if (!sessions.length) {
+    chartEl.innerHTML = `<div class="empty-state">No data yet</div>`;
+    return;
+  }
+
+  const buckets = Array(7).fill(0);
+  let totalMin = 0, totalSessions = 0;
+
+  const now = new Date();
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - now.getDay());
+  weekStart.setHours(0, 0, 0, 0);
+
+  sessions.forEach(s => {
+    const dur = parseInt(s.durationMinutes ?? s.duration ?? 0) || 0;
+    const d = s.timestamp?.toDate ? s.timestamp.toDate() : new Date(s.timestamp);
+    totalMin += dur;
+    totalSessions++;
+    if (d >= weekStart) buckets[d.getDay()] += dur;
+  });
+
+  const maxVal = Math.max(...buckets, 1);
+  const bestDay = Math.max(...buckets);
+
+  buckets.forEach((val, i) => {
+    const pct = Math.max(8, (val / maxVal) * 100);
+    const col = document.createElement("div");
+    col.className = "bar-col";
+    col.innerHTML = `
+      <div class="bar-wrap">
+        <div class="bar${val === bestDay && val > 0 ? " peak" : ""}" style="height:${pct}%">
+          ${val > 0 ? `<span class="bar-val">${val}</span>` : ""}
+        </div>
+      </div>
+      <span class="bar-label">${DAY_LABELS[i]}</span>`;
+    chartEl.appendChild(col);
+  });
+
+  const streak = computeStreak(sessions);
+  const avgMin = totalSessions ? Math.round(totalMin / totalSessions) : 0;
+
+  document.getElementById("stat-total-min").textContent = totalMin;
+  document.getElementById("stat-sessions").textContent = totalSessions;
+  document.getElementById("stat-best-day").textContent = bestDay;
+  document.getElementById("stat-avg").textContent = avgMin;
+  document.getElementById("streak-value").textContent = streak;
+  document.getElementById("streak-unit").textContent = streak === 1 ? "day" : "days";
+  document.getElementById("motivational-text").innerHTML =
+    `<span>${motivationalText(avgMin, streak)}</span>`;
+}
+
 async function loadAchievements() {
   const listEl = document.getElementById("badge-list");
   listEl.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Loading badges…</p></div>`;
   try {
-const snap = await getDocs(
-  collection(db, "users", auth.currentUser.uid, "achievements")
-);
+    const snap = await getDocs(
+      collection(db, "users", auth.currentUser.uid, "achievements")
+    );
     const items = snap.docs.map(d => d.data());
     if (!items.length) {
       listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">🏅</div>No achievements yet.</div>`;
@@ -581,45 +556,38 @@ const snap = await getDocs(
   }
 }
 
-async function loadActivity() {
+async function loadActivity(sessions) {
+ console.log("First session raw:", sessions[0])
+console.log("All keys:", Object.keys(sessions[0]));
+console.log("Full session:", JSON.stringify(sessions[0]));
   const listEl = document.getElementById("activity-list");
-  listEl.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Loading…</p></div>`;
-  try {
-const snap = await getDocs(
-  query(
-    collection(db, "users", auth.currentUser.uid, "sessions"),
-    orderBy("timestamp","desc"),
-    limit(10)
-  )
-);
-    const items = snap.docs.map(d => d.data());
-    if (!items.length) {
-      listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div>No recent activity.</div>`;
-      return;
-    }
-    listEl.innerHTML = "";
-    items.forEach(item => {
-      const el = document.createElement("div");
-      el.className = "activity-item";
-      el.innerHTML = `
-        <div class="activity-dot"></div>
-        <span class="activity-name">${item.activityName || "Session"}</span>
-        <span class="activity-time">${timeAgo(item.timestamp)}</span>
-        <span class="activity-mins">${item.durationMinutes || 0}m</span>`;
-      listEl.appendChild(el);
-    });
-  } catch (e) {
-    listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div>${e.message}</div>`;
+  const recent = sessions.slice(0, 10);
+
+  if (!recent.length) {
+    listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div>No recent activity.</div>`;
+    return;
   }
+
+  listEl.innerHTML = "";
+  recent.forEach(item => {
+    const dur = parseInt(item.durationMinutes ?? item.duration ?? 0) || 0;
+    const el = document.createElement("div");
+    el.className = "activity-item";
+    el.innerHTML = `
+      <div class="activity-dot"></div>
+      <span class="activity-name">${item.activityName || "Session"}</span>
+      <span class="activity-time">${timeAgo(item.timestamp)}</span>
+      <span class="activity-mins">${dur}m</span>`;
+    listEl.appendChild(el);
+  });
 }
+
 auth.onAuthStateChanged(user => {
   if (!user) {
     console.error("User not logged in");
     return;
   }
-
   loadAll();
 });
-</script>
-</body>
+</script></body>
 </html>
