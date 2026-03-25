@@ -1,314 +1,460 @@
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Attention Switch</title>
+<title>Attention Switch | MindFlex</title>
+
 <style>
-body {
-  margin: 0;
-  font-family: 'Poppins', sans-serif;
-  background: linear-gradient(180deg, #E3F2FD, #B3E5FC);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#E5E7EB;
+  font-family:'Poppins',sans-serif;
 }
 
-/* App container */
-#appContainer {
-  width: 320px;
-  height: 640px;
-  background: linear-gradient(180deg, #F0F9FF, #E1F5FE);
-  border-radius: 20px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 14px;
-  box-sizing: border-box;
-  overflow: hidden;
-  position: relative;
+/* APP CONTAINER */
+#appContainer{
+  width:320px;
+  height:620px;
+  border-radius:30px;
+  background:linear-gradient(180deg,#BBDEFB 0%, #E3F2FD 100%);
+  box-shadow:0 25px 60px rgba(0,0,0,0.25);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  position:relative;
+  padding:18px;
+  box-sizing:border-box;
 }
 
-/* Header */
-header {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  margin-bottom: 8px;
+/* Decorative bubbles */
+#appContainer::before{
+  content:"";
+  position:absolute;
+  width:200px;
+  height:200px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.25);
+  top:-70px;
+  right:-60px;
 }
 
-.back-btn {
-  position: absolute;
-  left: 10px;
-  color: #1565C0;
-  text-decoration: none;
-  font-size: 22px;
-  font-weight: 600;
-}
-
-.title {
-  font-size: 22px;
-  font-weight: 700;
-  color: #0D47A1;
-}
-
-/* Panels vertically stacked */
-#panels {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
-  flex-grow: 1;
-  width: 100%;
-}
-
-/* Each box */
-.panel {
-  display: grid;
-  gap: 8px;
-  border: 2px solid #90CAF9;
-  padding: 16px;
-  border-radius: 16px;
-  background: #E1F5FE;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: transform 0.25s, box-shadow 0.25s;
-}
-.panel:hover {
-  transform: scale(1.02);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.18);
-}
-
-/* Tiles */
-.tile {
-  width: 56px;
-  height: 56px;
-  border-radius: 10px;
-  transition: transform 0.3s, background 0.3s;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
-}
-
-/* Flash animation */
-.tile.flash {
-  animation: flashAnim 0.6s ease forwards;
-}
-@keyframes flashAnim {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); }
-  100% { transform: scale(1); }
-}
-
-/* Info section at bottom */
-#bottomSection {
-  text-align: center;
-  width: 100%;
-  margin-top: 10px;
-}
-
-/* Info bar */
-#infoPanel {
-  display: flex;
-  justify-content: space-around;
-  width: 100%;
-  font-size: 16px;
-  font-weight: 600;
-  color: #1565C0;
-  margin-bottom: 8px;
-}
-
-/* Message */
-#message {
-  font-size: 15px;
-  color: #1565C0;
-  font-weight: 600;
-  min-height: 20px;
-  margin-top: 4px;
-}
-
-/* Next Level button */
-#nextLevelBtn {
-  display: none;
-  background: #1565C0;
+#resetBtn {
+	position: absolute;
+  right: 5px;  
+  display: block;
+  margin: 8px auto 0 auto;
+  background: #E53935;
   color: white;
   border: none;
   padding: 10px 24px;
-  border-radius: 12px;
-  font-size: 16px;
+  border-radius: 18px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-  transition: background 0.3s, transform 0.2s;
+ }
+#resetBtn:hover {
+  background: #B71C1C;
 }
-#nextLevelBtn:hover {
-  background: #0D47A1;
-  transform: scale(1.05);
+#appContainer::after{
+  content:"";
+  position:absolute;
+  width:170px;
+  height:170px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.18);
+  bottom:-60px;
+  left:-50px;
 }
+
+/* HEADER */
+header{
+  height:60px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  z-index:2;
+}
+
+.back-btn{
+  position:absolute;
+  left:5px;
+  font-size:1.6rem;
+  text-decoration:none;
+  color:#0D47A1;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.title{
+  font-size:18px;
+  font-weight:600;
+  color:#0D47A1;
+}
+
+/* PANELS */
+#panels{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:16px;
+  z-index:2;
+}
+
+.panel{
+  display:grid;
+  gap:8px;
+  padding:16px;
+  border-radius:20px;
+  background:rgba(255,255,255,0.85);
+  backdrop-filter:blur(12px);
+  box-shadow:0 10px 25px rgba(0,0,0,0.15);
+  justify-content:center;
+  align-content:center;
+  cursor:pointer;
+}
+
+.tile{
+  width:56px;
+  height:56px;
+  border-radius:16px;
+  box-shadow:
+    6px 6px 12px rgba(0,0,0,0.15),
+    -6px -6px 12px rgba(255,255,255,0.7);
+  transition:transform .3s ease, box-shadow .3s ease;
+}
+
+.tile.flash{
+  transform:scale(1.25);
+  box-shadow:
+    0 0 20px rgba(0,0,0,0.25),
+    0 0 30px rgba(255,255,255,0.8);
+}
+
+/* BOTTOM */
+#bottomSection{
+  text-align:center;
+  z-index:2;
+}
+
+#startBtn{
+  background:#1565C0;
+  color:white;
+  border:none;
+  padding:10px 24px;
+  border-radius:18px;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(21,101,192,0.4);
+  margin-bottom:10px;
+}
+
+#infoPanel{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  font-weight:600;
+  color:#0D47A1;
+  margin-bottom:6px;
+}
+
+#message{
+  font-size:13px;
+  min-height:18px;
+  color:#1565C0;
+  margin-bottom:8px;
+}
+
+#nextLevelBtn{
+  display:none;
+  margin:12px auto 0 auto; /* 👈 CENTER */
+  background:#1565C0;
+  color:white;
+  border:none;
+  padding:12px 28px;
+  border-radius:18px;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(21,101,192,0.4);
+}
+
 </style>
 </head>
+
 <body>
 
 <div id="appContainer">
   <header>
-    <a href="../focuslab.html" class="back-btn">←</a>
-    <div class="title">Attention Switch</div>
+    <a href="#" class="back-btn">←</a>
+    
+<button id="resetBtn">Reset</button>
+
   </header>
 
   <div id="panels">
     <div id="topPanel" class="panel"></div>
     <div id="bottomPanel" class="panel"></div>
+ <button id="nextLevelBtn">Next Level</button>
   </div>
 
   <div id="bottomSection">
+    <button id="startBtn">Start</button>
     <div id="infoPanel">
       <div id="levelBar">Level: 1</div>
       <div id="score">Score: 0</div>
       <div id="roundNum">Round: 1 / 10</div>
     </div>
     <div id="message"></div>
-    <button id="nextLevelBtn">Next Level →</button>
   </div>
 </div>
-<script type="module" src="attention.js"></script>
-<script>
-const shapes = ['circle', 'square', 'triangle', 'star', 'diamond'];
-const colors = ['#42A5F5', '#66BB6A', '#FF7043', '#AB47BC', '#FFA726'];
-const TOTAL_LEVELS = 50;
-const ROUNDS_PER_LEVEL = 10;
 
-let level = parseInt(localStorage.getItem('as_level')) || 1;
-let score = parseInt(localStorage.getItem('as_score')) || 0;
-let round = parseInt(localStorage.getItem('as_round')) || 0;
+<script type="module">
+import { saveSession } from "./saveSession.js";
+import { addXP } from "./xp.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";/* 🔥 YOUR REAL FIREBASE CONFIG */
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+   apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
+  authDomain: "mindflex-b2a0c.firebaseapp.com",
+  projectId: "mindflex-b2a0c",
+  storageBucket: "mindflex-b2a0c.firebasestorage.app",
+  messagingSenderId: "148676867562",
+  appId: "1:148676867562:web:3365a72b6fa6b3751cee93",
+  measurementId: "G-Q2T6HD3S0E"
+  };
 
-const levelBar = document.getElementById('levelBar');
-const scoreEl = document.getElementById('score');
-const roundNum = document.getElementById('roundNum');
-const topPanel = document.getElementById('topPanel');
-const bottomPanel = document.getElementById('bottomPanel');
-const messageEl = document.getElementById('message');
-const nextBtn = document.getElementById('nextLevelBtn');
 
-let gridSize = 3;
-let topPattern = [];
-let bottomPattern = [];
-let changedPanel = '';
-let acceptingClick = false;
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-function getShapeClip(shape) {
-  switch (shape) {
-    case 'circle': return 'circle(50%)';
-    case 'square': return 'none';
-    case 'triangle': return 'polygon(50% 0%, 0% 100%, 100% 100%)';
-    case 'star': return 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)';
-    case 'diamond': return 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)';
-    default: return 'none';
+let currentUser = null;
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    currentUser = user;
+    loadProgress();
+  } else {
+    window.location.href = "../login.html"; // redirect if not logged in
+  }
+});
+
+
+
+const shapes=['circle','square','triangle','star','diamond'];
+const colors=['#42A5F5','#66BB6A','#FF7043','#AB47BC','#FFA726'];
+
+const TOTAL_LEVELS=50;
+const ROUNDS_PER_LEVEL=10;
+
+let level=1;
+let score=0;
+let round=0;
+let gridSize=3;
+let gameActive=false;
+
+const topPanel=document.getElementById("topPanel");
+const bottomPanel=document.getElementById("bottomPanel");
+const messageEl=document.getElementById("message");
+const nextBtn=document.getElementById("nextLevelBtn");
+const startBtn=document.getElementById("startBtn");
+
+async function saveProgress(){
+  if(!currentUser) return;
+  await setDoc(
+    doc(db, "users", currentUser.uid, "games", "focusflip"),
+    { level, score, round, gridSize, lastPlayed: new Date() },
+    { merge: true }
+  );
+}
+
+async function loadProgress(){
+  if(!currentUser) return;
+  try {
+    const snap = await getDoc(doc(db, "users", currentUser.uid, "games", "attentionSwitch"));
+    if(snap.exists()){
+      const data = snap.data();
+      level    = data.level    || 1;
+      score    = data.score    || 0;    
+      round    = data.round    || 0;
+      gridSize = data.gridSize || 3;
+      startBtn.style.display = "none";
+      gameActive = true;
+      updateUI();
+      startRound();
+    }
+  } catch(e) {
+    console.log("Load error:", e);
   }
 }
 
-function generatePanel() {
-  const pattern = [];
-  for (let i = 0; i < gridSize * gridSize; i++) {
-    pattern.push({
-      shape: shapes[Math.floor(Math.random() * shapes.length)],
-      color: colors[Math.floor(Math.random() * colors.length)]
+function getShapeClip(shape){
+  switch(shape){
+    case 'circle':return 'circle(50%)';
+    case 'triangle':return 'polygon(50% 0%,0% 100%,100% 100%)';
+    case 'star':return 'polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)';
+    case 'diamond':return 'polygon(50% 0%,100% 50%,50% 100%,0% 50%)';
+    default:return 'none';
+  }
+}
+
+function generatePattern(){
+  const arr=[];
+  for(let i=0;i<gridSize*gridSize;i++){
+    arr.push({
+      shape:shapes[Math.floor(Math.random()*shapes.length)],
+      color:colors[Math.floor(Math.random()*colors.length)]
     });
   }
-  return pattern;
+  return arr;
 }
 
-function renderPanel(panel, pattern) {
-  panel.innerHTML = '';
-  panel.style.gridTemplateColumns = `repeat(${gridSize}, 56px)`;
-  pattern.forEach(p => {
-    const div = document.createElement('div');
-    div.classList.add('tile');
-    div.style.background = p.color;
-    div.style.clipPath = getShapeClip(p.shape);
+function renderPanel(panel,pattern){
+  panel.innerHTML="";
+  panel.style.gridTemplateColumns=`repeat(${gridSize},56px)`;
+  panel.style.gridTemplateRows=`repeat(${gridSize},56px)`;
+
+  pattern.forEach(p=>{
+    const div=document.createElement("div");
+    div.classList.add("tile");
+    div.style.background=p.color;
+    const clip=getShapeClip(p.shape);
+    div.style.clipPath=clip;
+    div.style.webkitClipPath=clip;
     panel.appendChild(div);
   });
 }
 
-function startRound() {
-  nextBtn.style.display = 'none';
-  acceptingClick = false;
-  topPattern = generatePanel();
-  bottomPattern = JSON.parse(JSON.stringify(topPattern));
+function startRound(){
+  if(!gameActive) return;
 
-  changedPanel = Math.random() < 0.5 ? 'top' : 'bottom';
+  messageEl.textContent = "";
+  nextBtn.style.display = "none";
 
-  const changes = Math.max(1, Math.floor(gridSize / 2));
-  let changedIndices = [];
-  for (let i = 0; i < changes; i++) {
-    const idx = Math.floor(Math.random() * bottomPattern.length);
-    changedIndices.push(idx);
-    const newShape = shapes[Math.floor(Math.random() * shapes.length)];
-    const newColor = colors[Math.floor(Math.random() * colors.length)];
-    if (changedPanel === 'top') topPattern[idx] = { shape: newShape, color: newColor };
-    else bottomPattern[idx] = { shape: newShape, color: newColor };
+  const base = generatePattern();
+  const top = [...base];
+  const bottom = [...base];
+
+  const changedPanel = Math.random() < 0.5 ? 'top' : 'bottom';
+  const changeIndex = Math.floor(Math.random() * base.length);
+
+  const newShape = shapes[Math.floor(Math.random()*shapes.length)];
+  const newColor = colors[Math.floor(Math.random()*colors.length)];
+
+  if(changedPanel === 'top'){
+    top[changeIndex] = { shape:newShape, color:newColor };
+  } else {
+    bottom[changeIndex] = { shape:newShape, color:newColor };
   }
 
-  renderPanel(topPanel, topPattern);
-  renderPanel(bottomPanel, bottomPattern);
+  renderPanel(topPanel, top);
+  renderPanel(bottomPanel, bottom);
 
-  const panelToFlash = changedPanel === 'top' ? topPanel : bottomPanel;
-  changedIndices.forEach(idx => {
-    const tile = panelToFlash.children[idx];
-    tile.classList.add('flash');
-    setTimeout(() => { tile.classList.remove('flash'); }, 600);
-  });
+  const targetPanel = changedPanel === 'top' ? topPanel : bottomPanel;
+  const targetTile = targetPanel.children[changeIndex];
 
-  setTimeout(() => { acceptingClick = true; }, 650);
+  targetTile.classList.add('flash');
+  setTimeout(()=>targetTile.classList.remove('flash'),600);
+
+  topPanel.onclick = ()=>handleClick('top', changedPanel);
+  bottomPanel.onclick = ()=>handleClick('bottom', changedPanel);
 }
 
-function handleClick(panel) {
-  if (!acceptingClick) return;
-  acceptingClick = false;
-  if (panel === changedPanel) {
+
+function handleClick(panel, correctPanel){
+  if(!gameActive) return;
+
+
+  gameActive = false; // ⛔ hard stop input
+
+  if(panel === correctPanel){
     score++;
-    messageEl.textContent = 'Correct! 😊';
+    messageEl.textContent = "Correct";
   } else {
-    messageEl.textContent = 'Try again!';
+    messageEl.textContent = "Wrong";
   }
 
   round++;
-  if (round >= ROUNDS_PER_LEVEL) {
-    round = 0;
-    nextBtn.style.display = 'inline-block';
-    return;
+  updateUI();
+
+  // ✅ LEVEL FINISHED (THIS WAS NEVER TRIGGERING BEFORE)
+  if(round >= ROUNDS_PER_LEVEL){
+    level++;                               // 🔼 NEXT LEVEL
+    if(level > TOTAL_LEVELS) level = 1;
+
+    gridSize = Math.min(3 + Math.floor(level / 10), 6);
+
+    messageEl.textContent = "Level Complete";
+    nextBtn.style.display = "block";       // 👈 BUTTON APPEARS HERE
+saveSession("attentionSwitch", db, currentUser);   // ← save session
+  addXP(db, currentUser, 20);     
+ return;                                // ⛔ STOP EVERYTHING
   }
 
-  localStorage.setItem('as_level', level);
-  localStorage.setItem('as_score', score);
-  localStorage.setItem('as_round', round);
+  // ▶ NEXT ROUND ONLY IF LEVEL NOT DONE
+  setTimeout(()=>{
+    gameActive = true;
+    startRound();
+  },700);
 
-  updateUI();
-  setTimeout(startRound, 1000);
+saveProgress();
+  
 }
 
 nextBtn.onclick = () => {
-  level++;
-  if (level > TOTAL_LEVELS) level = 1;
-  gridSize = Math.min(3 + Math.floor(level / 10), 6);
-  localStorage.setItem('as_level', level);
-  localStorage.setItem('as_round', 0);
+  round = 0;
+  nextBtn.style.display = "none";
+  gameActive = true;
   updateUI();
   startRound();
 };
 
-function updateUI() {
-  levelBar.textContent = `Level: ${level}`;
-  scoreEl.textContent = `Score: ${score}`;
-  roundNum.textContent = `Round: ${round + 1} / ${ROUNDS_PER_LEVEL}`;
+document.getElementById("resetBtn").onclick = () => {
+  level = 1;
+  score = 0;
+  round = 0;
+  gridSize = 3;
+  gameActive = true;
+  nextBtn.style.display = "none";
+  startBtn.style.display = "none";
+  messageEl.textContent = "";
+  updateUI();
+  startRound();
+  saveProgress();
+};
+
+function updateUI(){
+  document.getElementById("levelBar").textContent=`Level: ${level}`;
+  document.getElementById("score").textContent=`Score: ${score}`;
+  document.getElementById("roundNum").textContent=`Round: ${round+1} / ${ROUNDS_PER_LEVEL}`;
 }
 
-topPanel.onclick = () => handleClick('top');
-bottomPanel.onclick = () => handleClick('bottom');
+startBtn.onclick = () => {
+  startBtn.style.display = "none";
+  level = 1;
+  score = 0;
+  round = 0;
+  gameActive = true;
+  updateUI();
+  startRound();
+};
 
 updateUI();
-startRound();
+
 </script>
 
 </body>
