@@ -41,21 +41,18 @@
       flex-shrink: 0;
     }
     
-    .back-btn {
-      background: none;
-      border: none;
+     
+ .back-btn {
+      position: relative;
+      top: 15px;
+      left: 15px;
+      font-size: 1.6rem;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      color: #1565C0;
-      font-Size: 13px;
-      font-weight: 600;
-      font-family: 'Poppins', sans-serif;
-      padding: 4px 0;
-      margin-bottom: 6px;
+      color: #003366;
+      font-weight: bold;
+      text-decoration: none;
     }
-    
+     
     .header-title {
       text-align: center;
     }
@@ -620,9 +617,7 @@
 <div class="container">
   <!-- Header -->
   <div class="header">
-  <div class="left-header">
-        <a href="Studyzone.html" class="back-btn">←</a>
-        </div>
+    <a href="main.html" class="back-btn">←</a>
     <div class="header-title">
       <h2 id="headerTitle">📚 StudyLens</h2>
       <p id="headerSubtitle">Upload a doc to generate a study set</p>
