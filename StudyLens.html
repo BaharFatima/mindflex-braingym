@@ -41,18 +41,21 @@
       flex-shrink: 0;
     }
     
-     
- .back-btn {
-      position: relative;
-      top: 15px;
-      left: 15px;
-      font-size: 1.6rem;
+    .back-btn {
+      background: none;
+      border: none;
       cursor: pointer;
-      color: #003366;
-      font-weight: bold;
-      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #1565C0;
+      font-Size: 13px;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      padding: 4px 0;
+      margin-bottom: 6px;
     }
-     
+    
     .header-title {
       text-align: center;
     }
@@ -618,6 +621,8 @@
   <!-- Header -->
   <div class="header">
     <a href="main.html" class="back-btn">←</a>
+    <button class="back-btn" id="backBtn">
+    </button>
     <div class="header-title">
       <h2 id="headerTitle">📚 StudyLens</h2>
       <p id="headerSubtitle">Upload a doc to generate a study set</p>
