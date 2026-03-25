@@ -1,431 +1,625 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Progress Card — Interactive Mock</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Progress Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
-  :root{
-    --bg:#f7fbff;
-    --card:#ffffff;
-    --muted:#7b8aa3;
-    --accent:#9fd3ff;
-    --dark:#1f2b48;
-    --pill:#e8f4ff;
+  :root {
+    --bg: #f0f4ff;
+    --card: #ffffff;
+    --primary: #3b6fd4;
+    --primary-light: #c8d9f8;
+    --primary-pale: #e8effe;
+    --accent: #f5a623;
+    --accent-light: #fff3d6;
+    --success: #4caf87;
+    --text-dark: #1a2340;
+    --text-mid: #5a6885;
+    --text-light: #9aa5be;
+    --bar-fill: #a8c3f5;
+    --bar-peak: #3b6fd4;
+    --shadow: 0 4px 24px rgba(59,111,212,0.10);
+    --shadow-sm: 0 2px 10px rgba(59,111,212,0.08);
+    --radius: 20px;
+    --radius-sm: 12px;
   }
-html, body {
-width: 320px;
-height: 640px;
-margin: 0 auto;
-overflow:hidden;
-}
-  body{font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:linear-gradient(180deg,var(--bg),#ffffff); margin:24px; display:flex; justify-content:center;}
-  .card{
-    width:360px; border-radius:20px; background:var(--card); box-shadow:0 18px 30px rgba(28,62,120,0.06), inset 0 1px 0 rgba(255,255,255,0.6); padding:28px; color:var(--dark);
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  h1{font-size:32px; margin:0 0 22px; text-align:center; font-weight:700; letter-spacing:-0.02em;}
-  
-  /* Improved bar graph styles */
-  .chart-container {
-    margin: 16px 0 24px;
+
+  .phone-shell {
+    width: 360px;
+    max-height: 720px;
+    background: #dde4f2;
+    border-radius: 40px;
     padding: 12px;
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(31, 43, 72, 0.05);
+    box-shadow: 0 20px 60px rgba(30,50,120,0.18), inset 0 1px 0 rgba(255,255,255,0.6);
   }
-  .chart-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-  }
-  .chart-title {
-    font-weight: 600;
-    font-size: 16px;
-    color: var(--dark);
-  }
-  .chart-legend {
-    display: flex;
-    align-items: center;
-    font-size: 12px;
-    color: var(--muted);
-  }
-  .legend-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
-    margin-right: 4px;
-  }
-  .bars{display:flex; gap:18px; justify-content:center; height:120px; align-items:flex-end; position:relative;}
-  .bar-wrapper {
+
+  .screen {
+    background: var(--bg);
+    border-radius: 30px;
+    overflow: hidden;
+    height: 696px;
     display: flex;
     flex-direction: column;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: var(--card);
+    padding: 18px 20px 14px;
+    display: flex;
     align-items: center;
-    flex: 1;
-    position: relative;
-  }
-  .bar{
-    width:42px; 
-    border-radius:12px; 
-    background:linear-gradient(180deg,#cfeeff,#bfe7ff); 
-    transition: all 0.3s ease;
-    position: relative;
-    cursor: pointer;
-    box-shadow:0 6px 10px rgba(20,80,140,0.04) inset;
-  }
-  .bar:hover {
-    transform: translateY(-5px);
-    box-shadow:0 6px 12px rgba(20,80,140,0.15);
-  }
-  .bar-value {
-    position: absolute;
-    top: -25px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--dark);
-    color: white;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 600;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    white-space: nowrap;
-  }
-  .bar:hover .bar-value {
-    opacity: 1;
-  }
-  .bar-value::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 4px solid transparent;
-    border-top-color: var(--dark);
-  }
-  .bar-label {
-    margin-top: 8px;
-    font-size: 12px;
-    color: var(--muted);
-    font-weight: 500;
-  }
-  .chart-animation {
-    animation: growBar 0.8s ease-out forwards;
-  }
-  @keyframes growBar {
-    from {
-      height: 0;
-    }
+    gap: 14px;
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+    z-index: 10;
   }
   .back-btn {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    background: #1565C0;
-    color: #fff;
-    border: none;
-    border-radius: 50px;
-    padding: 8px 14px;
-    font-size: 13px;
-    font-weight: 500;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    font-size: 1.4rem;
     cursor: pointer;
-    transition: 0.3s;
+    color: #003366;
+    font-weight: bold;
+    text-decoration: none;
+    line-height: 1;
+    flex-shrink: 0;
   }
-  .back-btn:hover { background: #0D47A1; }
-  
-  .status{display:flex; flex-direction:column; gap:12px; margin-top:10px;}
-  .streak-row{display:flex; align-items:center; gap:10px; font-size:18px; font-weight:600; color:var(--dark);}
-  .flame-wrap{display:inline-flex; align-items:center;}
-  /* flame animation */
-  .flame{width:22px;height:22px; display:inline-block; transform-origin:center; animation:flamePulse 1.6s ease-in-out infinite;}
-  @keyframes flamePulse{
-    0%{transform: translateY(0) scale(1);}
-    50%{transform: translateY(-2px) scale(1.06);}
-    100%{transform: translateY(0) scale(1);}
+  .topbar h1 {
+    font-family: 'Nunito', sans-serif;
+    font-size: 20px; font-weight: 800;
+    color: var(--text-dark);
+    letter-spacing: -.3px;
   }
-  /* cute pills for achievements */
-  .achievements{margin-top:6px;}
-  .pills{display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;}
-  .pill{
-    background:var(--pill); padding:10px 14px; border-radius:999px; font-weight:600; color:var(--dark); display:inline-flex; align-items:center; gap:8px; cursor:pointer; transition:transform .18s cubic-bezier(.2,.9,.2,1);
+  .sync-btn {
+    margin-left: auto;
+    background: var(--primary-pale);
+    border: none; cursor: pointer;
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-size: 12px; font-weight: 600;
+    color: var(--primary);
+    transition: background .2s;
   }
-  .pill:hover{transform: translateY(-4px) scale(1.02)}
-  .pill .star{width:14px;height:14px; display:inline-block;}
-  /* subtle confetti burst (JS triggers class) */
-  .confetti{
-    position:relative;
+  .sync-btn:hover { background: var(--primary-light); }
+
+  /* ── SCROLL CONTENT ── */
+  .scroll-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 16px 24px;
+    scroll-behavior: smooth;
   }
-  .confetti .burst{position:absolute; left:50%; top:0; transform:translate(-50%,-30%); pointer-events:none;}
-  .burst > div{width:6px;height:6px;border-radius:2px; opacity:0; position:absolute;}
-  /* See more link */
-  .see-more{display:block; margin-top:18px; font-size:18px; color:var(--dark); font-weight:700; text-decoration:none;}
-  /* modal */
-  .modal-backdrop{position:fixed; inset:0; background:rgba(10,20,40,0.35); display:flex; align-items:center; justify-content:center; z-index:50; opacity:0; pointer-events:none; transition:opacity .18s;}
-  .modal-backdrop.show{opacity:1; pointer-events:auto;}
-  .modal{width:92%; max-width:620px; background:white; padding:20px; border-radius:14px; box-shadow:0 18px 40px rgba(14,28,60,.2); transform:translateY(10px); transition:transform .18s;}
-  .modal-header{display:flex; justify-content:space-between; align-items:center; gap:12px}
-  .modal h2{margin:0; font-size:20px}
-  .close-btn{background:transparent;border:0;font-size:18px; cursor:pointer}
-  .grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px;}
-  .mini-chart{background:linear-gradient(180deg,#f7fbff,#fff); border-radius:10px; padding:12px; display:flex; align-items:flex-end; gap:8px; height:120px;}
-  .mini-chart .col{width:18%; background:linear-gradient(180deg,#9fd3ff,#d9f0ff); border-radius:6px 6px 6px 6px;}
-  .history{background:#fbfcff; border-radius:10px; padding:12px; height:120px; overflow:auto; font-size:14px;}
-  .actions{display:flex; gap:8px; margin-top:12px}
-  .btn{padding:8px 12px; border-radius:8px; border:0; cursor:pointer; font-weight:700}
-  .btn.primary{background:var(--dark); color:white}
-  .btn.ghost{background:transparent; border:1px solid #e8f0ff; color:var(--dark)}
-  /* small helper */
-  small.muted{color:var(--muted); display:block; margin-top:4px; font-weight:500}
+  .scroll-content::-webkit-scrollbar { width: 4px; }
+  .scroll-content::-webkit-scrollbar-track { background: transparent; }
+  .scroll-content::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 4px; }
+
+  /* ── SECTION CARD ── */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 18px 16px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+  }
+
+  /* ── CHART ── */
+  .chart-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .chart-title {
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px; font-weight: 800; color: var(--text-dark);
+  }
+  .legend {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 11px; color: var(--text-light);
+  }
+  .legend-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--bar-fill);
+  }
+
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 110px;
+    padding: 0 4px;
+  }
+  .bar-col {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .bar-wrap {
+    width: 100%; flex: 1;
+    display: flex; align-items: flex-end;
+    position: relative;
+  }
+  .bar {
+    width: 100%;
+    border-radius: 10px 10px 6px 6px;
+    background: var(--bar-fill);
+    transition: height .6s cubic-bezier(.34,1.56,.64,1);
+    position: relative;
+    overflow: hidden;
+    min-height: 8px;
+  }
+  .bar.peak { background: var(--bar-peak); }
+  .bar::after {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 40%;
+    background: linear-gradient(to bottom, rgba(255,255,255,.28), transparent);
+    border-radius: 10px 10px 0 0;
+  }
+  .bar-label {
+    font-size: 10px; font-weight: 600; color: var(--text-light);
+    letter-spacing: .2px;
+  }
+  .bar-val {
+    font-size: 9px; font-weight: 700; color: var(--primary);
+    position: absolute; top: -16px; left: 50%; transform: translateX(-50%);
+    white-space: nowrap;
+  }
+
+  /* ── MOTIVATIONAL ── */
+  .motivational {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--primary-pale);
+    border-radius: var(--radius-sm);
+    padding: 11px 14px;
+    margin-bottom: 14px;
+  }
+  .motivational span {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px; font-weight: 700; color: var(--primary);
+  }
+
+  /* ── STREAK ── */
+  .streak-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px;
+    background: var(--card);
+    border-radius: var(--radius);
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+  }
+  .streak-label {
+    font-size: 13px; color: var(--text-light); font-weight: 500;
+  }
+  .streak-value {
+    font-family: 'Nunito', sans-serif;
+    font-size: 18px; font-weight: 900; color: var(--text-dark);
+  }
+
+  /* ── STATS GRID ── */
+  .stats-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .stat-card {
+    background: var(--card);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    box-shadow: var(--shadow-sm);
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .stat-icon { font-size: 18px; }
+  .stat-val {
+    font-family: 'Nunito', sans-serif;
+    font-size: 20px; font-weight: 900; color: var(--text-dark);
+  }
+  .stat-key { font-size: 11px; color: var(--text-light); font-weight: 500; }
+
+  /* ── ACHIEVEMENTS ── */
+  .section-title {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px; font-weight: 800;
+    color: var(--primary);
+    letter-spacing: .5px; text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .badge-list { display: flex; flex-direction: column; gap: 8px; }
+  .badge {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--primary-pale);
+    border-radius: 24px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    position: relative; overflow: hidden;
+  }
+  .badge:hover { transform: scale(1.02); box-shadow: var(--shadow-sm); }
+  .badge-icon { font-size: 17px; }
+  .badge-name {
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px; font-weight: 800; color: var(--text-dark);
+  }
+  .badge-sub {
+    font-size: 10px; color: var(--text-light); font-weight: 500;
+  }
+  .badge-meta { flex: 1; }
+  .confetti-burst {
+    position: absolute; inset: 0; pointer-events: none;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+  }
+  .badge.pop .confetti-burst { animation: popout .6s ease forwards; }
+  @keyframes popout {
+    0% { opacity:0; transform:scale(.5); }
+    40% { opacity:1; transform:scale(1.4); }
+    100% { opacity:0; transform:scale(2); }
+  }
+
+  /* ── RECENT ACTIVITY ── */
+  .activity-list { display: flex; flex-direction: column; gap: 8px; }
+  .activity-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: var(--card);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+  }
+  .activity-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--primary);
+    flex-shrink: 0;
+  }
+  .activity-name {
+    font-size: 13px; font-weight: 600; color: var(--text-dark); flex: 1;
+  }
+  .activity-time {
+    font-size: 11px; color: var(--text-light);
+  }
+  .activity-mins {
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px; font-weight: 800; color: var(--primary);
+  }
+
+  /* ── HINT ── */
+  .hint {
+    font-size: 11px; color: var(--text-light);
+    text-align: center; margin-top: 8px;
+    font-style: italic;
+  }
+
+  /* ── LOADING ── */
+  .loading-state {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 12px; padding: 40px;
+  }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--primary-light);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-state p { font-size: 13px; color: var(--text-light); }
+
+  /* ── EMPTY / ERROR ── */
+  .empty-state {
+    text-align: center; padding: 30px 20px; color: var(--text-light);
+    font-size: 13px;
+  }
+  .empty-icon { font-size: 32px; margin-bottom: 8px; }
 </style>
 </head>
 <body>
-<button class="back-btn" onclick="window.location.href='main.html'">←</button>
-  <div class="card" role="region" aria-label="Progress card">
-    <h1>Progress</h1>
 
-    <!-- Improved bar graph -->
-    <div class="chart-container">
-      <div class="chart-header">
-        <div class="chart-title">Weekly Progress</div>
-        <div class="chart-legend">
-          <div class="legend-dot"></div>
-          <span>Minutes of activity</span>
-        </div>
-      </div>
-      <div class="bars" id="mainChart" aria-hidden="true">
-        <!-- Chart bars will be generated by JavaScript -->
-      </div>
+<div class="phone-shell">
+  <div class="screen">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <a href="main.html" class="back-btn">←</a>
+      <h1>Progress</h1>
+      <button class="sync-btn" onclick="loadAll()">↻ Sync</button>
     </div>
 
-    <div class="status">
-      <div style="text-align:center; font-weight:600; color:#234">You're improving consistently ✨</div>
+    <!-- SCROLLABLE BODY -->
+    <div class="scroll-content" id="main-scroll">
 
+      <!-- WEEKLY CHART CARD -->
+      <div class="card">
+        <div class="chart-header">
+          <span class="chart-title">Weekly Progress</span>
+          <span class="legend"><span class="legend-dot"></span> Minutes of activity</span>
+        </div>
+        <div class="bar-chart" id="bar-chart">
+          <div class="loading-state"><div class="spinner"></div><p>Loading chart…</p></div>
+        </div>
+      </div>
+
+      <!-- MOTIVATIONAL -->
+      <div class="motivational" id="motivational-text">
+        <span>✨ Loading your insights…</span>
+      </div>
+
+      <!-- STREAK -->
       <div class="streak-row">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span style="color:var(--muted); font-weight:600;">Streak</span>
-          <span style="font-size:18px; color:var(--dark); margin-left:6px;">5 Days</span>
-        </div>
+        <span class="streak-label">Streak</span>
+        <span class="streak-value" id="streak-value">—</span>
+        <span style="font-size:18px">🔥</span>
+        <span style="font-size:12px;color:var(--text-light);margin-left:4px" id="streak-unit"></span>
+      </div>
 
-        <!-- flame icon (animated SVG) -->
-        <div class="flame-wrap" title="Hot streak!">
-          <svg class="flame" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-            <defs>
-              <linearGradient id="g1" x1="0" x2="1">
-                <stop offset="0" stop-color="#ffd67a"/>
-                <stop offset="1" stop-color="#ff9f6b"/>
-              </linearGradient>
-            </defs>
-            <path d="M32 60c8-10 12-17 12-25 0-8-6-14-12-18-6 4-12 10-12 18 0 7 4 15 12 25z" fill="url(#g1)" opacity="0.95"/>
-            <path d="M32 40c3-4 6-6 6-10s-3-6-6-8c-3 2-6 5-6 8s3 6 6 10z" fill="#fff6d8" opacity="0.55"/>
-          </svg>
+      <!-- STATS GRID -->
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><div class="stat-icon">⏱</div><div class="stat-val" id="stat-total-min">—</div><div class="stat-key">Total Minutes</div></div>
+        <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-val" id="stat-sessions">—</div><div class="stat-key">Sessions</div></div>
+        <div class="stat-card"><div class="stat-icon">🏆</div><div class="stat-val" id="stat-best-day">—</div><div class="stat-key">Best Day (min)</div></div>
+        <div class="stat-card"><div class="stat-icon">📈</div><div class="stat-val" id="stat-avg">—</div><div class="stat-key">Daily Avg (min)</div></div>
+      </div>
+
+      <!-- ACHIEVEMENTS -->
+      <div class="card">
+        <div class="section-title">Achievements</div>
+        <div class="badge-list" id="badge-list">
+          <div class="loading-state"><div class="spinner"></div><p>Loading badges…</p></div>
+        </div>
+        <p class="hint">Tap a badge to celebrate — unlocks a tiny confetti burst.</p>
+      </div>
+
+      <!-- RECENT ACTIVITY -->
+      <div class="card">
+        <div class="section-title">Recent Activity</div>
+        <div class="activity-list" id="activity-list">
+          <div class="loading-state"><div class="spinner"></div><p>Loading activity…</p></div>
         </div>
       </div>
 
-      <div class="achievements">
-        <div style="color:var(--muted); font-weight:700; margin-top:6px;">Achievements</div>
-
-        <div class="pills" id="pills">
-          <div class="pill confetti" data-name="Calm Day">
-            <svg class="star" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l2.6 5.9L21 9.2l-4.9 4.1L17.2 21 12 17.8 6.8 21l1.1-7.7L3 9.2l6.4-1.3L12 2z" fill="#ffd36a"/></svg>
-            Calm Day
-            <div class="burst" aria-hidden="true"></div>
-          </div>
-
-          <div class="pill confetti" data-name="Focused Breath">
-            <svg class="star" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l2.6 5.9L21 9.2l-4.9 4.1L17.2 21 12 17.8 6.8 21l1.1-7.7L3 9.2l6.4-1.3L12 2z" fill="#ffd36a"/></svg>
-            Focused Breath
-            <div class="burst" aria-hidden="true"></div>
-          </div>
-
-          <div class="pill confetti" data-name="No-Stress Hour">
-            <svg class="star" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l2.6 5.9L21 9.2l-4.9 4.1L17.2 21 12 17.8 6.8 21l1.1-7.7L3 9.2l6.4-1.3L12 2z" fill="#ffd36a"/></svg>
-            No-Stress Hour
-            <div class="burst" aria-hidden="true"></div>
-          </div>
-        </div>
-        <small class="muted">Tap a badge to celebrate — unlocks show a tiny confetti burst.</small>
-      </div>
-
-      <a class="see-more" id="seeMoreBtn" href="#" role="button" aria-haspopup="dialog">See More →</a>
-    </div>
+    </div><!-- end scroll -->
   </div>
+</div>
 
-  <!-- Modal -->
-  <div class="modal-backdrop" id="modal" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="modal" role="document">
-      <div class="modal-header">
-        <h2>Progress details</h2>
-        <button class="close-btn" id="closeModal" aria-label="Close">✕</button>
-      </div>
+<!-- ═══════════════════════════════════════════════
+     FIREBASE  ── paste your firebaseConfig below
+════════════════════════════════════════════════ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+import {
+  getFirestore, collection, getDocs, query, orderBy, limit
+} from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
 
-      <div class="grid" style="margin-top:10px;">
-        <div>
-          <div style="font-weight:700; margin-bottom:8px;">Weekly overview</div>
-          <div class="mini-chart" id="miniChart" aria-hidden="true">
-            <!-- columns created by JS -->
-          </div>
-          <small class="muted">Shows last 7 days (left = oldest)</small>
-        </div>
 
-        <div>
-          <div style="font-weight:700; margin-bottom:8px;">Streak history</div>
-          <div class="history" id="historyList">
-            <!-- JS fills -->
-          </div>
-        </div>
-      </div>
+/* ─── 🔧 REPLACE WITH YOUR FIREBASE CONFIG ─── */
+const firebaseConfig = {
+  apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
+  authDomain: "mindflex-b2a0c.firebaseapp.com",
+  projectId: "mindflex-b2a0c",
+  storageBucket: "mindflex-b2a0c.firebasestorage.app",
+  messagingSenderId: "148676867562",
+  appId: "1:148676867562:web:3365a72b6fa6b3751cee93",
+  measurementId: "G-Q2T6HD3S0E"
+};
+/* ─────────────────────────────────────────────── */
 
-      <div style="margin-top:12px;">
-        <div style="font-weight:700;">Achievements</div>
-        <div style="display:flex; gap:8px; margin-top:8px;">
-          <div class="pill">Calm Day <small style="margin-left:8px;color:var(--muted);font-weight:600">Unlocked 2d ago</small></div>
-          <div class="pill">Focused Breath <small style="margin-left:8px;color:var(--muted);font-weight:600">Unlocked 4d ago</small></div>
-        </div>
-      </div>
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const auth = getAuth();
 
-      <div class="actions">
-        <button class="btn primary" id="shareBtn">Share</button>
-        <button class="btn ghost" id="exportBtn">Export CSV</button>
-        <div style="flex:1"></div>
-        <button class="btn ghost" id="closeFooter">Close</button>
-      </div>
-    </div>
-  </div>
+/* ───── HELPERS ───── */
+const DAY_LABELS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
-<script>
-  // simple mock data
-  const weekly = [3,5,4,6,7,8,9]; // 7 days progress numbers
-  const dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const history = [
-    {date:'2025-11-01', detail:'3-day streak'},
-    {date:'2025-11-03', detail:'5-day streak'},
-    {date:'2025-11-06', detail:'Streak extended to 5 days'},
-  ];
+function timeAgo(ts) {
+  if (!ts) return "";
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  const diff = Math.floor((Date.now() - d) / 60000);
+  if (diff < 1) return "just now";
+  if (diff < 60) return `${diff}m ago`;
+  if (diff < 1440) return `${Math.floor(diff/60)}h ago`;
+  return `${Math.floor(diff/1440)}d ago`;
+}
 
-  // Function to create the main chart
-  function createMainChart() {
-    const chart = document.getElementById('mainChart');
-    chart.innerHTML = ''; // Clear existing content
-    
-    // Create 4 bars with fixed heights to match the image
-    const barHeights = [50, 72, 90, 120]; // Heights in pixels
-    const barValues = [25, 40, 65, 90]; // Values for tooltips
-    
-    barHeights.forEach((height, index) => {
-      const barWrapper = document.createElement('div');
-      barWrapper.className = 'bar-wrapper';
-      
-      const bar = document.createElement('div');
-      bar.className = 'bar chart-animation';
-      
-      // Set fixed height for each bar
-      bar.style.height = `${height}px`;
-      
-      // Add value tooltip
-      const barValue = document.createElement('div');
-      barValue.className = 'bar-value';
-      barValue.textContent = `${barValues[index]} min`;
-      bar.appendChild(barValue);
-      
-      barWrapper.appendChild(bar);
-      chart.appendChild(barWrapper);
-      
-      // Stagger animation for each bar
-      setTimeout(() => {
-        bar.style.animationDelay = `${index * 0.1}s`;
-      }, 10);
-    });
+function motivationalText(avgMin, streak) {
+  if (streak >= 7)  return `🔥 ${streak}-day streak! You're unstoppable.`;
+  if (streak >= 3)  return `✨ You're improving consistently — keep it up!`;
+  if (avgMin >= 30) return `💪 Great consistency this week!`;
+  if (avgMin >= 10) return `🌱 Good start — push a little further each day.`;
+  return `🚀 Every session counts. Start your streak today!`;
+}
+
+/* ═══════════════════════════════════════
+   LOAD ALL DATA
+   Expects Firestore collections:
+     sessions  — { userId, activityName, durationMinutes, timestamp }
+     achievements — { name, emoji, earnedAt }
+══════════════════════════════════════ */
+window.loadAll = async function () {
+  await Promise.all([loadChart(), loadAchievements(), loadActivity()]);
+};
+
+async function loadChart() {
+  const chartEl = document.getElementById("bar-chart");
+
+  // 🔒 Safety check
+  if (!auth.currentUser) {
+    console.error("User not ready");
+    return;
   }
 
-  // build mini chart as columns
-  const miniChart = document.getElementById('miniChart');
-  weekly.forEach(v=>{
-    const col = document.createElement('div');
-    col.className = 'col';
-    // scale to 100px height
-    col.style.height = Math.max(8, Math.round((v / Math.max(...weekly)) * 100)) + 'px';
-    miniChart.appendChild(col);
-  });
+  chartEl.innerHTML = "Loading...";
 
-  // fill history
-  const historyList = document.getElementById('historyList');
-  history.forEach(h=>{
-    const row = document.createElement('div');
-    row.style.paddingBottom='8px';
-    row.innerHTML = '<strong style="display:block">'+h.detail+'</strong><small class="muted">'+h.date+'</small>';
-    historyList.appendChild(row);
-  });
+  try {
+    const snap = await getDocs(
+      query(
+        collection(db, "users", auth.currentUser.uid, "sessions"),
+        orderBy("timestamp","desc"),
+        limit(200)
+      )
+    );
 
-  // modal open/close
-  const modal = document.getElementById('modal');
-  const seeMore = document.getElementById('seeMoreBtn');
-  const closeModal = document.getElementById('closeModal');
-  const closeFooter = document.getElementById('closeFooter');
+    const sessions = snap.docs.map(d => d.data());
 
-  function openModal(){
-    modal.classList.add('show');
-    modal.setAttribute('aria-hidden','false');
-  }
-  function hideModal(){
-    modal.classList.remove('show');
-    modal.setAttribute('aria-hidden','true');
-  }
-  seeMore.addEventListener('click', e => { e.preventDefault(); openModal(); });
-  closeModal.addEventListener('click', hideModal);
-  closeFooter.addEventListener('click', hideModal);
-  modal.addEventListener('click', (e)=>{ if(e.target === modal) hideModal(); });
-
-  // achievement confetti burst function
-  function createBurst(el){
-    const burst = el.querySelector('.burst');
-    burst.innerHTML = ''; // clear
-    const colors = ['#ffd36a','#ff9f6b','#9fe3ff','#b6ffd6'];
-    for(let i=0;i<8;i++){
-      const p = document.createElement('div');
-      p.style.background = colors[i%colors.length];
-      p.style.left = (Math.random()*80 - 40) + 'px';
-      p.style.top = (Math.random()*-20) + 'px';
-      p.style.transform = 'translateY(0) scale(0.2) rotate('+(Math.random()*360)+'deg)';
-      burst.appendChild(p);
-      // animate with short timeout
-      setTimeout(()=> {
-        p.style.transition = 'transform .5s ease-out, opacity .5s';
-        p.style.transform = 'translateY('+(80 + Math.random()*40)+'px) scale(1) rotate('+(Math.random()*360)+'deg)';
-        p.style.opacity = '1';
-      }, 30 + i*30);
+    // ❗ Empty data case
+    if (!sessions.length) {
+      chartEl.innerHTML = "No data yet";
+      return;
     }
-    // fade out after
-    setTimeout(()=>{ burst.innerHTML=''; }, 900);
+
+    const buckets = Array(7).fill(0);
+    let totalMin = 0, totalSessions = 0, bestDay = 0;
+
+    // ✅ Get current week start (Sunday)
+    const now = new Date();
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - now.getDay());
+    weekStart.setHours(0,0,0,0);
+
+    sessions.forEach(s => {
+      const d = s.timestamp?.toDate ? s.timestamp.toDate() : new Date(s.timestamp);
+
+      totalMin += (s.durationMinutes || 0);
+      totalSessions++;
+
+      // ✅ Only count THIS WEEK
+      if (d >= weekStart) {
+        const dayIdx = d.getDay();
+        buckets[dayIdx] += (s.durationMinutes || 0);
+
+        if (buckets[dayIdx] > bestDay) bestDay = buckets[dayIdx];
+      }
+    });
+
+    console.log("Sessions:", sessions);
+
+    // ✅ Render chart
+    chartEl.innerHTML = "";
+
+    const maxVal = Math.max(...buckets, 1);
+
+    buckets.forEach((val, i) => {
+      const height = Math.max(10, (val / maxVal) * 100);
+
+      const bar = document.createElement("div");
+      bar.style.width = "12%";
+      bar.style.height = height + "%";
+      bar.style.background = "#3b6fd4";
+      bar.style.display = "inline-block";
+      bar.style.margin = "2px";
+
+      chartEl.appendChild(bar);
+    });
+
+    // ✅ Update stats
+    document.getElementById("stat-total-min").textContent = totalMin;
+    document.getElementById("stat-sessions").textContent = totalSessions;
+    document.getElementById("stat-best-day").textContent = bestDay;
+    document.getElementById("stat-avg").textContent =
+      totalSessions ? Math.round(totalMin / totalSessions) : 0;
+
+  } catch (e) {
+    console.error(e);
+    chartEl.innerHTML = "Error loading data";
+  }
+}
+
+function computeStreak(sessions) {
+  if (!sessions.length) return 0;
+  const days = new Set(sessions.map(s => {
+    const d = s.timestamp?.toDate ? s.timestamp.toDate() : new Date(s.timestamp);
+    return d.toDateString();
+  }));
+  let streak = 0, day = new Date();
+  while (true) {
+    if (days.has(day.toDateString())) {
+      streak++;
+      day.setDate(day.getDate() - 1);
+    } else break;
+  }
+  return streak;
+}
+
+async function loadAchievements() {
+  const listEl = document.getElementById("badge-list");
+  listEl.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Loading badges…</p></div>`;
+  try {
+const snap = await getDocs(
+  collection(db, "users", auth.currentUser.uid, "achievements")
+);
+    const items = snap.docs.map(d => d.data());
+    if (!items.length) {
+      listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">🏅</div>No achievements yet.</div>`;
+      return;
+    }
+    listEl.innerHTML = "";
+    items.forEach(item => {
+      const badge = document.createElement("div");
+      badge.className = "badge";
+      badge.innerHTML = `
+        <span class="badge-icon">${item.emoji || "⭐"}</span>
+        <div class="badge-meta">
+          <div class="badge-name">${item.name || "Achievement"}</div>
+          ${item.description ? `<div class="badge-sub">${item.description}</div>` : ""}
+        </div>
+        <div class="confetti-burst">🎉</div>`;
+      badge.addEventListener("click", () => {
+        badge.classList.remove("pop");
+        void badge.offsetWidth;
+        badge.classList.add("pop");
+      });
+      listEl.appendChild(badge);
+    });
+  } catch (e) {
+    listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div>${e.message}</div>`;
+  }
+}
+
+async function loadActivity() {
+  const listEl = document.getElementById("activity-list");
+  listEl.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>Loading…</p></div>`;
+  try {
+const snap = await getDocs(
+  query(
+    collection(db, "users", auth.currentUser.uid, "sessions"),
+    orderBy("timestamp","desc"),
+    limit(10)
+  )
+);
+    const items = snap.docs.map(d => d.data());
+    if (!items.length) {
+      listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div>No recent activity.</div>`;
+      return;
+    }
+    listEl.innerHTML = "";
+    items.forEach(item => {
+      const el = document.createElement("div");
+      el.className = "activity-item";
+      el.innerHTML = `
+        <div class="activity-dot"></div>
+        <span class="activity-name">${item.activityName || "Session"}</span>
+        <span class="activity-time">${timeAgo(item.timestamp)}</span>
+        <span class="activity-mins">${item.durationMinutes || 0}m</span>`;
+      listEl.appendChild(el);
+    });
+  } catch (e) {
+    listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div>${e.message}</div>`;
+  }
+}
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    console.error("User not logged in");
+    return;
   }
 
-  // attach click to pills
-  document.querySelectorAll('.pill').forEach(p=>{
-    p.addEventListener('click', ()=>{
-      // small bounce
-      p.style.transform = 'scale(1.06)';
-      setTimeout(()=> p.style.transform = '', 160);
-      createBurst(p);
-    });
-  });
-
-  // small accessibility: pressing Escape closes the modal
-  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') hideModal(); });
-
-  // dummy share/export handlers
-  document.getElementById('shareBtn').addEventListener('click', ()=> alert('Share sheet (placeholder)'));
-  document.getElementById('exportBtn').addEventListener('click', ()=> {
-    const csv = 'date,streak\\n2025-11-01,3\\n2025-11-03,5';
-    const blob = new Blob([csv], {type:'text/csv'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'progress.csv'; a.click();
-    URL.revokeObjectURL(url);
-  });
-  
-  // Initialize the main chart when the page loads
-  window.addEventListener('load', createMainChart);
+  loadAll();
+});
 </script>
 </body>
 </html>
