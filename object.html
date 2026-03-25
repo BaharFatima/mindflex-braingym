@@ -17,7 +17,23 @@ body{
   background:#E5E7EB;
   font-family:'Poppins',sans-serif;
 }
-
+#resetBtn {
+	position: absolute;
+  right: 3px;  
+  display: block;
+  margin: 6px auto 0 auto;
+  background: #E53935;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 18px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+ }
+#resetBtn:hover {
+  background: #B71C1C;
+}
 /* APP CONTAINER */
 .app{
   width:320px;
@@ -76,6 +92,9 @@ header{
 }
 
 .title{
+	position: absolute;
+  right: 100px;  
+	
   font-size:18px;
   font-weight:700;
   color:#0D47A1;
@@ -174,7 +193,8 @@ input{
 <div class="app">
 
 <header>
-  <a href="../focuslab.html" class="back-btn">←</a>
+
+  <a href="../focuslab.html" class="back-btn">←</a><button id="resetBtn">Reset</button>
   <div class="title">Emoji Spelling</div>
 </header>
 
@@ -223,28 +243,11 @@ const db = getFirestore(app);
 
 let currentUser = null;
 
-//onAuthStateChanged(auth, (user) => {
-  //if (user) {
-    //currentUser = user;
-    //loadProgress();
-  //} 
-  onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth, (user) => {
   if (user) {
     currentUser = user;
-
-    // ✅ CREATE USER DOC IF NOT EXISTS
-    await setDoc(
-      doc(db, "users", user.uid),
-      {
-        createdAt: new Date(),
-        xp: 0
-      },
-      { merge: true }
-    );
-
     loadProgress();
-  }
-  else {
+  } else {
     window.location.href = "../login.html"; // redirect if not logged in
   }
 });
@@ -393,6 +396,10 @@ console.log("currentUser is:", currentUser);
   saveProgress();
 	
 saveSession("object", db, currentUser);
+};
+document.getElementById('resetBtn').onclick = () => {
+  level = 1;
+  generateLevel();
 };
 
 /* INIT */
