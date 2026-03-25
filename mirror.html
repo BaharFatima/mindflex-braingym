@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,144 +8,189 @@
 <title>Mirror Match Game</title>
 <style>
 /* Base Layout */
-body {
-  margin: 0;
-  font-family: 'Poppins', sans-serif;
-  background: linear-gradient(180deg, #E3F2FD, #FFFFFF);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+/* BASE */
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#E5E7EB;
+  font-family:'Poppins',sans-serif;
 }
 
-/* App Container */
-#appContainer {
-  width: 320px;
-  height: 640px;
-  background: #F7FAFF;
-  border-radius: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 12px;
-  box-sizing: border-box;
-  overflow: hidden;
+/* APP CONTAINER */
+#appContainer{
+  width:320px;
+  height:620px;
+  border-radius:30px;
+  background:linear-gradient(180deg,#BBDEFB 0%, #E3F2FD 100%);
+  box-shadow:0 25px 60px rgba(0,0,0,0.25);
+  display:flex;
+  flex-direction:column;
+  padding:18px;
+  box-sizing:border-box;
+  position:relative;
+  overflow:hidden;
 }
-
-/* Header */
-header {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  margin-bottom: 8px;
-}
-
-.back-btn {
-  position: absolute;
-  left: 10px;
-  top: 0;
-  color: #1565C0;
-  text-decoration: none;
-  font-size: 20px;
-  font-weight: 600;
-}
-
-/* Title and Info */
-.title {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1565C0;
-  margin-top: 5px;
-  margin-bottom: 8px;
-}
-
-#levelBar, #score, #patternNum {
-  font-weight: 600;
-  color: #0D47A1;
-  margin: 3px 0;
+#resetBtn {
+	position: absolute;
+  right: 5px;  
+  display: block;
+  margin: 8px auto 0 auto;
+  background: #E53935;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 18px;
   font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+ }
+#resetBtn:hover {
+  background: #B71C1C;
 }
 
-/* Grid Container */
-#grids {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 14px;
-  width: 100%;
-  flex-grow: 1;
-  padding: 6px 0;
+/* Decorative bubbles */
+#appContainer::before{
+  content:"";
+  position:absolute;
+  width:200px;
+  height:200px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.25);
+  top:-70px;
+  right:-60px;
 }
 
-/* Each Grid */
-.grid {
-  display: grid;
-  gap: 5px;
-  width: 46%;
+#appContainer::after{
+  content:"";
+  position:absolute;
+  width:170px;
+  height:170px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.18);
+  bottom:-60px;
+  left:-50px;
+}
+
+/* HEADER */
+header{
+  position:relative;
+  text-align:center;
+  margin-bottom:8px;
+  z-index:2;
+}
+
+.back-btn{
+  position:absolute;
+  left:5px;
+  font-size:1.6rem;
+  text-decoration:none;
+  color:#0D47A1;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.title{
+  font-size:18px;
+  font-weight:700;
+  color:#0D47A1;
+}
+
+#levelBar,#score,#patternNum{
+  font-size:12px;
+  font-weight:600;
+  color:#0D47A1;
+  margin-top:3px;
+}
+
+/* GRID AREA */
+#grids{
+  flex:1;
+  display:flex;
+  justify-content:center;
+  gap:14px;
+  align-items:center;
+}
+
+.grid{
+  display:grid;
+  gap:6px;
+  width:46%;
 }
 
 /* Tiles */
-.tile {
-  width: 100%;
-  aspect-ratio: 1/1;
-  border-radius: 10px;
-  background: #42A5F5;
-  transition: transform 0.2s, background 0.2s;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-}
-.tile.off {
-  background: #FFFFFF;
-  border: 2px solid #42A5F5;
+.tile{
+  width:100%;
+  aspect-ratio:1/1;
+  border-radius:12px;
+  background:#1565C0;
+  box-shadow:0 6px 14px rgba(0,0,0,0.15);
 }
 
-/* Buttons */
-#buttons {
-  margin-top: 6px;
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-button {
-  padding: 8px 12px;
-  font-size: 14px;
-  cursor: pointer;
-  border: none;
-  border-radius: 8px;
-  background: #1565C0;
-  color: white;
-  font-weight: 600;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-button:hover {
-  transform: scale(1.05);
+.tile.off{
+  background:rgba(255,255,255,0.95);
+  border:2px solid #1565C0;
 }
 
-/* Message */
-#message {
-  margin-top: 8px;
-  font-size: 14px;
-  color: #1565C0;
-  font-weight: 600;
-  min-height: 20px;
+/* YES / NO BUTTON CONTAINER */
+#buttons{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+  flex-shrink:0;
 }
 
-/* Next Level Button */
-#nextLevel {
-  margin-top: 6px;
-  background: #1E88E5;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 20px;
-  font-size: 14px;
-  cursor: pointer;
-  display: none;
-  font-weight: 600;
+/* YES / NO BUTTON STYLE */
+.choice-btn{
+  flex:1;
+  padding:12px 8px;
+  border:none;
+  border-radius:18px;
+  background:#1565C0;
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:0 8px 20px rgba(21,101,192,0.4);
+  transition:.2s;
 }
+
+.choice-btn:hover{
+  transform:scale(1.05);
+}
+
+/* MESSAGE */
+#message{
+  margin-top:8px;
+  font-size:13px;
+  font-weight:600;
+  color:#0D47A1;
+  min-height:20px;
+  text-align:center;
+}
+
+/* NEXT LEVEL BUTTON */
+#nextLevel{
+  width:70%;
+  padding:12px;
+  border:none;
+  border-radius:20px;
+  background:#1E88E5;
+  color:white;
+  font-weight:600;
+  align-self:center;
+  margin-top:10px;
+  display:none;
+  box-shadow:0 8px 20px rgba(30,136,229,0.4);
+  cursor:pointer;
+  flex:none;
+}
+
+#nextLevel:hover{
+  transform:scale(1.05);
+}
+
 </style>
 </head>
 <body>
@@ -152,7 +199,7 @@ button:hover {
 
 <header>
   <a href="../focuslab.html" class="back-btn">←</a>
-  <div class="title">Mirror Match</div>
+  <button id="resetBtn">Reset</button>
   <div id="levelBar">Level: 1</div>
   <div id="score">Score: 0</div>
   <div id="patternNum">Pattern: 1 / 10</div>
@@ -164,22 +211,60 @@ button:hover {
 </div>
 
 <div id="buttons">
-  <button id="yesBtn">Yes, it mirrors</button>
-  <button id="noBtn">No, it doesn’t</button>
+  <button id="yesBtn" class="choice-btn">Yes, it mirrors</button>
+  <button id="noBtn" class="choice-btn">No, it doesn’t</button>
+
 </div>
 
 <div id="message"></div>
-<button id="nextLevel">Next Level ➜</button>
+<button id="nextLevel">Next Level</button>
 
 </div>
-<script type="module" src="attention.js"></script>
-<script>
+
+<script type="module">
+import { saveSession } from "./saveSession.js";
+import { addXP } from "./xp.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";/* 🔥 YOUR REAL FIREBASE CONFIG */
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+   apiKey: "AIzaSyD9bnmF1N44Nkuk3WZQjK9z4gRE00VRmCY",
+  authDomain: "mindflex-b2a0c.firebaseapp.com",
+  projectId: "mindflex-b2a0c",
+  storageBucket: "mindflex-b2a0c.firebasestorage.app",
+  messagingSenderId: "148676867562",
+  appId: "1:148676867562:web:3365a72b6fa6b3751cee93",
+  measurementId: "G-Q2T6HD3S0E"
+  };
+
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    currentUser = user;
+    loadProgress();
+  } else {
+    window.location.href = "../login.html"; // redirect if not logged in
+  }
+});
+
 const TOTAL_LEVELS = 50;
 const PATTERNS_PER_LEVEL = 10;
 
-let level = parseInt(localStorage.getItem('mm_level')) || 1;
-let score = parseInt(localStorage.getItem('mm_score')) || 0;
-let patternIndex = parseInt(localStorage.getItem('mm_pattern')) || 0;
+let level = 1;
+let score = 0;
+let patternIndex = 0;
+
+let gridSize = 3;
+let leftPattern = [];
+let rightPattern = [];
+let isMirrorCorrect = true;
 
 const levelBar = document.getElementById('levelBar');
 const scoreEl = document.getElementById('score');
@@ -189,119 +274,145 @@ const rightGrid = document.getElementById('rightGrid');
 const messageEl = document.getElementById('message');
 const nextLevelBtn = document.getElementById('nextLevel');
 
-let gridSize = 3;
-let leftPattern = [];
-let rightPattern = [];
-let isMirrorCorrect = true;
-
-function updateUI() {
-  levelBar.textContent = `Level: ${level}`;
-  scoreEl.textContent = `Score: ${score}`;
-  patternNum.textContent = `Pattern: ${patternIndex + 1} / ${PATTERNS_PER_LEVEL}`;
+/* LOAD PROGRESS */
+// ✅ NEW
+async function loadProgress(){
+  if(!currentUser) return;
+  try {
+    const snap = await getDoc(doc(db, "users", currentUser.uid, "games", "symmetry"));
+    if(snap.exists()){
+      const data = snap.data();
+      level        = data.level        || 1;
+      score        = data.score        || 0;
+      patternIndex = data.patternIndex || 0;
+    }
+  } catch(e) {
+    console.log("Load error:", e);
+  }
+  startGame();
 }
 
-function generatePattern() {
-  leftPattern = [];
-  for (let i = 0; i < gridSize * gridSize; i++) {
-    leftPattern.push(Math.random() < 0.5 ? 1 : 0);
+
+/* SAVE */
+// ✅ NEW
+async function saveProgress(){
+  if(!currentUser) return;
+  await setDoc(
+    doc(db, "users", currentUser.uid, "games", "symmetry"),
+    { level, score, patternIndex, lastPlayed: new Date() },
+    { merge: true }
+  );
+}
+
+
+/* UI */
+function updateUI(){
+  levelBar.textContent = `Level ${level}`;
+  scoreEl.textContent = `Score ${score}`;
+  patternNum.textContent = `Pattern ${patternIndex+1} / ${PATTERNS_PER_LEVEL}`;
+}
+
+/* Pattern Logic */
+function generatePattern(){
+  leftPattern=[];
+  for(let i=0;i<gridSize*gridSize;i++){
+    leftPattern.push(Math.random()<0.5?1:0);
   }
 }
 
-function mirrorPattern(pattern) {
-  const mirrored = [];
-  for (let row = 0; row < gridSize; row++) {
-    const start = row * gridSize;
-    const rowArray = pattern.slice(start, start + gridSize).reverse();
-    mirrored.push(...rowArray);
+function mirrorPattern(pattern){
+  const mirrored=[];
+  for(let r=0;r<gridSize;r++){
+    const start=r*gridSize;
+    mirrored.push(...pattern.slice(start,start+gridSize).reverse());
   }
   return mirrored;
 }
 
-function generateRightPattern() {
-  isMirrorCorrect = Math.random() < 0.5;
-  rightPattern = mirrorPattern(leftPattern);
-  if (!isMirrorCorrect) {
-    const flips = Math.max(1, Math.floor(gridSize / 2));
-    for (let i = 0; i < flips; i++) {
-      const idx = Math.floor(Math.random() * rightPattern.length);
-      rightPattern[idx] = 1 - rightPattern[idx];
-    }
+function generateRightPattern(){
+  isMirrorCorrect=Math.random()<0.5;
+  rightPattern=mirrorPattern(leftPattern);
+  if(!isMirrorCorrect){
+    const idx=Math.floor(Math.random()*rightPattern.length);
+    rightPattern[idx]=1-rightPattern[idx];
   }
 }
 
-function renderGrids() {
-  leftGrid.innerHTML = '';
-  rightGrid.innerHTML = '';
-  leftGrid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
-  rightGrid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+function renderGrids(){
+  leftGrid.innerHTML='';
+  rightGrid.innerHTML='';
+  leftGrid.style.gridTemplateColumns=`repeat(${gridSize},1fr)`;
+  rightGrid.style.gridTemplateColumns=`repeat(${gridSize},1fr)`;
 
-  leftPattern.forEach(v => {
-    const tile = document.createElement('div');
-    tile.classList.add('tile');
-    if (v === 0) tile.classList.add('off');
+  leftPattern.forEach(v=>{
+    const tile=document.createElement('div');
+    tile.className='tile'+(v?'' :' off');
     leftGrid.appendChild(tile);
   });
-  rightPattern.forEach(v => {
-    const tile = document.createElement('div');
-    tile.classList.add('tile');
-    if (v === 0) tile.classList.add('off');
+
+  rightPattern.forEach(v=>{
+    const tile=document.createElement('div');
+    tile.className='tile'+(v?'' :' off');
     rightGrid.appendChild(tile);
   });
 }
 
-function checkAnswer(choice) {
-  if ((choice === 'yes' && isMirrorCorrect) || (choice === 'no' && !isMirrorCorrect)) {
+function checkAnswer(choice){
+  if((choice==='yes' && isMirrorCorrect) ||
+     (choice==='no' && !isMirrorCorrect)){
     score++;
-    messageEl.textContent = 'Correct! 🎉';
-  } else {
-    messageEl.textContent = 'Wrong!';
+    messageEl.textContent='Correct!';
+  }else{
+    messageEl.textContent='Wrong!';
   }
-  localStorage.setItem('mm_score', score);
-  setTimeout(nextPattern, 700);
+
+  saveProgress();
+  setTimeout(nextPattern,700);
 }
 
-function nextPattern() {
+function nextPattern(){
   patternIndex++;
-  if (patternIndex >= PATTERNS_PER_LEVEL) {
-    nextLevelBtn.style.display = 'inline-block';
+  if(patternIndex>=PATTERNS_PER_LEVEL){
+    nextLevelBtn.style.display='block';
     return;
   }
-  localStorage.setItem('mm_pattern', patternIndex);
   generatePattern();
   generateRightPattern();
   renderGrids();
   updateUI();
-  messageEl.textContent = '';
+  messageEl.textContent='';
 }
 
-nextLevelBtn.onclick = () => {
-  patternIndex = 0;
+nextLevelBtn.onclick=()=>{
+  patternIndex=0;
   level++;
-  if (level > TOTAL_LEVELS) {
-    alert("🎉 You've completed all levels! Baymax is proud 🤖");
-    level = 1;
-  }
-  gridSize = Math.min(3 + Math.floor(level / 10), 6);
-  localStorage.setItem('mm_level', level);
-  localStorage.setItem('mm_pattern', patternIndex);
-  nextLevelBtn.style.display = 'none';
+  if(level>TOTAL_LEVELS) level=1;
+  gridSize=Math.min(3+Math.floor(level/10),6);
+  nextLevelBtn.style.display='none';
+   saveSession("mirrorMatch", db, currentUser);  // ← add this
+  addXP(db, currentUser, 20);    
+  saveProgress();
+  startGame();
+};
+
+function startGame(){
+  gridSize=Math.min(3+Math.floor(level/10),6);
   generatePattern();
   generateRightPattern();
   renderGrids();
   updateUI();
-  messageEl.textContent = '';
+}
+document.getElementById('resetBtn').onclick = () => {
+  level = 1;
+  generateLevel();
 };
 
-// Event Listeners
-document.getElementById('yesBtn').onclick = () => checkAnswer('yes');
-document.getElementById('noBtn').onclick = () => checkAnswer('no');
+document.getElementById('yesBtn').onclick=()=>checkAnswer('yes');
+document.getElementById('noBtn').onclick=()=>checkAnswer('no');
 
-// Initialize
-updateUI();
-generatePattern();
-generateRightPattern();
-renderGrids();
+
 </script>
+
 
 </body>
 </html>
